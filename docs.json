@@ -61,7 +61,7 @@
               {
                 "group": "Plugin Migration (0.x to 1.x)",
                 "pages": [
-                  "guides/plugin-migration/index",
+                  "guides/plugin-migration/overview",
                   "guides/plugin-migration/migration-guide",
                   "guides/plugin-migration/state-and-providers-guide",
                   "guides/plugin-migration/prompt-and-generation-guide",
