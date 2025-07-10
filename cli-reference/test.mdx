@@ -13,27 +13,24 @@ Run tests for Eliza agent projects and plugins.
     ## Usage
 
     ```bash
-    elizaos test [options] [command]
+    elizaos test [options] [path]
     ```
 
-    ## Subcommands
+    ## Arguments
 
-    | Subcommand | Description |
-    | ---------- | ----------- |
-    | `component` | Run component tests (via Vitest) |
-    | `e2e` | Run end-to-end runtime tests |
-    | `all` | Run both component and e2e tests (default) |
+    | Argument | Description |
+    | -------- | ----------- |
+    | `[path]` | Optional path to project or plugin to test |
 
     ## Options
 
     | Option | Description |
     | ------ | ----------- |
-    | `-p, --port <port>` | Server port for e2e tests |
-    | `-n, --name <n>` | Filter tests by name (matches file names or test suite names) |
+    | `-t, --type <type>` | Type of test to run (choices: "component", "e2e", "all", default: "all") |
+    | `--port <port>` | Server port for e2e tests |
+    | `--name <n>` | Filter tests by name (matches file names or test suite names) |
     | `--skip-build` | Skip building before running tests |
     | `--skip-type-check` | Skip TypeScript type checking for faster test runs |
-    | `--watch` | Enable watch mode to re-run tests on file changes |
-    | `--coverage` | Generate a test coverage report |
   </Tab>
 
   <Tab title="Examples">
@@ -46,23 +43,26 @@ Run tests for Eliza agent projects and plugins.
     elizaos test
 
     # Explicitly run all tests
-    elizaos test all
+    elizaos test --type all
 
     # Run only component tests
-    elizaos test component
+    elizaos test --type component
 
     # Run only end-to-end tests
-    elizaos test e2e
+    elizaos test --type e2e
+
+    # Test a specific project or plugin path
+    elizaos test ./plugins/my-plugin
     ```
 
     ### Test Filtering
 
     ```bash
     # Filter component tests by name
-    elizaos test component --name auth
+    elizaos test --type component --name auth
 
     # Filter e2e tests by name
-    elizaos test e2e --name database
+    elizaos test --type e2e --name database
 
     # Filter all tests by name
     elizaos test --name plugin
@@ -72,19 +72,16 @@ Run tests for Eliza agent projects and plugins.
 
     ```bash
     # Run tests on custom port for e2e
-    elizaos test e2e --port 4000
+    elizaos test --type e2e --port 4000
 
     # Skip building before running tests
     elizaos test --skip-build
 
-    # Generate a test coverage report
-    elizaos test --coverage
-
-    # Run tests in watch mode for continuous development
-    elizaos test --watch
+    # Skip type checking for faster test runs
+    elizaos test --skip-type-check
 
     # Combine options
-    elizaos test e2e --port 3001 --name integration --skip-build
+    elizaos test --type e2e --port 3001 --name integration --skip-build
     ```
 
     ## Test Types
@@ -178,7 +175,7 @@ Run tests for Eliza agent projects and plugins.
     export TEST_PORT=3001
 
     # Run E2E tests
-    elizaos test e2e
+    elizaos test --type e2e
     ```
 
     ## Coverage Reports
@@ -186,13 +183,11 @@ Run tests for Eliza agent projects and plugins.
     Generate and view test coverage:
 
     ```bash
-    # Generate coverage report
-    elizaos test --coverage
+    # Run tests (coverage generation depends on your test configuration)
+    elizaos test
 
-    # Coverage will be available in:
-    # - Terminal output
-    # - HTML report in coverage/ directory
-    # - lcov report for CI integration
+    # Note: Coverage reporting is handled by your test framework configuration,
+    # not by the CLI directly. Configure coverage in your vitest.config.ts
     ```
 
     ## Continuous Integration
@@ -214,7 +209,7 @@ Run tests for Eliza agent projects and plugins.
             run: bun install
           
           - name: Run tests
-            run: elizaos test --coverage
+            run: elizaos test
           
           - name: Upload coverage
             uses: codecov/codecov-action@v3
@@ -242,7 +237,7 @@ Run tests for Eliza agent projects and plugins.
 
     - Use `--skip-build` during development for faster feedback
     - Run focused tests with `--name` filter
-    - Use `--watch` mode for TDD workflow
+    - Use `--skip-type-check` for faster test runs when type safety is already verified
     - Parallelize tests when possible
 
     ### 4. Coverage Goals
