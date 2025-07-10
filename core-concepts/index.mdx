@@ -3,63 +3,79 @@ title: 'Core Concepts'
 description: 'The building blocks of elizaOS'
 ---
 
-elizaOS has three main concepts:
+## Building Blocks
 
 <CardGroup cols={3}>
   <Card title="Agents" icon="robot" href="/core-concepts/agents">
-    AI personalities that interact with users
+    AI personalities with memory
   </Card>
   <Card title="Plugins" icon="puzzle" href="/core-concepts/plugins">
-    Extensions that add capabilities
+    Extend capabilities
   </Card>
   <Card title="Projects" icon="folder-tree" href="/core-concepts/projects">
-    Collections of agents and plugins
+    Deploy applications
   </Card>
 </CardGroup>
 
-## How it Works
+## Architecture Overview
 
 ```mermaid
 graph LR
-    User --> Agent
-    Agent --> Plugins
-    Plugins --> Actions[Actions/Providers/Evaluators]
+    User[User Input] --> Runtime[AgentRuntime]
+    Runtime --> Plugins
+    Plugins --> Actions[Actions]
     Actions --> Response
-    Response --> User
+    Response --> Evaluators
+    Evaluators --> User
+    
+    Providers --> Runtime
+    Services -.-> Runtime
 ```
 
-## Quick Example
+## Complete Example
 
-An agent using plugins:
+```typescript
+import { Character } from '@elizaos/core';
 
-```json
-{
-  "name": "MyAgent",
-  "plugins": [
-    "@elizaos/plugin-discord",
-    "@elizaos/plugin-twitter"
+export const character: Character = {
+  name: "Assistant",
+  bio: "A helpful AI agent",
+  plugins: [
+    "@elizaos/plugin-bootstrap",     // Core functionality
+    "@elizaos/plugin-discord",       // Discord integration
+    "plugin-web-search"              // Web search capability
   ]
-}
+};
 ```
 
-Plugins provide:
-- **Actions** - Things agents can do (send messages, query data)
-- **Providers** - Data sources (weather, time, knowledge)
-- **Evaluators** - Response filters (safety, quality)
-- **Services** - Background tasks (scheduled posts, monitoring)
+## Plugin Components
 
-## Next Steps
+| Component | Purpose | Example |
+|-----------|---------|--------|
+| **Actions** | Tasks to perform | Send message, fetch data |
+| **Providers** | Supply context | Time, user info, knowledge |
+| **Evaluators** | Process responses | Extract facts, filter content |
+| **Services** | Background tasks | Scheduled posts, monitoring |
+
+## Getting Started
 
 <Steps>
-  <Step title="Learn about Agents">
-    Create AI personalities with custom behaviors
+  <Step title="Define an Agent">
+    Create your character configuration
   </Step>
   
-  <Step title="Explore Plugins">
-    Add capabilities like Discord, Twitter, or web search
+  <Step title="Add Plugins">
+    Enable capabilities you need
   </Step>
   
-  <Step title="Build Projects">
-    Combine multiple agents for complex systems
+  <Step title="Deploy">
+    Run locally or in production
   </Step>
 </Steps>
+
+## Learn More
+
+- **New to elizaOS?** Start with [Agents](/core-concepts/agents)
+- **Building features?** Explore [Plugins](/core-concepts/plugins)
+- **Ready to deploy?** Check [Projects](/core-concepts/projects)
+- **Want details?** Dive into [Architecture](/deep-dive/architecture)

@@ -5,159 +5,133 @@ description: 'Assess and filter agent responses'
 
 ## What are Evaluators?
 
-Evaluators check agent responses before they're sent to users. They can filter content, assess quality, and ensure safety.
+Evaluators = post-processors that analyze and extract information from conversations.
 
-## Evaluator Structure
+## Evaluator Interface
+
+```typescript
+interface Evaluator {
+  name: string;              // Unique identifier
+  description: string;       // What it evaluates
+  similes?: string[];       // Alternative names
+  alwaysRun?: boolean;      // Run on every message?
+  examples: EvaluationExample[];  // Training examples
+  validate: Validator;       // Should this run?
+  handler: Handler;          // Process the response
+}
+```
+
+## Core Evaluators (Bootstrap Plugin)
+
+| Evaluator | Purpose | Extracts |
+|-----------|---------|----------|
+| `reflectionEvaluator` | Self-awareness | Insights about interactions |
+| `factEvaluator` | Fact extraction | Important information |
+| `goalEvaluator` | Goal tracking | User objectives |
+
+## Plugin Evaluator Examples
+
+| Evaluator | Plugin | Purpose |
+|-----------|--------|---------|
+| `sentimentEvaluator` | plugin-sentiment | Track conversation mood |
+| `toxicityEvaluator` | plugin-moderation | Filter harmful content |
+| `tokenPriceEvaluator` | plugin-dexscreener | Detect price queries |
+| `summaryEvaluator` | plugin-knowledge | Summarize conversations |
+
+## Evaluator Flow
+
+```mermaid
+graph LR
+    Response[Agent Response] --> Validate[validate()]
+    Validate -->|true| Handler[handler()]
+    Validate -->|false| Skip[Skip]
+    Handler --> Extract[Extract Info]
+    Extract --> Store[Store in Memory]
+    Store --> Continue[Continue]
+    Skip --> Continue
+```
+
+## Common Use Cases
+
+<Tabs>
+  <Tab title="Memory Building">
+    - Extract facts from conversations
+    - Track user preferences
+    - Update relationship status
+    - Record important events
+  </Tab>
+  
+  <Tab title="Content Filtering">
+    - Remove sensitive data
+    - Filter profanity
+    - Ensure compliance
+    - Validate accuracy
+  </Tab>
+  
+  <Tab title="Analytics">
+    - Track sentiment
+    - Measure engagement
+    - Monitor topics
+    - Analyze patterns
+  </Tab>
+</Tabs>
+
+## Creating Evaluators
+
+### Basic Evaluator
 
 ```typescript
 const evaluator: Evaluator = {
-  name: 'evaluator-name',
-  description: 'What this evaluator checks',
+  name: 'my-evaluator',
+  description: 'Processes responses',
+  examples: [],  // Training examples
   
   validate: async (runtime, message) => {
-    // Should this evaluator run?
-    return true;
+    return true;  // Run on all messages
   },
   
   handler: async (runtime, message) => {
-    // Extract info or modify response
+    // Process and extract
+    const result = await analyze(message);
+    // Store findings
+    await storeResult(result);
+    return result;
   }
 };
 ```
 
-## Bootstrap Evaluators
-
-The core plugin includes:
-
-- `reflectionEvaluator` - Enables self-awareness and learning from interactions
-
-## Real Evaluator Examples
-
-### Fact Evaluator
-
-Extracts facts from conversations:
+### With Examples
 
 ```typescript
-handler: async (runtime, message) => {
-  const facts = await generateObjectArray({
-    runtime,
-    context,
-    modelClass: ModelClass.LARGE
-  });
-  
-  // Store new facts
-  for (const fact of facts) {
-    await factsManager.addEmbeddingToMemory({
-      content: { text: fact },
-      roomId: message.roomId
-    });
-  }
-  
-  return facts;
-}
-```
-
-### Goal Evaluator
-
-Updates agent goals based on conversation:
-
-```typescript
-handler: async (runtime, message) => {
-  // Analyze conversation for goal updates
-  const updates = await generateText({
-    runtime,
-    context: goalContext
-  });
-  
-  // Update goals in database
-  for (const goal of updatedGoals) {
-    await runtime.databaseAdapter.updateGoal(goal);
-  }
-  
-  return updatedGoals;
-}
-```
-
-### Message Evaluators (from DexScreener plugin)
-
-```
-TokenPriceEvaluator - Evaluates messages for token price requests
-- Detects price-related keywords
-- Identifies token addresses and symbols
-- Supports multiple formats (0x addresses, $TOKEN)
-```
-
-## How Evaluators Work
-
-1. Agent generates a response
-2. Each evaluator's `validate()` checks if it should run
-3. If valid, `handler()` executes
-4. Results stored in memory for future use
-
-## Common Evaluator Types
-
-### Content Filters
-- Profanity detection
-- Sensitive information
-- Safety checks
-
-### Quality Checks
-- Relevance scoring
-- Accuracy validation
-- Completeness
-
-### Memory Building
-- Fact extraction
-- Relationship tracking
-- Goal updates
-
-## Creating an Evaluator
-
-Simple example:
-
-```typescript
-const sentimentEvaluator: Evaluator = {
-  name: 'sentiment',
-  
-  validate: async (runtime, message) => {
-    // Run on all messages
-    return true;
-  },
-  
-  handler: async (runtime, message) => {
-    const sentiment = analyzeSentiment(message.content);
-    
-    // Store sentiment
-    await runtime.databaseAdapter.createMemory({
-      type: 'sentiment',
-      content: { 
-        text: message.content,
-        sentiment: sentiment
-      }
-    });
-    
-    return sentiment;
+const evaluator: Evaluator = {
+  name: 'fact-extractor',
+  description: 'Extracts facts from conversations',
+  examples: [{
+    prompt: 'Extract facts from this conversation',
+    messages: [
+      { name: 'user', content: { text: 'I live in NYC' } },
+      { name: 'agent', content: { text: 'NYC is a great city!' } }
+    ],
+    outcome: 'User lives in New York City'
+  }],
+  validate: async () => true,
+  handler: async (runtime, message, state) => {
+    const facts = await extractFacts(state);
+    for (const fact of facts) {
+      await runtime.factsManager.addFact(fact);
+    }
+    return facts;
   }
 };
-```
-
-## Temporal Tracking
-
-Evaluators can track changes over time:
-
-```
-t0: 'Looking for a job'(status)
-t1: 'Got a new job'(fact)
-t2: 'Been at job for 3 months'(status)
 ```
 
 ## Best Practices
 
-- Keep evaluation logic focused
-- Don't block responses unnecessarily
-- Store extracted information for future use
-- Run quickly to avoid delays
-- Handle errors gracefully
+- Run evaluators async (don't block responses)
+- Store extracted data for future context
+- Use `alwaysRun: true` sparingly
+- Provide clear examples for training
+- Keep handlers lightweight
 
 ## Next Steps
 

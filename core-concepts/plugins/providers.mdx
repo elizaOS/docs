@@ -5,171 +5,123 @@ description: 'Supply data to agents'
 
 ## What are Providers?
 
-Providers supply data and context to agents - like current time, user information, or external data.
+Providers = data sources that supply context for agent decision-making.
 
-## Provider Structure
+## Provider Interface
+
+```typescript
+interface Provider {
+  name: string;           // Unique identifier
+  description?: string;   // What it provides
+  dynamic?: boolean;      // Changes over time?
+  position?: number;      // Load priority (-100 to 100)
+  private?: boolean;      // Hidden from provider list?
+  get: (runtime, message, state) => Promise<ProviderResult>;
+}
+```
+
+## Core Providers (Bootstrap Plugin)
+
+| Provider | Returns | Example Use |
+|----------|---------|-------------|
+| `characterProvider` | Agent personality | Name, bio, traits |
+| `timeProvider` | Current date/time | "What time is it?" |
+| `knowledgeProvider` | Knowledge base | Documentation, facts |
+| `recentMessagesProvider` | Chat history | Context awareness |
+| `actionsProvider` | Available actions | "What can you do?" |
+| `factsProvider` | Stored facts | User preferences |
+| `settingsProvider` | Configuration | Model settings |
+
+## Plugin Provider Examples
+
+<Tabs>
+  <Tab title="Finance">
+    | Provider | Plugin | Returns |
+    |----------|--------|---------|
+    | `walletProvider` | plugin-sei | Balance, portfolio |
+    | `marketProvider` | plugin-arbitrage | Price feeds |
+    | `tokenPriceProvider` | plugin-dexscreener | Token prices, liquidity |
+  </Tab>
+  
+  <Tab title="Platform">
+    | Provider | Plugin | Returns |
+    |----------|--------|---------|
+    | `userProvider` | plugin-discord | User info, roles |
+    | `channelProvider` | plugin-telegram | Channel data |
+    | `serverProvider` | plugin-discord | Server settings |
+  </Tab>
+  
+  <Tab title="Data">
+    | Provider | Plugin | Returns |
+    |----------|--------|---------|
+    | `searchProvider` | plugin-web-search | Search results |
+    | `documentProvider` | plugin-obsidian | Note content |
+    | `queryProvider` | plugin-sql | Database results |
+  </Tab>
+</Tabs>
+
+## Creating Providers
+
+### Basic Provider
 
 ```typescript
 const provider: Provider = {
-  name: 'PROVIDER_NAME',
-  description: 'What this provider supplies',
+  name: 'MY_DATA',
   get: async (runtime, message, state) => {
-    // Return data
-    return data;
-  }
-};
-```
-
-## Bootstrap Providers
-
-Every agent has these built-in providers:
-
-- `characterProvider` - Agent's personality and config
-- `timeProvider` - Current date and time
-- `knowledgeProvider` - Knowledge base facts
-- `recentMessagesProvider` - Recent conversation history
-- `actionsProvider` - Available actions
-- `factsProvider` - Stored facts from memory
-- `settingsProvider` - Configuration settings
-
-## Real Provider Examples
-
-### Time Provider
-
-```typescript
-const timeProvider: Provider = {
-  name: 'TIME',
-  description: 'Current time and date',
-  get: async () => {
     return {
-      time: new Date().toLocaleString()
+      text: "Contextual information",
+      data: { key: "value" }
     };
   }
 };
 ```
 
-### Wallet Provider (from Sei plugin)
-
-```
-walletProvider - Manages wallet interactions
-- Balance queries
-- Portfolio tracking
-- Transaction history
-```
-
-### Market Provider (from Arbitrage plugin)
-
-```
-marketProvider - Real-time market data
-- Price feeds
-- Arbitrage opportunities
-- Market conditions
-```
-
-### Token Price Provider (from DexScreener plugin)
-
-```
-TokenPriceProvider - Token price data
-- Current price in USD
-- Liquidity information
-- 24h volume data
-- Auto-selects best pair by liquidity
-```
-
-## How Providers Work
-
-1. Agent needs data during processing
-2. Provider's `get()` method is called
-3. Data is included in agent's context
-4. Agent uses data to generate response
-
-## Creating a Provider
-
-Simple example:
+### Dynamic Provider
 
 ```typescript
-const weatherProvider: Provider = {
-  name: 'WEATHER',
-  description: 'Current weather conditions',
-  
-  get: async (runtime, message) => {
-    const location = extractLocation(message.content);
-    const weather = await fetchWeather(location);
-    
-    return {
-      temperature: weather.temp,
-      conditions: weather.conditions
-    };
+const dynamicProvider: Provider = {
+  name: 'LIVE_DATA',
+  dynamic: true,  // Re-fetched each time
+  get: async (runtime) => {
+    const data = await fetchLatestData();
+    return { data };
   }
 };
 ```
 
-With caching:
+### Private Provider
 
 ```typescript
-const cachedProvider: Provider = {
-  name: 'CACHED_DATA',
-  cache: new Map(),
-  
-  get: async (runtime, message) => {
-    const key = message.roomId;
-    
-    // Check cache
-    if (cache.has(key)) {
-      return cache.get(key);
-    }
-    
-    // Fetch fresh data
-    const data = await fetchData();
-    cache.set(key, data);
-    
-    return data;
+const secretProvider: Provider = {
+  name: 'INTERNAL_STATE',
+  private: true,  // Not shown in provider list
+  get: async (runtime) => {
+    return runtime.getInternalState();
   }
 };
 ```
 
-## Common Provider Patterns
-
-### Database Provider
+## Provider Return Format
 
 ```typescript
-get: async (runtime) => {
-  const memories = await runtime.databaseAdapter.getMemories({
-    limit: 10
-  });
-  return { memories };
-}
-```
-
-### API Provider
-
-```typescript
-get: async () => {
-  const response = await fetch('https://api.example.com/data');
-  return await response.json();
-}
-```
-
-### Real-time Provider
-
-```typescript
-get: async () => {
-  const socket = getWebSocket();
-  const latestData = socket.getLatestData();
-  return { data: latestData };
+interface ProviderResult {
+  text?: string;      // Natural language context
+  data?: {           // Structured data
+    [key: string]: any;
+  };
+  values?: {         // Key-value pairs
+    [key: string]: any;
+  };
 }
 ```
 
 ## Provider Priority
 
-Providers can have a position to control order:
-
 ```typescript
-const importantProvider: Provider = {
-  name: 'IMPORTANT',
-  position: -1, // High priority
-  get: async () => ({ critical: 'data' })
-};
+// Lower numbers = higher priority
+position: -100  // Loads first
+position: 0     // Default
+position: 100   // Loads last
 ```
 
 ## Best Practices

@@ -5,93 +5,76 @@ description: 'Things agents can do'
 
 ## What are Actions?
 
-Actions are tasks that agents can perform - like sending messages, fetching data, or executing trades.
+Actions = discrete tasks agents can perform.
 
-## Action Structure
+## Action Interface
+
+```typescript
+interface Action {
+  name: string;              // Unique identifier
+  description: string;       // What it does
+  similes?: string[];       // Alternative names
+  examples?: ActionExample[][];  // Usage examples
+  validate: Validator;       // Can this run?
+  handler: Handler;          // Execute the action
+}
+```
+
+## Core Actions (Bootstrap Plugin)
+
+| Action | Description | Example Trigger |
+|--------|-------------|----------------|
+| `REPLY` | Generate response | "Tell me about..." |
+| `SEND_MESSAGE` | Send to specific room | "Message the team..." |
+| `UPDATE_ENTITY` | Update data | "Remember that I..." |
+| `CHOICE` | Present options | "Should I A or B?" |
+| `IGNORE` | Skip message | Spam/irrelevant |
+| `NONE` | Acknowledge | "Thanks!" |
+
+## Plugin Action Examples
+
+<Tabs>
+  <Tab title="Trading">
+    | Action | Plugin | Example |
+    |--------|--------|--------|
+    | `GET_PRICE` | plugin-binance | "BTC price?" |
+    | `EXECUTE_TRADE` | plugin-binance | "Buy 0.1 BTC" |
+    | `TOKEN_PRICE` | plugin-dexscreener | "Price of $PEPE" |
+  </Tab>
+  
+  <Tab title="Social">
+    | Action | Plugin | Example |
+    |--------|--------|--------|
+    | `POST_TWEET` | plugin-twitter | "Tweet: GM!" |
+    | `SEND_MESSAGE` | plugin-discord | "Tell #general..." |
+    | `REPLY` | plugin-telegram | Auto-replies |
+  </Tab>
+  
+  <Tab title="Data">
+    | Action | Plugin | Example |
+    |--------|--------|--------|
+    | `WEB_SEARCH` | plugin-web-search | "Search for..." |
+    | `SCRAPE_URL` | plugin-firecrawl | "Get content from..." |
+    | `QUERY_DB` | plugin-sql | "Find users where..." |
+  </Tab>
+</Tabs>
+
+## Creating Actions
+
+### Minimal Action
 
 ```typescript
 const action: Action = {
-  name: 'ACTION_NAME',
-  description: 'What this action does',
-  handler: async (runtime, message, state) => {
-    // Do something
-    return result;
-  }
-};
-```
-
-## Real Action Examples
-
-### Bootstrap Plugin Actions
-
-The core plugin includes these actions:
-
-- `REPLY` - Generate and send a response
-- `SEND_MESSAGE` - Send a message to a room
-- `UPDATE_ENTITY` - Update entity properties
-- `CHOICE` - Present choices to users
-- `IGNORE` - Explicitly ignore a message
-- `NONE` - Acknowledge without action
-
-### Binance Plugin Actions
-
-```
-GET_PRICE - Check cryptocurrency prices
-  Examples: "What's the price of BTC?"
-
-EXECUTE_SPOT_TRADE - Execute trades
-  Examples: "Buy 0.1 BTC at market price"
-
-GET_SPOT_BALANCE - Check balances
-  Examples: "Show my wallet balance"
-```
-
-### Twitter Plugin Actions
-
-```
-POST_TWEET - Post to Twitter
-REPLY_TO_TWEET - Reply to mentions
-LIKE_TWEET - Like tweets
-RETWEET - Retweet posts
-```
-
-### DexScreener Plugin Actions
-
-```
-GET_TOKEN_PRICE - Get token prices
-  Aliases: FETCH_TOKEN_PRICE, CHECK_TOKEN_PRICE
-  Returns: price, liquidity, 24h volume
-
-GET_LATEST_TOKENS - Get new token listings
-GET_TOP_BOOSTED_TOKENS - Get most boosted tokens
-```
-
-## How Actions Work
-
-1. User sends a message
-2. Agent determines which action to use
-3. Action handler executes
-4. Result is returned to user
-
-## Creating an Action
-
-Simple example:
-
-```typescript
-const greetAction: Action = {
-  name: 'GREET',
-  description: 'Greet the user',
-  
+  name: 'MY_ACTION',
+  description: 'Does something',
+  validate: async () => true,
   handler: async (runtime, message) => {
-    const userName = message.userId;
-    return {
-      text: `Hello, ${userName}!`
-    };
+    return { text: "Done!" };
   }
 };
 ```
 
-With validation:
+### With Validation
 
 ```typescript
 const sendTokenAction: Action = {
@@ -99,17 +82,14 @@ const sendTokenAction: Action = {
   description: 'Send tokens to address',
   
   validate: async (runtime, message) => {
-    // Check if message contains address
-    return message.content.includes('0x');
+    return message.content.includes('send') && 
+           message.content.includes('0x');
   },
   
-  handler: async (runtime, message, state) => {
+  handler: async (runtime, message) => {
     const address = extractAddress(message.content);
     const amount = extractAmount(message.content);
-    
-    // Send token logic
-    const result = await sendToken(address, amount);
-    
+    await sendToken(address, amount);
     return {
       text: `Sent ${amount} tokens to ${address}`
     };
@@ -117,60 +97,60 @@ const sendTokenAction: Action = {
 };
 ```
 
-## Action Examples in Use
+### With Examples
 
 ```typescript
-// In a plugin
-export const myPlugin: Plugin = {
-  name: 'my-plugin',
-  actions: [
-    greetAction,
-    sendTokenAction
-  ]
+const action: Action = {
+  name: 'WEATHER',
+  description: 'Get weather info',
+  examples: [[
+    { name: "user", content: { text: "What's the weather?" } },
+    { name: "agent", content: { text: "Let me check the weather for you." } }
+  ]],
+  validate: async (runtime, message) => {
+    return message.content.toLowerCase().includes('weather');
+  },
+  handler: async (runtime, message) => {
+    const weather = await fetchWeather();
+    return { text: `It's ${weather.temp}°C and ${weather.condition}` };
+  }
 };
 ```
 
-## Common Action Patterns
-
-### API Calls
+## Handler Patterns
 
 ```typescript
-handler: async (runtime, message) => {
-  const response = await fetch('https://api.example.com/data');
-  const data = await response.json();
-  return { data };
+// Using callbacks
+handler: async (runtime, message, state, options, callback) => {
+  const result = await doWork();
+  if (callback) {
+    await callback({ text: result }, []);
+  }
+  return result;
 }
-```
 
-### Database Operations
-
-```typescript
+// Using services
 handler: async (runtime, message) => {
-  const result = await runtime.databaseAdapter.getMemories({
-    roomId: message.roomId,
-    limit: 10
+  const service = runtime.getService<TwitterService>('twitter');
+  return service.post(message.content);
+}
+
+// Using database
+handler: async (runtime, message) => {
+  const memories = await runtime.databaseAdapter.searchMemories({
+    query: message.content,
+    limit: 5
   });
-  return { memories: result };
+  return { memories };
 }
-```
-
-### External Services
-
-```typescript
-handler: async (runtime, message) => {
-  const service = runtime.getService('twitter');
-  await service.post(message.content);
-  return { success: true };
-}
-```
 
 ## Best Practices
 
-- Use clear, descriptive action names
-- Always return a result
-- Handle errors gracefully
-- Validate inputs before executing
-- Keep actions focused on one task
+- Name actions clearly (VERB_NOUN format)
+- Validate before executing
+- Return consistent response format
+- Use similes for alternative triggers
+- Provide diverse examples
 
 ## Next Steps
 

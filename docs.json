@@ -35,6 +35,20 @@
             ]
           },
           {
+            "group": "Deep Dive",
+            "pages": [
+              "deep-dive/architecture",
+              "deep-dive/runtime",
+              "deep-dive/memory-system",
+              "deep-dive/services",
+              "deep-dive/database-adapters",
+              "deep-dive/event-system",
+              "deep-dive/model-providers",
+              "deep-dive/real-world-patterns",
+              "deep-dive/testing"
+            ]
+          },
+          {
             "group": "Essentials",
             "pages": [
               "essentials/markdown",

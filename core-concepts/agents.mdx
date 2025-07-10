@@ -5,39 +5,29 @@ description: 'AI personalities in elizaOS'
 
 ## What are Agents?
 
-Agents are AI personalities that can chat, perform actions, and remember context. Each agent is defined by a character configuration that specifies their personality, knowledge, behavior patterns, and capabilities.
+Agents = AI personalities with memory, actions, and unique behaviors.
 
-## Character Structure
+## Character Interface
 
-A character is the blueprint for an agent, containing all the configuration needed to define its personality and behavior:
+The complete TypeScript interface for agents:
 
-```typescript
-interface Character {
-  // Required fields
-  name: string;              // Agent's display name
-  bio: string | string[];    // Biography/description
-  
-  // Optional fields
-  id?: string;               // Unique identifier (UUID)
-  username?: string;         // Username handle
-  system?: string;           // System prompt override
-  
-  // Behavior & Examples
-  messageExamples?: MessageExample[][];  // 2D array of conversations
-  postExamples?: string[];              // Example social media posts
-  
-  // Knowledge & Traits  
-  topics?: string[];         // Topics of expertise
-  adjectives?: string[];     // Personality traits
-  knowledge?: Knowledge[];   // Knowledge base items
-  
-  // Configuration
-  plugins?: string[];        // Enabled plugins
-  settings?: Settings;       // Runtime settings
-  secrets?: Secrets;         // Secure configuration
-  
-  // Style Guidelines
-  style?: {
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | ✅ | Agent's display name |
+| `bio` | string \| string[] | ✅ | Background/personality description |
+| `adjectives` | string[] | ❌ | Character traits (e.g., "helpful", "creative") |
+| `topics` | string[] | ❌ | Conversation topics the agent knows |
+| `knowledge` | array | ❌ | Facts, files, or directories of knowledge |
+| `messageExamples` | array[][] | ❌ | Example conversations (2D array) |
+| `postExamples` | string[] | ❌ | Example social media posts |
+| `style` | object | ❌ | Writing style for different contexts |
+| `plugins` | string[] | ❌ | Enabled plugin packages |
+| `settings` | object | ❌ | Configuration values |
+| `secrets` | object | ❌ | Sensitive configuration |
+| `id` | UUID | ❌ | Unique identifier |
+| `username` | string | ❌ | Social media username |
+| `system` | string | ❌ | System prompt override |
+| `templates` | object | ❌ | Custom prompt templates |
     all?: string[];        // General style rules
     chat?: string[];       // Chat-specific style
     post?: string[];       // Post-specific style
@@ -48,105 +38,97 @@ interface Character {
 }
 ```
 
-## Key Properties
-
-<AccordionGroup>
-  <Accordion title="name & bio">
-    **name** (required): The agent's display name
-    
-    **bio** (required): Biography or description of the agent. Can be a single string or array of strings describing different aspects of the agent's background.
-  </Accordion>
-  
-  <Accordion title="adjectives & topics">
-    **adjectives**: Array of personality traits (e.g., "helpful", "creative", "analytical")
-    
-    **topics**: Areas of expertise or interest the agent can discuss knowledgeably
-  </Accordion>
-  
-  <Accordion title="messageExamples">
-    Conversation examples that teach the agent communication patterns. Structure:
-    ```json
-    [
-      [
-        {"name": "User", "content": {"text": "Hello!"}},
-        {"name": "Agent", "content": {"text": "Hi there! How can I help?"}}  
-      ],
-      [
-        {"name": "User", "content": {"text": "What do you do?"}},
-        {"name": "Agent", "content": {"text": "I assist with various tasks."}}  
-      ]
-    ]
-    ```
-  </Accordion>
-  
-  <Accordion title="knowledge">
-    The agent's knowledge base. Can include:
-    - Simple strings: `"I am an AI assistant"`
-    - File references: `{"path": "./knowledge/faq.md"}`
-    - Directories: `{"directory": "./knowledge/docs", "shared": true}`
-  </Accordion>
-  
-  <Accordion title="style">
-    Writing style guidelines for different contexts:
-    - **all**: General style rules applied everywhere
-    - **chat**: Style specific to conversations
-    - **post**: Style for social media posts
-  </Accordion>
-  
-  <Accordion title="plugins">
-    Array of plugin names to enable capabilities:
-    ```json
-    [
-      "@elizaos/plugin-discord",
-      "@elizaos/plugin-twitter",
-      "@elizaos/plugin-web-search"
-    ]
-    ```
-  </Accordion>
-  
-  <Accordion title="settings & secrets">
-    **settings**: General configuration values
-    ```json
-    {
-      "voice": {"model": "en_US-male-medium"},
-      "responseMode": "detailed"
-    }
-    ```
-    
-    **secrets**: Sensitive configuration (API keys, etc.)
-    ```json
-    {
-      "OPENAI_API_KEY": "sk-...",
-      "DISCORD_TOKEN": "..."
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
-
-## Runtime Agent Type
-
-When a character is loaded into the system, it becomes an `Agent` with additional runtime properties:
+## Working Example
 
 ```typescript
+export const character: Character = {
+  name: "Eliza",
+  bio: [
+    "Helpful AI assistant",
+    "Expert in technical topics",
+    "Friendly conversationalist"
+  ],
+  adjectives: ["helpful", "knowledgeable", "friendly"],
+  topics: ["technology", "programming", "general knowledge"],
+  
+  // 2D array: each sub-array is a conversation
+  messageExamples: [[
+    {
+      name: "{{user}}",
+      content: { text: "Can you help me debug this?" }
+    },
+    {
+      name: "Eliza",
+      content: { text: "I'd be happy to help! Can you share the error message?" }
+    }
+  ]],
+  
+  style: {
+    all: ["be concise", "use examples"],
+    chat: ["be conversational"],
+    post: ["use emojis sparingly"]
+  },
+  
+  // Plugins loaded based on environment
+  plugins: [
+    "@elizaos/plugin-bootstrap", // Core functionality
+    ...(process.env.DISCORD_API_TOKEN ? ["@elizaos/plugin-discord"] : []),
+    ...(process.env.OPENAI_API_KEY ? ["@elizaos/plugin-openai"] : [])
+  ]
+};
+```
+
+## Knowledge Configuration
+
+```typescript
+// String facts
+knowledge: ["I am an AI assistant", "I help with coding"]
+
+// File references
+knowledge: [{path: "./knowledge/faq.md", shared: true}]
+
+// Directory import
+knowledge: [{directory: "./knowledge/", extensions: [".md", ".txt"]}]
+```
+
+## Memory & Runtime
+
+Agents remember:
+- Recent conversations
+- Important facts about users
+- Context from previous interactions
+
+At runtime, characters become `Agent` instances with status tracking:
+```typescript
 interface Agent extends Character {
-  enabled?: boolean;        // Whether agent is active
-  status?: AgentStatus;     // 'active' | 'inactive'
-  createdAt: number;        // Timestamp created
-  updatedAt: number;        // Last update timestamp
+  enabled?: boolean;
+  status?: 'active' | 'inactive';
+  createdAt: number;
+  updatedAt: number;
 }
 ```
 
-## Memory
+## Character Definition
 
-Agents maintain several types of memory:
-- **Messages**: Recent conversations with context
-- **Facts**: Important information about users and topics
-- **Documents**: Loaded knowledge that can be searched
-- **Relationships**: Connections between entities
+Characters can be defined in TypeScript (recommended) or JSON:
 
-## Complete Character Example
-
-```json
+<Tabs>
+  <Tab title="TypeScript (Recommended)">
+    ```typescript
+    import { Character } from '@elizaos/core';
+    
+    export const character: Character = {
+      name: "TechHelper",
+      bio: [
+        "AI assistant specialized in technology",
+        "Expert in web development"
+      ],
+      // ... rest of configuration
+    };
+    ```
+  </Tab>
+  <Tab title="JSON">
+    ```json
 {
   "name": "TechHelper",
   "bio": [
@@ -217,59 +199,40 @@ Agents maintain several types of memory:
 }
 ```
 
+  </Tab>
+</Tabs>
+
 ## Creating an Agent
 
 <Steps>
-  <Step title="Create character file">
-    Create a JSON file with your character configuration:
-    ```bash
-    touch my-agent.json
-    ```
+  <Step title="Define your character">
+    Create `character.ts` or `character.json`
   </Step>
   
-  <Step title="Define character properties">
-    Add required fields (name, bio) and customize behavior with optional properties
-  </Step>
-  
-  <Step title="Add plugins for capabilities">
-    ```json
-    "plugins": [
-      "@elizaos/plugin-discord",
-      "@elizaos/plugin-twitter"
+  <Step title="Add plugins">
+    ```typescript
+    plugins: [
+      "@elizaos/plugin-bootstrap",
+      "@elizaos/plugin-discord" 
     ]
     ```
   </Step>
   
-  <Step title="Configure settings">
-    Add environment-specific settings and secrets for API keys
-  </Step>
-  
   <Step title="Start the agent">
     ```bash
-    elizaos start --character my-agent.json
+    elizaos start
     ```
   </Step>
 </Steps>
 
 ## Best Practices
 
-### Character Design
-- **Bio**: Write clear, multi-faceted descriptions that capture different aspects of the agent
-- **Adjectives**: Choose 5-10 consistent personality traits that shape behavior
-- **Message Examples**: Provide 5-10 diverse conversation examples showing different scenarios
-- **Style**: Define clear writing guidelines for consistency across contexts
-
-### Knowledge Management
-- Use simple strings for core facts about the agent
-- Use file references for detailed documentation
-- Use directories for large knowledge bases
-- Mark shared knowledge that multiple agents can access
-
-### Configuration
-- Keep secrets in environment variables, not in the character file
-- Use settings for non-sensitive configuration
-- Test with minimal plugins first, then add more as needed
-- Document any custom templates you create
+- Keep personality traits consistent
+- Provide diverse message examples
+- Focus knowledge on the agent's purpose
+- Test conversations before deploying
+- Use TypeScript for better type safety
+- Load plugins conditionally based on environment
 
 ## Next Steps
 
