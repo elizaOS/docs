@@ -46,8 +46,8 @@
                   "deep-dive/plugin-internals",
                   {
                     "group": "Bootstrap Plugin",
-                    "href": "deep-dive/bootstrap/index",
                     "pages": [
+                      "deep-dive/bootstrap/index",
                       "deep-dive/bootstrap/complete-documentation",
                       "deep-dive/bootstrap/message-flow",
                       "deep-dive/bootstrap/examples",
@@ -56,8 +56,8 @@
                   },
                   {
                     "group": "SQL Plugin",
-                    "href": "deep-dive/sql-plugin/index",
                     "pages": [
+                      "deep-dive/sql-plugin/index",
                       "deep-dive/sql-plugin/database-adapters",
                       "deep-dive/sql-plugin/schema-management",
                       "deep-dive/sql-plugin/plugin-tables",
@@ -66,8 +66,8 @@
                   },
                   {
                     "group": "LLM Plugins",
-                    "href": "deep-dive/plugins/llm-plugins/index",
                     "pages": [
+                      "deep-dive/plugins/llm-plugins/index",
                       "deep-dive/plugins/llm-plugins/openai",
                       "deep-dive/plugins/llm-plugins/anthropic",
                       "deep-dive/plugins/llm-plugins/google-genai",
@@ -81,8 +81,8 @@
                     "pages": [
                       {
                         "group": "Discord",
-                        "href": "deep-dive/platform-plugins/discord/index",
                         "pages": [
+                          "deep-dive/platform-plugins/discord/index",
                           "deep-dive/platform-plugins/discord/complete-documentation",
                           "deep-dive/platform-plugins/discord/event-flow",
                           "deep-dive/platform-plugins/discord/examples",
@@ -91,8 +91,8 @@
                       },
                       {
                         "group": "Telegram",
-                        "href": "deep-dive/platform-plugins/telegram/index",
                         "pages": [
+                          "deep-dive/platform-plugins/telegram/index",
                           "deep-dive/platform-plugins/telegram/complete-documentation",
                           "deep-dive/platform-plugins/telegram/message-flow",
                           "deep-dive/platform-plugins/telegram/examples",
@@ -101,8 +101,8 @@
                       },
                       {
                         "group": "Twitter",
-                        "href": "deep-dive/platform-plugins/twitter/index",
                         "pages": [
+                          "deep-dive/platform-plugins/twitter/index",
                           "deep-dive/platform-plugins/twitter/complete-documentation",
                           "deep-dive/platform-plugins/twitter/timeline-flow",
                           "deep-dive/platform-plugins/twitter/examples",
