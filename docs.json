@@ -11,7 +11,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Docs",
         "groups": [
           {
             "group": "Get Started",
@@ -40,6 +40,7 @@
               "deep-dive/architecture",
               "deep-dive/runtime",
               "deep-dive/services",
+              "deep-dive/plugin-internals",
               "deep-dive/real-world-patterns"
             ]
           },

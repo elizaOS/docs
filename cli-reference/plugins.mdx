@@ -82,6 +82,52 @@ Manage ElizaOS plugins.
     elizaos plugins install openai
     ```
 
+    <Warning>
+      After installing plugins via CLI, you **must** add them to your character file (`.json` or `.ts`) to activate them. Installing only adds the package to your project dependencies.
+    </Warning>
+
+    #### Activating Plugins
+
+    ```json character.json
+    {
+      "name": "MyAgent",
+      "plugins": [
+        "@elizaos/plugin-sql",
+        "@elizaos/plugin-openai",
+        "@elizaos/plugin-discord"
+      ],
+      "bio": ["Your agent's description"],
+      "style": {
+        "all": ["conversational", "friendly"]
+      }
+    }
+    ```
+
+    ```typescript character.ts
+    import { Character } from '@elizaos/core';
+
+    export const character: Character = {
+      name: "MyAgent",
+      plugins: [
+        // Core plugins
+        "@elizaos/plugin-sql",
+        
+        // Conditional plugins based on environment variables
+        ...(process.env.OPENAI_API_KEY ? ["@elizaos/plugin-openai"] : []),
+        ...(process.env.DISCORD_API_TOKEN ? ["@elizaos/plugin-discord"] : []),
+        ...(process.env.ANTHROPIC_API_KEY ? ["@elizaos/plugin-anthropic"] : [])
+      ],
+      bio: ["Your agent's description"],
+      style: {
+        all: ["conversational", "friendly"]
+      }
+    };
+    ```
+
+    <Note>
+      The SQL plugin (`@elizaos/plugin-sql`) is typically included by default as it provides core database functionality. Other plugins can be loaded conditionally based on environment variables to avoid loading unnecessary dependencies.
+    </Note>
+
     ### Listing Installed Plugins
 
     ```bash
