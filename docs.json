@@ -369,5 +369,27 @@
       "twitter:card": "summary_large_image",
       "twitter:image": "/images/eliza-og.png"
     }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      {
+        "title": "Ask Perplexity",
+        "description": "Ask Perplexity about the current page",
+        "icon": "search",
+        "href": {
+          "base": "https://www.perplexity.ai/search",
+          "query": [
+            {
+              "key": "q",
+              "value": "Ask question about https://eliza.how$path.md"
+            }
+          ]
+        }
+      }
+    ]
   }
 }
