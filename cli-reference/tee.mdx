@@ -77,6 +77,34 @@ elizaos tee phala cvms update <cvm-id> --compose ./docker-compose.yml
 elizaos tee phala cvms delete <cvm-id>
 ```
 
+### Additional Phala Commands
+
+The Phala CLI also provides these additional commands:
+
+```bash
+# Docker Registry Management
+elizaos tee phala docker login       # Login to Docker Hub
+elizaos tee phala docker logout      # Logout from Docker Hub
+
+# TEE Simulator (for local testing)
+elizaos tee phala simulator start    # Start local TEE simulator
+elizaos tee phala simulator stop     # Stop local TEE simulator
+elizaos tee phala simulator status   # Check simulator status
+
+# Demo Deployment
+elizaos tee phala demo deploy        # Deploy a demo application to Phala Cloud
+elizaos tee phala demo list          # List deployed demos
+elizaos tee phala demo delete <id>   # Delete a demo deployment
+
+# Account Management
+elizaos tee phala join               # Join Phala Cloud and get a free account
+elizaos tee phala free               # Alias for join - get free CVM credits
+
+# Node Management
+elizaos tee phala nodes list         # List available TEE nodes
+elizaos tee phala nodes get <id>     # Get details about a specific node
+```
+
 ### TEE Agent Deployment
 
 For deploying ElizaOS agents to TEE environments:
