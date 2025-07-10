@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "ElizaOS Documentation",
   "colors": {
-    "primary": "#FF5800",
-    "light": "#FF8C42",
-    "dark": "#CC4400"
+    "primary": "#0B35F1",
+    "light": "#4D6EF7",
+    "dark": "#0829B8"
   },
   "favicon": "/favicon.svg",
   "navigation": {
