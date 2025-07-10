@@ -40,7 +40,16 @@
               "deep-dive/architecture",
               "deep-dive/runtime",
               "deep-dive/services",
-              "deep-dive/bootstrap-plugin",
+              {
+                "group": "Bootstrap Plugin",
+                "pages": [
+                  "deep-dive/bootstrap/index",
+                  "deep-dive/bootstrap/complete-documentation",
+                  "deep-dive/bootstrap/message-flow",
+                  "deep-dive/bootstrap/examples",
+                  "deep-dive/bootstrap/testing-guide"
+                ]
+              },
               "deep-dive/plugin-internals",
               "deep-dive/real-world-patterns"
             ]
