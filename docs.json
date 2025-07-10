@@ -8,6 +8,12 @@
     "dark": "#CC4400"
   },
   "favicon": "/favicon.svg",
+  "topbarLinks": [
+    {
+      "type": "github",
+      "url": "https://github.com/elizaos/eliza"
+    }
+  ],
   "navigation": {
     "tabs": [
       {
@@ -227,20 +233,30 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "https://discord.gg/elizaos"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "GitHub",
+      "href": "https://github.com/elizaos/eliza"
     }
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/elizaos",
+      "github": "https://github.com/elizaos/eliza",
+      "discord": "https://discord.gg/elizaos"
+    }
+  },
+  "seo": {
+    "indexHiddenPages": false,
+    "metadata": {
+      "og:site_name": "ElizaOS Documentation",
+      "og:type": "website",
+      "og:image": "/images/eliza-og.png",
+      "twitter:card": "summary_large_image",
+      "twitter:image": "/images/eliza-og.png"
     }
   }
 }
