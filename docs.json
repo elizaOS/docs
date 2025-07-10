@@ -4,8 +4,8 @@
   "name": "ElizaOS Documentation",
   "colors": {
     "primary": "#0B35F1",
-    "light": "#4D6EF7",
-    "dark": "#0829B8"
+    "light": "#0B35F1",
+    "dark": "#0B35F1"
   },
   "favicon": "/favicon.svg",
   "navigation": {
