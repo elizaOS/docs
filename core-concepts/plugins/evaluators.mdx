@@ -1,0 +1,172 @@
+---
+title: 'Evaluators'
+description: 'Assess and filter agent responses'
+---
+
+## What are Evaluators?
+
+Evaluators check agent responses before they're sent to users. They can filter content, assess quality, and ensure safety.
+
+## Evaluator Structure
+
+```typescript
+const evaluator: Evaluator = {
+  name: 'evaluator-name',
+  description: 'What this evaluator checks',
+  
+  validate: async (runtime, message) => {
+    // Should this evaluator run?
+    return true;
+  },
+  
+  handler: async (runtime, message) => {
+    // Extract info or modify response
+  }
+};
+```
+
+## Bootstrap Evaluators
+
+The core plugin includes:
+
+- `reflectionEvaluator` - Enables self-awareness and learning from interactions
+
+## Real Evaluator Examples
+
+### Fact Evaluator
+
+Extracts facts from conversations:
+
+```typescript
+handler: async (runtime, message) => {
+  const facts = await generateObjectArray({
+    runtime,
+    context,
+    modelClass: ModelClass.LARGE
+  });
+  
+  // Store new facts
+  for (const fact of facts) {
+    await factsManager.addEmbeddingToMemory({
+      content: { text: fact },
+      roomId: message.roomId
+    });
+  }
+  
+  return facts;
+}
+```
+
+### Goal Evaluator
+
+Updates agent goals based on conversation:
+
+```typescript
+handler: async (runtime, message) => {
+  // Analyze conversation for goal updates
+  const updates = await generateText({
+    runtime,
+    context: goalContext
+  });
+  
+  // Update goals in database
+  for (const goal of updatedGoals) {
+    await runtime.databaseAdapter.updateGoal(goal);
+  }
+  
+  return updatedGoals;
+}
+```
+
+### Message Evaluators (from DexScreener plugin)
+
+```
+TokenPriceEvaluator - Evaluates messages for token price requests
+- Detects price-related keywords
+- Identifies token addresses and symbols
+- Supports multiple formats (0x addresses, $TOKEN)
+```
+
+## How Evaluators Work
+
+1. Agent generates a response
+2. Each evaluator's `validate()` checks if it should run
+3. If valid, `handler()` executes
+4. Results stored in memory for future use
+
+## Common Evaluator Types
+
+### Content Filters
+- Profanity detection
+- Sensitive information
+- Safety checks
+
+### Quality Checks
+- Relevance scoring
+- Accuracy validation
+- Completeness
+
+### Memory Building
+- Fact extraction
+- Relationship tracking
+- Goal updates
+
+## Creating an Evaluator
+
+Simple example:
+
+```typescript
+const sentimentEvaluator: Evaluator = {
+  name: 'sentiment',
+  
+  validate: async (runtime, message) => {
+    // Run on all messages
+    return true;
+  },
+  
+  handler: async (runtime, message) => {
+    const sentiment = analyzeSentiment(message.content);
+    
+    // Store sentiment
+    await runtime.databaseAdapter.createMemory({
+      type: 'sentiment',
+      content: { 
+        text: message.content,
+        sentiment: sentiment
+      }
+    });
+    
+    return sentiment;
+  }
+};
+```
+
+## Temporal Tracking
+
+Evaluators can track changes over time:
+
+```
+t0: 'Looking for a job'(status)
+t1: 'Got a new job'(fact)
+t2: 'Been at job for 3 months'(status)
+```
+
+## Best Practices
+
+- Keep evaluation logic focused
+- Don't block responses unnecessarily
+- Store extracted information for future use
+- Run quickly to avoid delays
+- Handle errors gracefully
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Complete Plugins" icon="puzzle" href="/core-concepts/plugins">
+    See how all components work together
+  </Card>
+  
+  <Card title="Build Projects" icon="folder-tree" href="/core-concepts/projects">
+    Create multi-agent systems
+  </Card>
+</CardGroup>

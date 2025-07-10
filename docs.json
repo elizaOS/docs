@@ -18,6 +18,23 @@
             "pages": ["index", "quickstart", "development"]
           },
           {
+            "group": "Core Concepts",
+            "pages": [
+              "core-concepts/index",
+              "core-concepts/agents",
+              {
+                "group": "Plugins",
+                "pages": [
+                  "core-concepts/plugins",
+                  "core-concepts/plugins/actions",
+                  "core-concepts/plugins/providers",
+                  "core-concepts/plugins/evaluators"
+                ]
+              },
+              "core-concepts/projects"
+            ]
+          },
+          {
             "group": "Essentials",
             "pages": [
               "essentials/markdown",

@@ -1,107 +1,370 @@
 ---
 title: 'Development'
-description: 'Preview changes locally to update your docs'
+description: 'Learn how to develop with elizaOS - from simple character modifications to core framework contributions'
 ---
 
 <Info>
-  **Prerequisite**: Please install Node.js (version 19 or higher) before proceeding. <br />
-  Please upgrade to ```docs.json``` before proceeding and delete the legacy ```mint.json``` file.
+  **Prerequisites**: Make sure you have completed the [Quickstart](/quickstart) guide and have Node.js (version 23.0 or higher) and Bun installed.
 </Info>
 
-Follow these steps to install and run Mintlify on your operating system:
+## Development Tracks
 
-**Step 1**: Install Mintlify:
+elizaOS offers two distinct development paths depending on your goals and experience level:
 
-<CodeGroup>
+<CardGroup cols={2}>
+  <Card title="Beginner Track" icon="user" color="#0EA5E9">
+    Perfect for creating and customizing your own AI agents using the elizaOS CLI
+  </Card>
+  <Card title="Advanced Track" icon="code" color="#8B5CF6">
+    For contributors and developers building custom elizaOS versions
+  </Card>
+</CardGroup>
 
-  ```bash npm
-  npm i -g mintlify
-  ```
+## Beginner Development Track
 
-```bash yarn
-yarn global add mintlify
+The beginner track focuses on using the elizaOS CLI to create and customize your agents without diving into the core framework code.
+
+### Getting Started with CLI Development
+
+<Steps>
+  <Step title="Create Your Agent">
+    If you haven't already, create a new agent using the elizaOS CLI:
+    ```bash
+    elizaos create my-custom-agent
+    ```
+  </Step>
+
+  <Step title="Navigate to Your Agent Directory">
+    ```bash
+    cd my-custom-agent
+    ```
+  </Step>
+
+  <Step title="Understand the Project Structure">
+    Your agent directory contains:
+    - `character.json` - Your agent's personality and configuration
+    - `package.json` - Project dependencies and scripts
+    - `.env` - Environment variables and API keys
+    - `plugins/` - Directory for custom plugins
+  </Step>
+</Steps>
+
+### Modifying Your Character
+
+The `character.json` file defines your agent's personality, knowledge, and behavior:
+
+```json character.json
+{
+  "name": "MyAgent",
+  "bio": "A helpful AI assistant created with elizaOS",
+  "adjectives": [
+    "friendly",
+    "knowledgeable",
+    "professional"
+  ],
+  "knowledge": [
+    "I am an AI assistant created with elizaOS",
+    "I can help with various tasks and questions"
+  ],
+  "messageExamples": [
+    [
+      {
+        "name": "User",
+        "content": {"text": "Hello!"}
+      },
+      {
+        "name": "MyAgent",
+        "content": {"text": "Hello! How can I assist you today?"}
+      }
+    ]
+  ],
+  "plugins": []
+}
 ```
-
-</CodeGroup>
-
-**Step 2**: Navigate to the docs directory (where the `docs.json` file is located) and execute the following command:
-
-```bash
-mintlify dev
-```
-
-A local preview of your documentation will be available at `http://localhost:3000`.
-
-### Custom Ports
-
-By default, Mintlify uses port 3000. You can customize the port Mintlify runs on by using the `--port` flag. To run Mintlify on port 3333, for instance, use this command:
-
-```bash
-mintlify dev --port 3333
-```
-
-If you attempt to run Mintlify on a port that's already in use, it will use the next available port:
-
-```md
-Port 3000 is already in use. Trying 3001 instead.
-```
-
-## Mintlify Versions
-
-Please note that each CLI release is associated with a specific version of Mintlify. If your local website doesn't align with the production version, please update the CLI:
-
-<CodeGroup>
-
-```bash npm
-npm i -g mintlify@latest
-```
-
-```bash yarn
-yarn global upgrade mintlify
-```
-
-</CodeGroup>
-
-## Validating Links
-
-The CLI can assist with validating reference links made in your documentation. To identify any broken links, use the following command:
-
-```bash
-mintlify broken-links
-```
-
-## Deployment
 
 <Tip>
-  Unlimited editors available under the [Pro
-  Plan](https://mintlify.com/pricing) and above.
+  Experiment with different personality traits and knowledge entries to create unique agent behaviors.
 </Tip>
 
-If the deployment is successful, you should see the following:
+### Working with Plugins
 
-<Frame>
-  <img src="/images/checks-passed.png" style={{ borderRadius: '0.5rem' }} />
-</Frame>
+Plugins extend your agent's capabilities with additional features:
 
-## Code Formatting
+#### Installing Plugins
 
-We suggest using extensions on your IDE to recognize and format MDX. If you're a VSCode user, consider the [MDX VSCode extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) for syntax highlighting, and [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for code formatting.
+Use the elizaOS CLI to add existing plugins:
 
-## Troubleshooting
+```bash
+elizaos add-plugin @elizaos/plugin-twitter
+elizaos add-plugin @elizaos/plugin-discord
+```
+
+<Warning>
+  After installing plugins via CLI, you **must** add them to your `character.json` file to activate them:
+</Warning>
+
+```json character.json
+{
+  "name": "MyAgent",
+  "plugins": [
+    "@elizaos/plugin-twitter",
+    "@elizaos/plugin-discord"
+  ]
+}
+```
+
+#### Removing Plugins
+
+To remove a plugin:
+
+```bash
+elizaos remove-plugin @elizaos/plugin-twitter
+```
+
+Remember to also remove it from your `character.json` file.
+
+#### Available Plugins
 
 <AccordionGroup>
-  <Accordion title='Error: Could not load the "sharp" module using the darwin-arm64 runtime'>
-
-    This may be due to an outdated version of node. Try the following:
-    1. Remove the currently-installed version of mintlify: `npm remove -g mintlify`
-    2. Upgrade to Node v19 or higher.
-    3. Reinstall mintlify: `npm install -g mintlify`
-  </Accordion>
-
-  <Accordion title="Issue: Encountering an unknown error">
-  
-    Solution: Go to the root of your device and delete the \~/.mintlify folder. Afterwards, run `mintlify dev` again.
+  <Accordion title="Available Plugins">
+    - `@elizaos/plugin-bootstrap` - Base plugin infrastructure
+    - `@elizaos/plugin-sql` - SQL database integration
+    - `@elizaos/plugin-forms` - Forms for structured data collection
+    - `@elizaos/plugin-starter` - Template for creating new plugins
   </Accordion>
 </AccordionGroup>
 
-Curious about what changed in the CLI version? [Check out the CLI changelog.](https://www.npmjs.com/package/mintlify?activeTab=versions)
+### Testing Your Changes
+
+After making modifications:
+
+```bash
+elizaos start
+```
+
+Visit `http://localhost:3000` to interact with your customized agent.
+
+## Advanced Development Track
+
+The advanced track is for developers who want to contribute to the elizaOS core framework or build custom versions.
+
+### Setting Up the Monorepo
+
+<Steps>
+  <Step title="Clone the Repository">
+    Clone the official elizaOS monorepo:
+    ```bash
+    git clone https://github.com/elizaos/eliza.git
+    cd eliza
+    ```
+  </Step>
+
+  <Step title="Install Dependencies">
+    Use Bun to install all dependencies:
+    ```bash
+    bun install
+    ```
+  </Step>
+
+  <Step title="Build the Project">
+    Build all packages in the monorepo:
+    ```bash
+    bun run build
+    ```
+  </Step>
+</Steps>
+
+### Monorepo Structure
+
+The elizaOS monorepo is organized as follows:
+
+```
+eliza/
+├── packages/
+│   ├── core/           # Core elizaOS framework
+│   ├── cli/            # CLI tool source code
+│   ├── client/         # Client libraries
+│   └── plugin-*/       # Official plugins
+└── scripts/            # Build and utility scripts
+```
+
+### Contributing to Core Framework
+
+#### Development Workflow
+
+<Steps>
+  <Step title="Create a Feature Branch">
+    ```bash
+    git checkout -b feature/my-new-feature
+    ```
+  </Step>
+
+  <Step title="Make Your Changes">
+    Edit files in the relevant package directory
+  </Step>
+
+  <Step title="Run Tests">
+    ```bash
+    bun test
+    ```
+  </Step>
+
+  <Step title="Build and Verify">
+    ```bash
+    bun run build
+    bun run typecheck
+    ```
+  </Step>
+
+  <Step title="Submit a Pull Request">
+    Push your changes and create a PR on GitHub
+  </Step>
+</Steps>
+
+#### Key Development Areas
+
+<Tabs>
+  <Tab title="Core Framework">
+    Work on the fundamental elizaOS engine:
+    - Agent reasoning logic
+    - Memory management
+    - Plugin system architecture
+    - Performance optimizations
+  </Tab>
+
+  <Tab title="Plugin Development">
+    Create new plugins to extend functionality:
+    - Integration with external services
+    - New communication channels
+    - Custom tools and capabilities
+  </Tab>
+
+  <Tab title="CLI Improvements">
+    Enhance the developer experience:
+    - New CLI commands
+    - Better error handling
+    - Template management
+  </Tab>
+</Tabs>
+
+### Creating Custom elizaOS Versions
+
+For specialized use cases, you might want to create a custom fork:
+
+```bash
+# Fork the repository on GitHub first
+git clone https://github.com/YOUR_USERNAME/eliza.git
+cd eliza
+
+# Add upstream remote
+git remote add upstream https://github.com/elizaos/eliza.git
+
+# Create your custom branch
+git checkout -b custom/my-version
+```
+
+#### Custom Version Best Practices
+
+<Card title="Maintain Compatibility" icon="link">
+  Keep your custom version compatible with the core plugin system
+</Card>
+
+<Card title="Document Changes" icon="book">
+  Clearly document all modifications and custom features
+</Card>
+
+<Card title="Stay Updated" icon="sync">
+  Regularly sync with upstream to get the latest improvements:
+  ```bash
+  git fetch upstream
+  git merge upstream/develop
+  ```
+</Card>
+
+### Local Development Tips
+
+#### Environment Setup
+
+Create a `.env.local` file for development:
+
+```bash .env.local
+NODE_ENV=development
+LOG_LEVEL=debug
+ENABLE_HOT_RELOAD=true
+```
+
+#### Using Development Mode
+
+Run the framework in development mode with hot reload:
+
+```bash
+bun run dev
+```
+
+#### Debugging
+
+<AccordionGroup>
+  <Accordion title="Enable Debug Logging">
+    Set `LOG_LEVEL=debug` in your environment variables
+  </Accordion>
+
+  <Accordion title="Use VS Code Debugger">
+    The monorepo includes VS Code debug configurations in `.vscode/launch.json`
+  </Accordion>
+
+  <Accordion title="Performance Profiling">
+    Use `bun run profile` to generate performance reports
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+### For Beginners
+
+- Start with small character modifications
+- Test changes frequently
+- Back up your `character.json` before major changes
+- Join the community for plugin recommendations
+
+### For Advanced Users
+
+- Follow the project's coding standards
+- Write comprehensive tests for new features
+- Document your code thoroughly
+- Participate in code reviews
+
+## Getting Help
+
+<CardGroup cols={3}>
+  <Card title="Documentation" icon="book" href="https://docs.elizaos.com">
+    Comprehensive guides and API references
+  </Card>
+
+  <Card title="GitHub Issues" icon="github" href="https://github.com/elizaOS/eliza/issues">
+    Report bugs and request features
+  </Card>
+
+  <Card title="Discord Community" icon="discord" href="https://discord.gg/elizaos">
+    Get help from the community
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<Steps>
+  <Step title="Choose Your Track">
+    Decide whether to start with the beginner or advanced track based on your goals
+  </Step>
+
+  <Step title="Set Up Your Environment">
+    Follow the setup instructions for your chosen track
+  </Step>
+
+  <Step title="Start Building">
+    Begin creating your agent or contributing to the framework
+  </Step>
+
+  <Step title="Share Your Work">
+    Share your creations with the elizaOS community!
+  </Step>
+</Steps>

@@ -1,0 +1,284 @@
+---
+title: 'Agents'
+description: 'AI personalities in elizaOS'
+---
+
+## What are Agents?
+
+Agents are AI personalities that can chat, perform actions, and remember context. Each agent is defined by a character configuration that specifies their personality, knowledge, behavior patterns, and capabilities.
+
+## Character Structure
+
+A character is the blueprint for an agent, containing all the configuration needed to define its personality and behavior:
+
+```typescript
+interface Character {
+  // Required fields
+  name: string;              // Agent's display name
+  bio: string | string[];    // Biography/description
+  
+  // Optional fields
+  id?: string;               // Unique identifier (UUID)
+  username?: string;         // Username handle
+  system?: string;           // System prompt override
+  
+  // Behavior & Examples
+  messageExamples?: MessageExample[][];  // 2D array of conversations
+  postExamples?: string[];              // Example social media posts
+  
+  // Knowledge & Traits  
+  topics?: string[];         // Topics of expertise
+  adjectives?: string[];     // Personality traits
+  knowledge?: Knowledge[];   // Knowledge base items
+  
+  // Configuration
+  plugins?: string[];        // Enabled plugins
+  settings?: Settings;       // Runtime settings
+  secrets?: Secrets;         // Secure configuration
+  
+  // Style Guidelines
+  style?: {
+    all?: string[];        // General style rules
+    chat?: string[];       // Chat-specific style
+    post?: string[];       // Post-specific style
+  };
+  
+  // Advanced
+  templates?: Templates;     // Custom prompt templates
+}
+```
+
+## Key Properties
+
+<AccordionGroup>
+  <Accordion title="name & bio">
+    **name** (required): The agent's display name
+    
+    **bio** (required): Biography or description of the agent. Can be a single string or array of strings describing different aspects of the agent's background.
+  </Accordion>
+  
+  <Accordion title="adjectives & topics">
+    **adjectives**: Array of personality traits (e.g., "helpful", "creative", "analytical")
+    
+    **topics**: Areas of expertise or interest the agent can discuss knowledgeably
+  </Accordion>
+  
+  <Accordion title="messageExamples">
+    Conversation examples that teach the agent communication patterns. Structure:
+    ```json
+    [
+      [
+        {"name": "User", "content": {"text": "Hello!"}},
+        {"name": "Agent", "content": {"text": "Hi there! How can I help?"}}  
+      ],
+      [
+        {"name": "User", "content": {"text": "What do you do?"}},
+        {"name": "Agent", "content": {"text": "I assist with various tasks."}}  
+      ]
+    ]
+    ```
+  </Accordion>
+  
+  <Accordion title="knowledge">
+    The agent's knowledge base. Can include:
+    - Simple strings: `"I am an AI assistant"`
+    - File references: `{"path": "./knowledge/faq.md"}`
+    - Directories: `{"directory": "./knowledge/docs", "shared": true}`
+  </Accordion>
+  
+  <Accordion title="style">
+    Writing style guidelines for different contexts:
+    - **all**: General style rules applied everywhere
+    - **chat**: Style specific to conversations
+    - **post**: Style for social media posts
+  </Accordion>
+  
+  <Accordion title="plugins">
+    Array of plugin names to enable capabilities:
+    ```json
+    [
+      "@elizaos/plugin-discord",
+      "@elizaos/plugin-twitter",
+      "@elizaos/plugin-web-search"
+    ]
+    ```
+  </Accordion>
+  
+  <Accordion title="settings & secrets">
+    **settings**: General configuration values
+    ```json
+    {
+      "voice": {"model": "en_US-male-medium"},
+      "responseMode": "detailed"
+    }
+    ```
+    
+    **secrets**: Sensitive configuration (API keys, etc.)
+    ```json
+    {
+      "OPENAI_API_KEY": "sk-...",
+      "DISCORD_TOKEN": "..."
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Runtime Agent Type
+
+When a character is loaded into the system, it becomes an `Agent` with additional runtime properties:
+
+```typescript
+interface Agent extends Character {
+  enabled?: boolean;        // Whether agent is active
+  status?: AgentStatus;     // 'active' | 'inactive'
+  createdAt: number;        // Timestamp created
+  updatedAt: number;        // Last update timestamp
+}
+```
+
+## Memory
+
+Agents maintain several types of memory:
+- **Messages**: Recent conversations with context
+- **Facts**: Important information about users and topics
+- **Documents**: Loaded knowledge that can be searched
+- **Relationships**: Connections between entities
+
+## Complete Character Example
+
+```json
+{
+  "name": "TechHelper",
+  "bio": [
+    "An AI assistant specialized in technology and programming",
+    "Loves helping developers solve problems",
+    "Expert in web development and open source"
+  ],
+  "adjectives": [
+    "helpful",
+    "technical", 
+    "precise",
+    "friendly"
+  ],
+  "topics": [
+    "programming",
+    "web development",
+    "open source",
+    "debugging"
+  ],
+  "messageExamples": [
+    [
+      {
+        "name": "User",
+        "content": {"text": "I'm having trouble with my React app"}
+      },
+      {
+        "name": "TechHelper", 
+        "content": {"text": "I'd be happy to help debug your React app! Can you describe what specific issue you're encountering?"}
+      }
+    ]
+  ],
+  "postExamples": [
+    "Just discovered an awesome new debugging technique for React apps! Thread below 🧵",
+    "Open source tip: Always read the contributing guidelines before submitting a PR 📖"
+  ],
+  "style": {
+    "all": [
+      "use technical terms accurately",
+      "provide code examples when relevant",
+      "be encouraging and supportive"
+    ],
+    "chat": [
+      "ask clarifying questions",
+      "break down complex topics",
+      "offer step-by-step guidance"
+    ],
+    "post": [
+      "share useful tips and tricks",
+      "use relevant emojis sparingly",
+      "create engaging technical content"
+    ]
+  },
+  "knowledge": [
+    "I specialize in modern web development frameworks",
+    {"path": "./knowledge/react-guide.md"},
+    {"directory": "./knowledge/tutorials", "shared": true}
+  ],
+  "plugins": [
+    "@elizaos/plugin-web-search",
+    "@elizaos/plugin-code-runner"
+  ],
+  "settings": {
+    "voice": {
+      "model": "en_US-male-medium"
+    },
+    "maxResponseLength": 1000
+  }
+}
+```
+
+## Creating an Agent
+
+<Steps>
+  <Step title="Create character file">
+    Create a JSON file with your character configuration:
+    ```bash
+    touch my-agent.json
+    ```
+  </Step>
+  
+  <Step title="Define character properties">
+    Add required fields (name, bio) and customize behavior with optional properties
+  </Step>
+  
+  <Step title="Add plugins for capabilities">
+    ```json
+    "plugins": [
+      "@elizaos/plugin-discord",
+      "@elizaos/plugin-twitter"
+    ]
+    ```
+  </Step>
+  
+  <Step title="Configure settings">
+    Add environment-specific settings and secrets for API keys
+  </Step>
+  
+  <Step title="Start the agent">
+    ```bash
+    elizaos start --character my-agent.json
+    ```
+  </Step>
+</Steps>
+
+## Best Practices
+
+### Character Design
+- **Bio**: Write clear, multi-faceted descriptions that capture different aspects of the agent
+- **Adjectives**: Choose 5-10 consistent personality traits that shape behavior
+- **Message Examples**: Provide 5-10 diverse conversation examples showing different scenarios
+- **Style**: Define clear writing guidelines for consistency across contexts
+
+### Knowledge Management
+- Use simple strings for core facts about the agent
+- Use file references for detailed documentation
+- Use directories for large knowledge bases
+- Mark shared knowledge that multiple agents can access
+
+### Configuration
+- Keep secrets in environment variables, not in the character file
+- Use settings for non-sensitive configuration
+- Test with minimal plugins first, then add more as needed
+- Document any custom templates you create
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Add Plugins" icon="puzzle" href="/core-concepts/plugins">
+    Extend your agent's capabilities
+  </Card>
+  
+  <Card title="Build Projects" icon="folder-tree" href="/core-concepts/projects">
+    Create multi-agent systems
+  </Card>
+</CardGroup>

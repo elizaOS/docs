@@ -1,0 +1,210 @@
+---
+title: 'Plugins'
+description: 'Extend agent capabilities with plugins'
+---
+
+## What are Plugins?
+
+Plugins add features to agents. They contain:
+- **Actions** - Things agents can do
+- **Providers** - Data sources
+- **Evaluators** - Response filters
+
+## Plugin Structure
+
+```typescript
+export const myPlugin: Plugin = {
+  name: 'my-plugin',
+  description: 'Adds custom features',
+  actions: [...],
+  providers: [...],
+  evaluators: [...]
+};
+```
+
+## Real Plugin Examples
+
+### Discord Plugin
+
+```typescript
+import { discordPlugin } from '@elizaos/plugin-discord';
+
+// Enables Discord bot integration
+// Actions: send messages, manage channels
+// Providers: user info, server data
+```
+
+### Twitter Plugin
+
+```typescript
+import { twitterPlugin } from '@elizaos/plugin-twitter';
+
+// Enables Twitter/X integration
+// Actions: post tweets, reply to mentions
+// Providers: timeline data, user info
+```
+
+### Binance Plugin
+
+Actions available:
+- `GET_PRICE` - Check crypto prices
+- `EXECUTE_SPOT_TRADE` - Execute trades
+- `GET_SPOT_BALANCE` - Check balances
+
+Example usage:
+```
+"What's the current price of Bitcoin?"
+"Buy 0.1 BTC at market price"
+"Show my wallet balances"
+```
+
+## Plugin Components
+
+### Actions
+
+Execute specific tasks:
+
+```typescript
+const sendEmailAction: Action = {
+  name: 'SEND_EMAIL',
+  description: 'Send an email',
+  handler: async (params) => {
+    // Send email logic
+    return { success: true };
+  }
+};
+```
+
+### Providers
+
+Supply data to agents:
+
+```typescript
+const weatherProvider: Provider = {
+  name: 'WEATHER',
+  description: 'Current weather data',
+  get: async (key, params) => {
+    // Fetch weather data
+    return weatherData;
+  }
+};
+```
+
+### Evaluators
+
+Check and filter responses:
+
+```typescript
+const safetyEvaluator: Evaluator = {
+  name: 'safety-filter',
+  description: 'Filter unsafe content',
+  evaluate: async (context) => {
+    // Check for unsafe content
+    return { passed: true };
+  }
+};
+```
+
+## Available Plugins
+
+### Communication
+- `@elizaos/plugin-discord`
+- `@elizaos/plugin-telegram`
+- `@elizaos/plugin-twitter`
+
+### Finance
+- `@elizaos/plugin-binance`
+- `@elizaos/plugin-0x`
+- `@elizaos/plugin-dexscreener`
+
+### Data & Tools
+- `@elizaos/plugin-web-search`
+- `@elizaos/plugin-firecrawl`
+- `@elizaos/plugin-obsidian`
+
+### Blockchain
+- `@elizaos/plugin-solana`
+- `@elizaos/plugin-sei`
+- `@elizaos/plugin-mina`
+
+## Using Plugins
+
+### Install
+
+```bash
+elizaos add-plugin @elizaos/plugin-discord
+```
+
+### Configure
+
+Add to your `character.json`:
+
+```json
+{
+  "name": "MyAgent",
+  "plugins": ["@elizaos/plugin-discord"]
+}
+```
+
+### Environment Variables
+
+Some plugins need configuration:
+
+```bash
+# .env
+DISCORD_BOT_TOKEN=your_token
+TWITTER_API_KEY=your_key
+OPENAI_API_KEY=your_key
+```
+
+## Bootstrap Plugin
+
+Every agent includes the bootstrap plugin with core actions:
+
+- `REPLY` - Generate responses
+- `SEND_MESSAGE` - Send messages
+- `UPDATE_ENTITY` - Update data
+- `CHOICE` - Present options
+
+And providers:
+- `characterProvider` - Agent personality
+- `timeProvider` - Current time
+- `knowledgeProvider` - Knowledge base
+- `actionsProvider` - Available actions
+
+## Creating Custom Plugins
+
+```typescript
+export const customPlugin: Plugin = {
+  name: 'custom-plugin',
+  description: 'My custom plugin',
+  
+  actions: [{
+    name: 'CUSTOM_ACTION',
+    handler: async (runtime, message, state) => {
+      // Your logic here
+    }
+  }],
+  
+  providers: [{
+    name: 'CUSTOM_DATA',
+    get: async () => ({ data: 'value' })
+  }]
+};
+```
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Actions" icon="play" href="/core-concepts/plugins/actions">
+    Learn about actions
+  </Card>
+  
+  <Card title="Providers" icon="database" href="/core-concepts/plugins/providers">
+    Explore providers
+  </Card>
+  
+  <Card title="Evaluators" icon="scale-balanced" href="/core-concepts/plugins/evaluators">
+    Understand evaluators
+  </Card>
+</CardGroup>

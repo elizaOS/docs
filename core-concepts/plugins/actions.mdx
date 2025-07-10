@@ -1,0 +1,185 @@
+---
+title: 'Actions'
+description: 'Things agents can do'
+---
+
+## What are Actions?
+
+Actions are tasks that agents can perform - like sending messages, fetching data, or executing trades.
+
+## Action Structure
+
+```typescript
+const action: Action = {
+  name: 'ACTION_NAME',
+  description: 'What this action does',
+  handler: async (runtime, message, state) => {
+    // Do something
+    return result;
+  }
+};
+```
+
+## Real Action Examples
+
+### Bootstrap Plugin Actions
+
+The core plugin includes these actions:
+
+- `REPLY` - Generate and send a response
+- `SEND_MESSAGE` - Send a message to a room
+- `UPDATE_ENTITY` - Update entity properties
+- `CHOICE` - Present choices to users
+- `IGNORE` - Explicitly ignore a message
+- `NONE` - Acknowledge without action
+
+### Binance Plugin Actions
+
+```
+GET_PRICE - Check cryptocurrency prices
+  Examples: "What's the price of BTC?"
+
+EXECUTE_SPOT_TRADE - Execute trades
+  Examples: "Buy 0.1 BTC at market price"
+
+GET_SPOT_BALANCE - Check balances
+  Examples: "Show my wallet balance"
+```
+
+### Twitter Plugin Actions
+
+```
+POST_TWEET - Post to Twitter
+REPLY_TO_TWEET - Reply to mentions
+LIKE_TWEET - Like tweets
+RETWEET - Retweet posts
+```
+
+### DexScreener Plugin Actions
+
+```
+GET_TOKEN_PRICE - Get token prices
+  Aliases: FETCH_TOKEN_PRICE, CHECK_TOKEN_PRICE
+  Returns: price, liquidity, 24h volume
+
+GET_LATEST_TOKENS - Get new token listings
+GET_TOP_BOOSTED_TOKENS - Get most boosted tokens
+```
+
+## How Actions Work
+
+1. User sends a message
+2. Agent determines which action to use
+3. Action handler executes
+4. Result is returned to user
+
+## Creating an Action
+
+Simple example:
+
+```typescript
+const greetAction: Action = {
+  name: 'GREET',
+  description: 'Greet the user',
+  
+  handler: async (runtime, message) => {
+    const userName = message.userId;
+    return {
+      text: `Hello, ${userName}!`
+    };
+  }
+};
+```
+
+With validation:
+
+```typescript
+const sendTokenAction: Action = {
+  name: 'SEND_TOKEN',
+  description: 'Send tokens to address',
+  
+  validate: async (runtime, message) => {
+    // Check if message contains address
+    return message.content.includes('0x');
+  },
+  
+  handler: async (runtime, message, state) => {
+    const address = extractAddress(message.content);
+    const amount = extractAmount(message.content);
+    
+    // Send token logic
+    const result = await sendToken(address, amount);
+    
+    return {
+      text: `Sent ${amount} tokens to ${address}`
+    };
+  }
+};
+```
+
+## Action Examples in Use
+
+```typescript
+// In a plugin
+export const myPlugin: Plugin = {
+  name: 'my-plugin',
+  actions: [
+    greetAction,
+    sendTokenAction
+  ]
+};
+```
+
+## Common Action Patterns
+
+### API Calls
+
+```typescript
+handler: async (runtime, message) => {
+  const response = await fetch('https://api.example.com/data');
+  const data = await response.json();
+  return { data };
+}
+```
+
+### Database Operations
+
+```typescript
+handler: async (runtime, message) => {
+  const result = await runtime.databaseAdapter.getMemories({
+    roomId: message.roomId,
+    limit: 10
+  });
+  return { memories: result };
+}
+```
+
+### External Services
+
+```typescript
+handler: async (runtime, message) => {
+  const service = runtime.getService('twitter');
+  await service.post(message.content);
+  return { success: true };
+}
+```
+
+## Best Practices
+
+- Use clear, descriptive action names
+- Always return a result
+- Handle errors gracefully
+- Validate inputs before executing
+- Keep actions focused on one task
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Providers" icon="database" href="/core-concepts/plugins/providers">
+    Learn about data providers
+  </Card>
+  
+  <Card title="Evaluators" icon="scale-balanced" href="/core-concepts/plugins/evaluators">
+    Explore response evaluation
+  </Card>
+</CardGroup>
