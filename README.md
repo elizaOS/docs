@@ -16,7 +16,7 @@ This repository contains the comprehensive documentation for ElizaOS, including:
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
+- Node.js (v23 or higher)
 - bun (or npm/yarn)
 
 ### Local Development Setup
