@@ -11,7 +11,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Docs",
+        "tab": "Guides",
         "groups": [
           {
             "group": "Get Started",
@@ -40,7 +40,79 @@
               "deep-dive/architecture",
               "deep-dive/runtime",
               "deep-dive/services",
-              "deep-dive/plugin-internals",
+              {
+                "group": "Plugins",
+                "pages": [
+                  "deep-dive/plugin-internals",
+                  {
+                    "group": "Bootstrap Plugin",
+                    "pages": [
+                      "deep-dive/bootstrap/index",
+                      "deep-dive/bootstrap/complete-documentation",
+                      "deep-dive/bootstrap/message-flow",
+                      "deep-dive/bootstrap/examples",
+                      "deep-dive/bootstrap/testing-guide"
+                    ]
+                  },
+                  {
+                    "group": "SQL Plugin",
+                    "pages": [
+                      "deep-dive/sql-plugin/index",
+                      "deep-dive/sql-plugin/database-adapters",
+                      "deep-dive/sql-plugin/schema-management",
+                      "deep-dive/sql-plugin/plugin-tables",
+                      "deep-dive/sql-plugin/examples"
+                    ]
+                  },
+                  {
+                    "group": "LLM Plugins",
+                    "pages": [
+                      "deep-dive/plugins/llm-plugins/index",
+                      "deep-dive/plugins/llm-plugins/openai",
+                      "deep-dive/plugins/llm-plugins/anthropic",
+                      "deep-dive/plugins/llm-plugins/google-genai",
+                      "deep-dive/plugins/llm-plugins/ollama",
+                      "deep-dive/plugins/llm-plugins/openrouter",
+                      "deep-dive/plugins/llm-plugins/local-ai"
+                    ]
+                  },
+                  {
+                    "group": "Platform Plugins",
+                    "pages": [
+                      {
+                        "group": "Discord",
+                        "pages": [
+                          "deep-dive/platform-plugins/discord/index",
+                          "deep-dive/platform-plugins/discord/complete-documentation",
+                          "deep-dive/platform-plugins/discord/event-flow",
+                          "deep-dive/platform-plugins/discord/examples",
+                          "deep-dive/platform-plugins/discord/testing-guide"
+                        ]
+                      },
+                      {
+                        "group": "Telegram",
+                        "pages": [
+                          "deep-dive/platform-plugins/telegram/index",
+                          "deep-dive/platform-plugins/telegram/complete-documentation",
+                          "deep-dive/platform-plugins/telegram/message-flow",
+                          "deep-dive/platform-plugins/telegram/examples",
+                          "deep-dive/platform-plugins/telegram/testing-guide"
+                        ]
+                      },
+                      {
+                        "group": "Twitter",
+                        "pages": [
+                          "deep-dive/platform-plugins/twitter/index",
+                          "deep-dive/platform-plugins/twitter/complete-documentation",
+                          "deep-dive/platform-plugins/twitter/timeline-flow",
+                          "deep-dive/platform-plugins/twitter/examples",
+                          "deep-dive/platform-plugins/twitter/testing-guide"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
               "deep-dive/real-world-patterns"
             ]
           },
@@ -206,87 +278,6 @@
             ]
           }
         ]
-      },
-      {
-        "tab": "Plugins",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "pages": ["plugins"]
-          },
-          {
-            "group": "Core Plugins",
-            "pages": [
-              {
-                "group": "Bootstrap",
-                "pages": [
-                  "plugins/bootstrap",
-                  "plugins/bootstrap/complete-documentation",
-                  "plugins/bootstrap/message-flow",
-                  "plugins/bootstrap/examples",
-                  "plugins/bootstrap/testing-guide"
-                ]
-              },
-              {
-                "group": "SQL",
-                "pages": [
-                  "plugins/sql",
-                  "plugins/sql/database-adapters",
-                  "plugins/sql/schema-management",
-                  "plugins/sql/plugin-tables",
-                  "plugins/sql/examples"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "LLM Providers",
-            "pages": [
-              "plugins/llm",
-              "plugins/llm/openai",
-              "plugins/llm/anthropic",
-              "plugins/llm/google-genai",
-              "plugins/llm/ollama",
-              "plugins/llm/openrouter",
-              "plugins/llm/local-ai"
-            ]
-          },
-          {
-            "group": "Platform Integrations",
-            "pages": [
-              {
-                "group": "Discord",
-                "pages": [
-                  "plugins/platform/discord",
-                  "plugins/platform/discord/complete-documentation",
-                  "plugins/platform/discord/event-flow",
-                  "plugins/platform/discord/examples",
-                  "plugins/platform/discord/testing-guide"
-                ]
-              },
-              {
-                "group": "Telegram",
-                "pages": [
-                  "plugins/platform/telegram",
-                  "plugins/platform/telegram/complete-documentation",
-                  "plugins/platform/telegram/message-flow",
-                  "plugins/platform/telegram/examples",
-                  "plugins/platform/telegram/testing-guide"
-                ]
-              },
-              {
-                "group": "Twitter",
-                "pages": [
-                  "plugins/platform/twitter",
-                  "plugins/platform/twitter/complete-documentation",
-                  "plugins/platform/twitter/timeline-flow",
-                  "plugins/platform/twitter/examples",
-                  "plugins/platform/twitter/testing-guide"
-                ]
-              }
-            ]
-          }
-        ]
       }
     ],
     "global": {
@@ -342,27 +333,5 @@
       "twitter:card": "summary_large_image",
       "twitter:image": "/images/eliza-og.png"
     }
-  },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      {
-        "title": "Ask Perplexity",
-        "description": "Ask Perplexity about the current page",
-        "icon": "search",
-        "href": {
-          "base": "https://www.perplexity.ai/search",
-          "query": [
-            {
-              "key": "q",
-              "value": "Ask question about https://eliza.how$path.md"
-            }
-          ]
-        }
-      }
-    ]
   }
 }
