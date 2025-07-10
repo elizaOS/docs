@@ -212,7 +212,7 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["plugins"]
+            "pages": ["plugins/overview"]
           },
           {
             "group": "Core Plugins",

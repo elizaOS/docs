@@ -74,23 +74,23 @@ import { Plugin, IAgentRuntime } from "@elizaos/core";
 export const myAwesomePlugin: Plugin = {
     name: "my-awesome-plugin",
     description: "A plugin that does awesome things",
-    
+
     actions: [
         // Your custom actions
     ],
-    
+
     providers: [
         // Your custom providers
     ],
-    
+
     evaluators: [
         // Your custom evaluators
     ],
-    
+
     services: [
         // Your custom services
     ],
-    
+
     async init(runtime: IAgentRuntime) {
         // Initialize your plugin
         console.log("My Awesome Plugin initialized!");
@@ -108,12 +108,12 @@ import { Action, IAgentRuntime, Memory, HandlerCallback } from "@elizaos/core";
 const greetAction: Action = {
     name: "GREET_USER",
     description: "Greets the user with a personalized message",
-    
+
     validate: async (runtime: IAgentRuntime, message: Memory) => {
         // Validate the action can be performed
         return message.content.text.toLowerCase().includes("hello");
     },
-    
+
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -128,7 +128,7 @@ const greetAction: Action = {
             action: "GREET_USER"
         });
     },
-    
+
     examples: [
         [
             {
@@ -137,7 +137,7 @@ const greetAction: Action = {
             },
             {
                 user: "assistant",
-                content: { 
+                content: {
                     text: "Hello! Welcome to Eliza!",
                     action: "GREET_USER"
                 }
