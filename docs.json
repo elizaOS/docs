@@ -39,14 +39,16 @@
             "pages": [
               "deep-dive/architecture",
               "deep-dive/runtime",
-              "deep-dive/memory-system",
               "deep-dive/services",
               "deep-dive/bootstrap-plugin",
-              "deep-dive/database-adapters",
-              "deep-dive/event-system",
-              "deep-dive/model-providers",
-              "deep-dive/real-world-patterns",
-              "deep-dive/testing"
+              "deep-dive/plugin-internals",
+              "deep-dive/real-world-patterns"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/plugin-publishing-guide"
             ]
           }
         ]
@@ -65,6 +67,31 @@
               "api-reference/endpoint/create",
               "api-reference/endpoint/delete",
               "api-reference/endpoint/webhook"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "CLI Reference",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["cli-reference/overview"]
+          },
+          {
+            "group": "Commands",
+            "pages": [
+              "cli-reference/create",
+              "cli-reference/start",
+              "cli-reference/dev",
+              "cli-reference/env",
+              "cli-reference/agent",
+              "cli-reference/plugins",
+              "cli-reference/test",
+              "cli-reference/update",
+              "cli-reference/publish",
+              "cli-reference/monorepo",
+              "cli-reference/tee"
             ]
           }
         ]
