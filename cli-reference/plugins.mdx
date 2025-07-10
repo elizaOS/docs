@@ -82,6 +82,32 @@ Manage ElizaOS plugins.
     elizaos plugins install openai
     ```
 
+    <Warning>
+      After installing plugins via CLI, you **must** add them to your character file (`.json` or `.ts`) to activate them. Installing only adds the package to your project dependencies.
+    </Warning>
+
+    #### Activating Plugins
+
+    ```json character.json
+    {
+      "name": "MyAgent",
+      "plugins": [
+        "@elizaos/plugin-openai",
+        "@elizaos/plugin-discord"
+      ]
+    }
+    ```
+
+    ```typescript character.ts
+    export const character = {
+      name: "MyAgent",
+      plugins: [
+        "@elizaos/plugin-openai",
+        "@elizaos/plugin-discord"
+      ]
+    };
+    ```
+
     ### Listing Installed Plugins
 
     ```bash

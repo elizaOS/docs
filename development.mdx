@@ -95,12 +95,12 @@ Plugins extend your agent's capabilities with additional features:
 Use the elizaOS CLI to add existing plugins:
 
 ```bash
-elizaos add-plugin @elizaos/plugin-twitter
-elizaos add-plugin @elizaos/plugin-discord
+elizaos plugins add @elizaos/plugin-twitter
+elizaos plugins add @elizaos/plugin-discord
 ```
 
 <Warning>
-  After installing plugins via CLI, you **must** add them to your `character.json` file to activate them:
+  After installing plugins via CLI, you **must** add them to your character file (`.json` or `.ts`) to activate them:
 </Warning>
 
 ```json character.json
@@ -111,6 +111,16 @@ elizaos add-plugin @elizaos/plugin-discord
     "@elizaos/plugin-discord"
   ]
 }
+```
+
+```typescript character.ts
+export const character = {
+  name: "MyAgent",
+  plugins: [
+    "@elizaos/plugin-twitter",
+    "@elizaos/plugin-discord"
+  ]
+};
 ```
 
 #### Removing Plugins
