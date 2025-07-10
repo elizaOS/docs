@@ -14,6 +14,10 @@
         "tab": "Guides",
         "groups": [
           {
+            "group": "Get Started",
+            "pages": ["index", "quickstart", "development"]
+          },
+          {
             "group": "Core Concepts",
             "pages": [
               "core-concepts/index",
@@ -43,7 +47,9 @@
           },
           {
             "group": "Guides",
-            "pages": ["guides/plugin-publishing-guide"]
+            "pages": [
+              "guides/plugin-publishing-guide"
+            ]
           }
         ]
       },
@@ -161,7 +167,9 @@
           },
           {
             "group": "WebSocket",
-            "pages": ["api-reference/websocket/socketio-real-time-connection"]
+            "pages": [
+              "api-reference/websocket/socketio-real-time-connection"
+            ]
           }
         ]
       },
