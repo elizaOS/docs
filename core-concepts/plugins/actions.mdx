@@ -22,14 +22,36 @@ interface Action {
 
 ## Core Actions (Bootstrap Plugin)
 
+The bootstrap plugin provides 13 essential actions:
+
+### Communication Actions
 | Action | Description | Example Trigger |
 |--------|-------------|----------------|
 | `REPLY` | Generate response | "Tell me about..." |
 | `SEND_MESSAGE` | Send to specific room | "Message the team..." |
-| `UPDATE_ENTITY` | Update data | "Remember that I..." |
-| `CHOICE` | Present options | "Should I A or B?" |
+| `NONE` | Acknowledge silently | "Thanks!" |
 | `IGNORE` | Skip message | Spam/irrelevant |
-| `NONE` | Acknowledge | "Thanks!" |
+
+### Room Management
+| Action | Description | Example Trigger |
+|--------|-------------|----------------|
+| `FOLLOW_ROOM` | Subscribe to updates | "Join #general" |
+| `UNFOLLOW_ROOM` | Unsubscribe | "Leave #general" |
+| `MUTE_ROOM` | Mute notifications | "Mute this channel" |
+| `UNMUTE_ROOM` | Unmute | "Unmute #general" |
+
+### Data & Configuration
+| Action | Description | Example Trigger |
+|--------|-------------|----------------|
+| `UPDATE_CONTACT` | Update contact info | "Remember that I..." |
+| `UPDATE_ROLE` | Change roles | "Make me admin" |
+| `UPDATE_SETTINGS` | Modify settings | "Set model to gpt-4" |
+
+### Media & Utilities
+| Action | Description | Example Trigger |
+|--------|-------------|----------------|
+| `GENERATE_IMAGE` | Create AI images | "Draw a cat" |
+| `CHOICE` | Present options | "Should I A or B?" |
 
 ## Plugin Action Examples
 

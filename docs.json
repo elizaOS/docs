@@ -41,6 +41,7 @@
               "deep-dive/runtime",
               "deep-dive/memory-system",
               "deep-dive/services",
+              "deep-dive/bootstrap-plugin",
               "deep-dive/database-adapters",
               "deep-dive/event-system",
               "deep-dive/model-providers",

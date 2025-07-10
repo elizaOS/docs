@@ -11,9 +11,17 @@ Services are long-running background tasks that extend agent functionality beyon
 
 ```typescript
 abstract class Service {
-  abstract name: ServiceType;
+  static serviceType: ServiceType;
   
-  abstract start(runtime: IAgentRuntime): Promise<void>;
+  constructor(runtime?: IAgentRuntime) {}
+  
+  abstract capabilityDescription: string;
+  config?: ServiceConfig;
+  
+  static async start(runtime: IAgentRuntime): Promise<Service> {
+    // Return new instance of service
+  }
+  
   abstract stop(): Promise<void>;
 }
 ```
@@ -21,24 +29,19 @@ abstract class Service {
 ## Service Types
 
 ```typescript
-enum ServiceType {
-  BROWSER = 'browser',
-  DATABASE_MIGRATION = 'database_migration',
-  DISCORD = 'discord',
-  DOCUMENT = 'document',
-  IMAGE_GENERATION = 'image_generation',
-  MEMORY_SEARCH = 'memory_search',
-  MODEL = 'model',
-  PDF = 'pdf',
-  SEARCH = 'search',
-  SPEECH = 'speech',
-  TELEGRAM = 'telegram',
-  TRANSCRIPTION = 'transcription',
-  TWITTER = 'twitter',
-  VIDEO = 'video',
-  VOICE = 'voice',
-  WALLET = 'wallet',
-  WEBSOCKET = 'websocket'
+// Core service types (from @elizaos/core)
+const ServiceType = {
+  // Define core service types
+} as const;
+
+// Plugins extend service types through module augmentation
+declare module '@elizaos/core' {
+  interface ServiceTypeRegistry {
+    DISCORD: 'discord';
+    TELEGRAM: 'telegram';
+    TWITTER: 'twitter';
+    // ... other plugin-specific types
+  }
 }
 ```
 
@@ -48,10 +51,22 @@ enum ServiceType {
 
 ```typescript
 class DiscordService extends Service {
-  name = ServiceType.DISCORD;
+  static serviceType = 'discord' as const;
+  capabilityDescription = 'Discord bot integration';
+  
   private client: Discord.Client;
   
-  async start(runtime: IAgentRuntime) {
+  constructor(private runtime: IAgentRuntime) {
+    super(runtime);
+  }
+  
+  static async start(runtime: IAgentRuntime): Promise<Service> {
+    const service = new DiscordService(runtime);
+    await service.initialize();
+    return service;
+  }
+  
+  private async initialize() {
     this.client = new Discord.Client();
     
     this.client.on('messageCreate', async (message) => {
@@ -59,7 +74,7 @@ class DiscordService extends Service {
       const memory = await this.convertMessage(message);
       
       // Process through runtime
-      await runtime.processMessage(memory);
+      await this.runtime.processActions(memory, []);
     });
     
     await this.client.login(process.env.DISCORD_TOKEN);
@@ -98,34 +113,26 @@ class TaskService extends Service {
 }
 ```
 
-### Model Service
+### Model Service Pattern
 
 ```typescript
-class OpenAIService extends Service {
-  name = ServiceType.MODEL;
-  private client: OpenAI;
-  
-  async start(runtime: IAgentRuntime) {
-    this.client = new OpenAI({
+// Model services typically implement model providers instead
+class OpenAIModelProvider implements ModelProvider {
+  async generateText(params: GenerateTextParams) {
+    const client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY
     });
     
-    // Register model handlers
-    runtime.registerModel({
-      type: ModelType.TEXT_GENERATION,
-      handler: async (params) => {
-        return await this.generate(params);
-      }
-    });
-  }
-  
-  async generate(params: ModelParams) {
-    const response = await this.client.chat.completions.create({
-      model: "gpt-4",
+    const response = await client.chat.completions.create({
+      model: params.model || "gpt-4",
       messages: params.messages
     });
     
     return response.choices[0].message;
+  }
+  
+  async embed(params: EmbedParams) {
+    // Implementation for embeddings
   }
 }
 ```
@@ -162,14 +169,19 @@ Services can interact with the runtime and other services:
 
 ```typescript
 class NotificationService extends Service {
+  static serviceType = 'notification' as const;
+  capabilityDescription = 'Cross-platform notifications';
+  
   async notify(message: string) {
-    // Get Discord service
-    const discord = this.runtime.getService<DiscordService>('discord');
-    await discord.sendMessage(channelId, message);
+    // Get service by type
+    const discord = this.runtime.getService('discord');
+    if (discord) {
+      await discord.sendMessage(channelId, message);
+    }
     
-    // Get Twitter service
-    const twitter = this.runtime.getService<TwitterService>('twitter');
-    await twitter.tweet(message);
+    // Check all registered services
+    const services = this.runtime.getAllServices();
+    // Coordinate across services
   }
 }
 ```

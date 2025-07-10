@@ -18,7 +18,6 @@ Plugins extend agent capabilities through:
 ```typescript
 export const myPlugin: Plugin = {
   name: 'my-plugin',
-  description: 'Plugin description',
   
   // Core components
   actions: [],      // Tasks to perform
@@ -29,34 +28,15 @@ export const myPlugin: Plugin = {
   // Optional features
   routes: [],       // HTTP endpoints
   events: {},       // Event handlers
-  models: {},       // Custom AI models
-  adapter: null,    // Database adapter
   
   // Configuration
-  init: async (config, runtime) => {},
-  priority: 0,      // Load order
-  dependencies: []  // Required plugins
+  init: async (config, runtime) => {}
 };
 ```
 
 ## Core Plugin: Bootstrap
 
-Every agent includes `@elizaos/plugin-bootstrap` with essential functionality:
-
-**Actions:**
-- `REPLY` - Generate responses
-- `SEND_MESSAGE` - Send messages
-- `UPDATE_ENTITY` - Update data
-- `CHOICE` - Present options
-
-**Providers:**
-- `characterProvider` - Agent personality
-- `timeProvider` - Current time
-- `knowledgeProvider` - Knowledge base
-- `actionsProvider` - Available actions
-
-**Services:**
-- `TaskService` - Scheduled task management
+Every agent includes `@elizaos/plugin-bootstrap` which provides essential functionality for message handling, knowledge management, and basic agent operations. For detailed information, see the [Bootstrap Plugin Deep Dive](/deep-dive/bootstrap-plugin).
 
 ## Platform Plugins
 

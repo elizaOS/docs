@@ -9,21 +9,19 @@ The AgentRuntime is the central orchestrator that manages agent lifecycle, proce
 
 ## Key Responsibilities
 
-### 1. Message Processing
+### 1. Action Processing
 
 ```typescript
-async processMessage(message: Memory): Promise<Response> {
-  // Compose state from providers
-  const state = await this.composeState(message);
+async processActions(message: Memory, responses: Memory[], state?: State): Promise<void> {
+  // Select and execute actions based on context
+  const actions = await this.selectActions(message, state);
   
-  // Select and execute action
-  const action = await this.selectAction(state);
-  const response = await action.handler(this, message, state);
+  for (const action of actions) {
+    await action.handler(this, message, state);
+  }
   
-  // Run evaluators
-  await this.evaluate(message, response);
-  
-  return response;
+  // Run evaluators on results
+  await this.evaluate(message, state);
 }
 ```
 
@@ -62,15 +60,19 @@ async registerPlugin(plugin: Plugin) {
 ## Runtime Interface
 
 ```typescript
-interface IAgentRuntime {
+interface IAgentRuntime extends IDatabaseAdapter {
   // Core properties
   agentId: UUID;
   character: Character;
-  databaseAdapter: IDatabaseAdapter;
+  providers: Provider[];
+  actions: Action[];
+  evaluators: Evaluator[];
+  services: Service[];
   
-  // Message processing
-  processMessage(message: Memory): Promise<void>;
-  composeState(message: Memory): Promise<State>;
+  // Action processing
+  processActions(message: Memory, responses: Memory[], state?: State): Promise<void>;
+  composeState(message: Memory, state?: State): Promise<State>;
+  evaluate(message: Memory, state?: State): Promise<void>;
   
   // Component registration
   registerAction(action: Action): void;
@@ -79,17 +81,17 @@ interface IAgentRuntime {
   registerService(service: Service): void;
   
   // Service management
-  getService<T>(name: string): T;
-  startServices(): Promise<void>;
-  stopServices(): Promise<void>;
+  getService<T>(name: ServiceType): T;
+  stop(): Promise<void>;
   
   // Model management
-  useModel(params: ModelParams): Promise<ModelResult>;
-  registerModel(handler: ModelHandler): void;
+  useModel<T extends ModelTypeName>(modelType: T, params: ModelParamsMap[T], provider?: string): Promise<ModelResultMap[T]>;
+  registerModel(modelType: ModelTypeName, handler: ModelHandler, provider?: string, priority?: number): void;
+  getModel(modelType: ModelTypeName, provider?: string): ModelHandler | undefined;
   
   // Event system
-  emitEvent(event: Event): void;
-  registerEvent(handler: EventHandler): void;
+  emit(eventType: EventType, data: any): Promise<void>;
+  on(eventType: EventType, handler: EventHandler): void;
 }
 ```
 
@@ -113,20 +115,31 @@ graph TD
 The runtime manages AI model selection through a priority system:
 
 ```typescript
-// Register model handlers
-runtime.registerModel({
-  model: ModelType.TEXT_GENERATION,
-  priority: 100,
-  handler: async (params) => {
-    return await callOpenAI(params);
-  }
-});
+// Plugins register model handlers
+runtime.registerModel(
+  ModelType.TEXT_LARGE,
+  async (runtime, params) => {
+    // Call OpenAI API, Anthropic, etc.
+    return generatedText;
+  },
+  'openai',  // provider name
+  100        // priority
+);
 
-// Use best available model
-const result = await runtime.useModel({
-  type: ModelType.TEXT_GENERATION,
-  prompt: "Generate response"
-});
+// Use models with type safety
+const result = await runtime.useModel(
+  ModelType.TEXT_LARGE,
+  {
+    prompt: "Generate a response",
+    temperature: 0.7
+  }
+);
+
+// Get embeddings
+const embedding = await runtime.useModel(
+  ModelType.TEXT_EMBEDDING,
+  { input: "Text to embed" }
+);
 ```
 
 ## Memory Management

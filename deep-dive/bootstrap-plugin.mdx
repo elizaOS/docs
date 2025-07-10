@@ -1,0 +1,197 @@
+---
+title: 'Bootstrap Plugin'
+description: 'Core functionality provided by @elizaos/plugin-bootstrap'
+---
+
+## Overview
+
+The Bootstrap plugin (`@elizaos/plugin-bootstrap`) is the foundational plugin that provides essential functionality for all agents. It includes core actions, providers, evaluators, and services that enable basic agent operations.
+
+## Actions (13 total)
+
+### Core Communication
+- **`REPLY`** - Generate contextual responses to messages
+- **`SEND_MESSAGE`** - Send messages to specific rooms/channels
+- **`NONE`** - Explicitly take no action
+- **`IGNORE`** - Ignore a message (differs from NONE in intent)
+
+### Room Management
+- **`FOLLOW_ROOM`** - Subscribe to room updates
+- **`UNFOLLOW_ROOM`** - Unsubscribe from room updates
+- **`MUTE_ROOM`** - Mute notifications from a room
+- **`UNMUTE_ROOM`** - Unmute room notifications
+
+### Data Management
+- **`UPDATE_CONTACT`** - Update contact information (simile: `UPDATE_ENTITY`)
+- **`UPDATE_ROLE`** - Update agent roles and permissions
+- **`UPDATE_SETTINGS`** - Modify agent settings
+
+### Media
+- **`GENERATE_IMAGE`** - Generate images using AI models
+
+### Utility
+- **`CHOICE`** - Present and handle multiple-choice options
+
+## Providers (16 total)
+
+### Context Providers
+- **`timeProvider`** - Current time and timezone information
+- **`anxietyProvider`** - Character anxiety level based on recent activities
+- **`relationshipProvider`** - Agent relationships and trust scores
+- **`capabilitiesProvider`** - Current agent capabilities
+
+### Knowledge & Memory
+- **`knowledgeSearchProvider`** - Search through knowledge base
+- **`attachmentsProvider`** - Handle file attachments
+- **`memoryQueryProvider`** - Query memory storage
+- **`messagesProvider`** - Recent message history
+
+### Conversation Management
+- **`callProvider`** - Voice call context
+- **`storyProvider`** - Narrative context
+- **`participantsProvider`** - Current conversation participants
+- **`ignoreProvider`** - Ignore list management
+
+### Character & Identity
+- **`actorsProvider`** - Character actors in scene
+- **`eventsProvider`** - Recent events
+- **`entitiesProvider`** - Known entities
+- **`characterProvider`** - Core character configuration
+
+## Evaluators (9 total)
+
+### Memory Management
+- **`storeConversationMemoryEvaluator`** - Save conversation to memory
+- **`storeThoughtsEvaluator`** - Store agent thoughts and reasoning
+- **`extractEntitiesEvaluator`** - Extract entities from conversations
+
+### Content Analysis
+- **`extractClaimsEvaluator`** - Extract factual claims
+- **`filterEvaluator`** - Filter inappropriate content
+- **`hasGoalEvaluator`** - Detect user goals and intents
+- **`hasFollowupEvaluator`** - Identify follow-up opportunities
+
+### Behavior
+- **`isGameEvaluator`** - Detect game-like interactions
+- **`shouldIgnoreEvaluator`** - Determine if message should be ignored
+
+## Services
+
+### TaskService
+Background service for scheduled task management:
+- Periodic task execution
+- Scheduled message sending
+- Maintenance operations
+
+## Usage
+
+The bootstrap plugin is automatically included with all agents:
+
+```typescript
+export const character: Character = {
+  name: "MyAgent",
+  plugins: [
+    "@elizaos/plugin-bootstrap", // Always include this
+    // ... other plugins
+  ]
+};
+```
+
+## Action Examples
+
+### REPLY Action
+```typescript
+{
+  name: "REPLY",
+  description: "Generate a response to the user's message",
+  validate: async (runtime, message) => {
+    return message.content.source === "direct";
+  },
+  handler: async (runtime, message, state) => {
+    // Generates contextual response using LLM
+    return { text: generatedResponse };
+  }
+}
+```
+
+### UPDATE_CONTACT Action
+```typescript
+{
+  name: "UPDATE_CONTACT",
+  similes: ["UPDATE_ENTITY", "UPDATE_USER", "EDIT_CONTACT"],
+  description: "Update contact information",
+  validate: async (runtime, message) => {
+    return !!state.contactToUpdate;
+  },
+  handler: async (runtime, message, state) => {
+    // Updates contact in database
+    await runtime.databaseAdapter.updateContact(contact);
+  }
+}
+```
+
+## Provider Examples
+
+### timeProvider
+```typescript
+{
+  name: "timeProvider",
+  get: async () => {
+    return {
+      time: new Date().toISOString(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+  }
+}
+```
+
+### knowledgeSearchProvider
+```typescript
+{
+  name: "knowledgeSearchProvider", 
+  get: async (runtime, message) => {
+    const query = extractQuery(message);
+    const results = await runtime.knowledgeManager.search(query);
+    return { knowledgeResults: results };
+  }
+}
+```
+
+## Best Practices
+
+1. **Always include bootstrap** - It provides essential functionality
+2. **Don't override core actions** - Extend them instead
+3. **Use providers for context** - They feed into action decisions
+4. **Let evaluators run** - They maintain memory and improve responses
+5. **Configure services** - TaskService can handle scheduled operations
+
+## Integration with Other Plugins
+
+Bootstrap plugin provides the foundation that other plugins build upon:
+
+- Platform plugins (Discord, Telegram) rely on SEND_MESSAGE
+- Trading plugins use UPDATE_SETTINGS for configuration
+- AI plugins extend GENERATE_IMAGE capabilities
+- Analytics plugins use evaluator outputs
+
+## Configuration
+
+Most bootstrap functionality works out of the box, but you can configure:
+
+```typescript
+// In your character definition
+settings: {
+  // Task service intervals
+  taskCheckInterval: 60000, // 1 minute
+  
+  // Memory management
+  maxRecentMessages: 100,
+  memoryRetention: 30, // days
+  
+  // Content filtering
+  filterLevel: "moderate",
+  
+  // Image generation
+  imageModel: "dall-e-3"
+}
+```
