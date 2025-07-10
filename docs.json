@@ -57,16 +57,118 @@
         "tab": "API Reference",
         "groups": [
           {
-            "group": "API Documentation",
-            "pages": ["api-reference/introduction"]
+            "group": "Agents",
+            "pages": [
+              "api-reference/agents/create-a-new-agent",
+              "api-reference/agents/get-agent-details",
+              "api-reference/agents/list-all-agents",
+              "api-reference/agents/update-agent",
+              "api-reference/agents/delete-an-agent",
+              "api-reference/agents/start-an-agent",
+              "api-reference/agents/stop-an-agent",
+              "api-reference/agents/get-agent-panels",
+              "api-reference/agents/create-a-world-for-an-agent",
+              "api-reference/agents/get-all-worlds",
+              "api-reference/agents/update-a-world"
+            ]
           },
           {
-            "group": "Endpoint Examples",
+            "group": "Audio",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/audio/generate-speech-from-text",
+              "api-reference/audio/synthesize-speech-from-text",
+              "api-reference/audio/transcribe-audio",
+              "api-reference/audio/process-audio-message",
+              "api-reference/audio/convert-conversation-to-speech"
+            ]
+          },
+          {
+            "group": "Messaging",
+            "pages": [
+              "api-reference/messaging/create-server",
+              "api-reference/messaging/create-channel",
+              "api-reference/messaging/create-central-channel",
+              "api-reference/messaging/create-group-channel",
+              "api-reference/messaging/get-or-create-dm-channel",
+              "api-reference/messaging/send-message-to-channel",
+              "api-reference/messaging/get-channel-messages",
+              "api-reference/messaging/get-channel-details",
+              "api-reference/messaging/get-channel-info",
+              "api-reference/messaging/get-channel-participants",
+              "api-reference/messaging/update-channel",
+              "api-reference/messaging/delete-channel",
+              "api-reference/messaging/delete-channel-message",
+              "api-reference/messaging/delete-all-channel-messages",
+              "api-reference/messaging/delete-all-channel-messages-by-user",
+              "api-reference/messaging/add-agent-to-server",
+              "api-reference/messaging/add-agent-to-channel",
+              "api-reference/messaging/remove-agent-from-server",
+              "api-reference/messaging/get-server-agents",
+              "api-reference/messaging/get-server-channels",
+              "api-reference/messaging/get-central-servers",
+              "api-reference/messaging/get-central-server-channels",
+              "api-reference/messaging/process-external-message",
+              "api-reference/messaging/ingest-messages-from-external-platforms",
+              "api-reference/messaging/submit-a-message-to-the-central-messaging-system",
+              "api-reference/messaging/mark-message-processing-as-complete"
+            ]
+          },
+          {
+            "group": "Memory",
+            "pages": [
+              "api-reference/memory/get-agent-memories",
+              "api-reference/memory/get-room-memories",
+              "api-reference/memory/create-a-room",
+              "api-reference/memory/update-a-memory",
+              "api-reference/memory/delete-all-agent-memories",
+              "api-reference/memory/delete-all-memories-for-a-room"
+            ]
+          },
+          {
+            "group": "Rooms",
+            "pages": [
+              "api-reference/rooms/create-a-room",
+              "api-reference/rooms/get-room-details",
+              "api-reference/rooms/get-agent-rooms",
+              "api-reference/rooms/update-a-room",
+              "api-reference/rooms/delete-a-room"
+            ]
+          },
+          {
+            "group": "Media",
+            "pages": [
+              "api-reference/media/upload-media-for-agent",
+              "api-reference/media/upload-media-to-channel"
+            ]
+          },
+          {
+            "group": "Logs",
+            "pages": [
+              "api-reference/logs/get-agent-logs",
+              "api-reference/logs/get-system-logs",
+              "api-reference/logs/get-system-logs-post",
+              "api-reference/logs/delete-a-specific-log-entry",
+              "api-reference/logs/clear-system-logs"
+            ]
+          },
+          {
+            "group": "System",
+            "pages": [
+              "api-reference/system/basic-health-check",
+              "api-reference/system/health-check-endpoint",
+              "api-reference/system/ping-health-check",
+              "api-reference/system/get-system-status",
+              "api-reference/system/get-server-debug-info",
+              "api-reference/system/get-server-debug-info-1",
+              "api-reference/system/get-local-environment-variables",
+              "api-reference/system/update-local-environment-variables",
+              "api-reference/system/stop-the-server"
+            ]
+          },
+          {
+            "group": "WebSocket",
+            "pages": [
+              "api-reference/websocket/socketio-real-time-connection"
             ]
           }
         ]
