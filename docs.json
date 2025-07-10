@@ -8,12 +8,6 @@
     "dark": "#CC4400"
   },
   "favicon": "/favicon.svg",
-  "topbarLinks": [
-    {
-      "type": "github",
-      "url": "https://github.com/elizaos/eliza"
-    }
-  ],
   "navigation": {
     "tabs": [
       {
@@ -53,9 +47,7 @@
           },
           {
             "group": "Guides",
-            "pages": [
-              "guides/plugin-publishing-guide"
-            ]
+            "pages": ["guides/plugin-publishing-guide"]
           }
         ]
       },
@@ -173,9 +165,7 @@
           },
           {
             "group": "WebSocket",
-            "pages": [
-              "api-reference/websocket/socketio-real-time-connection"
-            ]
+            "pages": ["api-reference/websocket/socketio-real-time-connection"]
           }
         ]
       },
@@ -209,7 +199,7 @@
       "anchors": [
         {
           "anchor": "Discord",
-          "href": "https://discord.gg/elizaos",
+          "href": "https://discord.gg/ai16z",
           "icon": "discord"
         },
         {
@@ -237,8 +227,7 @@
       }
     ],
     "primary": {
-      "type": "button",
-      "label": "GitHub",
+      "type": "github",
       "href": "https://github.com/elizaos/eliza"
     }
   },
