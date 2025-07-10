@@ -20,12 +20,13 @@ Manage ElizaOS agents.
 
     | Subcommand | Aliases | Description | Required Options | Additional Options |
     | ---------- | ------- | ----------- | ---------------- | ------------------ |
-    | `list` | `ls` | List available agents | | `--format <format>`, `-r, --remote-url <url>`, `-p, --port <port>` |
-    | `get` | `g` | Get agent details | `-n, --name <name>` | `--format <format>`, `-o, --output [file]`, `-r, --remote-url`, `-p, --port` |
+    | `list` | `ls` | List available agents | | `-j, --json`, `-r, --remote-url <url>`, `-p, --port <port>` |
+    | `get` | `g` | Get agent details | `-n, --name <name>` | `-j, --json`, `-o, --output [file]`, `-r, --remote-url`, `-p, --port` |
     | `start` | `s` | Start an agent with a character profile | One of: `-n, --name`, `--path`, `--remote-character` | `-r, --remote-url <url>`, `-p, --port <port>` |
     | `stop` | `st` | Stop an agent | `-n, --name <name>` | `-r, --remote-url <url>`, `-p, --port <port>` |
     | `remove` | `rm` | Remove an agent | `-n, --name <name>` | `-r, --remote-url <url>`, `-p, --port <port>` |
     | `set` | | Update agent configuration | `-n, --name <name>` AND one of: `-c, --config` OR `-f, --file` | `-r, --remote-url <url>`, `-p, --port <port>` |
+    | `clear-memories` | `clear` | Clear all memories for an agent | `-n, --name <name>` | `-r, --remote-url <url>`, `-p, --port <port>` |
 
     ## Options Reference
 
@@ -36,8 +37,7 @@ Manage ElizaOS agents.
 
     ### Output Options (for `list` and `get`)
 
-    - `--format <format>`: Specify the output format. Options are `table` (default), `json`, or `yaml`.
-    - `-j, --json`: A shorthand for `--format json`.
+    - `-j, --json`: Output as JSON format instead of the default table format.
     - `-o, --output [file]`: For the `get` command, saves the agent's configuration to a JSON file. If no filename is provided, defaults to `{name}.json`.
 
     ### Get Specific Options
@@ -59,6 +59,10 @@ Manage ElizaOS agents.
     - `-n, --name <name>`: Agent id, name, or index number from list (required)
     - `-c, --config <json>`: Agent configuration as JSON string
     - `-f, --file <path>`: Path to agent configuration JSON file
+
+    ### Clear Memories Specific Options
+
+    - `-n, --name <name>`: Agent id, name, or index number from list (required)
   </Tab>
 
   <Tab title="Examples">
@@ -72,12 +76,9 @@ Manage ElizaOS agents.
     elizaos agent ls
 
     # List agents in JSON format
-    elizaos agent list --format json
+    elizaos agent list --json
     # Or using the shorthand
-    elizaos agent list --j
-
-    # List agents in YAML format
-    elizaos agent list --format yaml
+    elizaos agent list -j
 
     # List agents from remote runtime
     elizaos agent list --remote-url http://server:3000
@@ -99,10 +100,9 @@ Manage ElizaOS agents.
     elizaos agent get --name 0
 
     # Display configuration as JSON in console
-    elizaos agent get --name eliza --format json
-
-    # Display configuration as YAML in console
-    elizaos agent get --name eliza --format yaml
+    elizaos agent get --name eliza --json
+    # Or using the shorthand
+    elizaos agent get --name eliza -j
 
     # Save agent configuration to file
     elizaos agent get --name eliza --output
@@ -186,12 +186,28 @@ Manage ElizaOS agents.
     # Update agent on specific port
     elizaos agent set --name eliza --file ./config.json --port 4000
     ```
+
+    ### Clearing Agent Memories
+
+    ```bash
+    # Clear memories for agent by name
+    elizaos agent clear-memories --name eliza
+
+    # Clear memories by ID
+    elizaos agent clear-memories --name agent_123456
+
+    # Using alias
+    elizaos agent clear --name eliza
+
+    # Clear memories on remote runtime
+    elizaos agent clear-memories --name eliza --remote-url http://server:3000
+    ```
   </Tab>
 
   <Tab title="Features">
     ## Output Formatting
 
-    The `list` and `get` commands support multiple output formats via the `--format` option, making it easy to use the CLI in scripts or for human readability.
+    The `list` and `get` commands support different output formats, making it easy to use the CLI in scripts or for human readability.
 
     ### `table` (Default)
 
@@ -208,20 +224,13 @@ Manage ElizaOS agents.
 
     ### `json`
 
-    Outputs raw JSON data. Useful for piping into other tools like `jq`. The `-j` flag is a convenient shorthand for `--format json`.
+    Outputs raw JSON data. Useful for piping into other tools like `jq`. Use the `-j` or `--json` flag.
 
     ```bash
     # Get JSON output
-    elizaos agent get --name eliza --format json
-    ```
-
-    ### `yaml`
-
-    Outputs YAML data, which can be more human-readable than JSON for complex configurations.
-
-    ```bash
-    # Get YAML output
-    elizaos agent get --name eliza --format yaml
+    elizaos agent get --name eliza --json
+    # Or using shorthand
+    elizaos agent get --name eliza -j
     ```
 
     ## Character File Structure
@@ -262,6 +271,7 @@ Manage ElizaOS agents.
     elizaos agent stop
     elizaos agent remove
     elizaos agent set
+    elizaos agent clear-memories
     ```
 
     ## Remote Runtime Configuration
@@ -323,6 +333,9 @@ Manage ElizaOS agents.
 
     # Stop agent
     elizaos agent stop --name eliza
+
+    # Clear agent memories if needed
+    elizaos agent clear-memories --name eliza
 
     # Remove when no longer needed
     elizaos agent remove --name eliza

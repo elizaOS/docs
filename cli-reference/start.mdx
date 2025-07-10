@@ -6,7 +6,7 @@ icon: play
 
 # Start Command
 
-Start the Eliza agent with configurable plugins and services.
+Start the Eliza agent server.
 
 <Tabs>
   <Tab title="Overview">
@@ -20,12 +20,9 @@ Start the Eliza agent with configurable plugins and services.
 
     | Option | Description |
     | ------ | ----------- |
-    | `-c, --configure` | Force reconfiguration of services and AI models (bypasses saved configuration) |
-    | `--character [paths...]` | Character file(s) to use - accepts paths or URLs |
-    | `--build` | Build the project before starting |
-    | `--no-build` | Skip the build step before starting |
-    | `-p, --port <port>` | Port to listen on (default: 3000) |
-    | `--quiet` | Suppress all non-error output to the console |
+    | `-c, --configure` | Reconfigure services and AI models |
+    | `--character <paths...>` | Character file(s) to use |
+    | `-p, --port <port>` | Port to listen on |
   </Tab>
 
   <Tab title="Examples">
@@ -38,18 +35,8 @@ Start the Eliza agent with configurable plugins and services.
     # Start on custom port
     elizaos start --port 8080
 
-    # Build project before starting
-    elizaos start --build
-
     # Force reconfiguration
     elizaos start --configure
-    ```
-
-    ### Suppressing Output
-
-    ```bash
-    # Start quietly, only showing errors
-    elizaos start --quiet
     ```
 
     ### Character Configuration
@@ -74,14 +61,14 @@ Start the Eliza agent with configurable plugins and services.
     ### Advanced Configurations
 
     ```bash
-    # Build and configure before starting
-    elizaos start --build --configure
+    # Reconfigure services before starting
+    elizaos start --configure
 
     # Start with specific character on custom port
     elizaos start --character ./my-bot.json --port 4000
 
     # Complete setup for production deployment
-    elizaos start --character ./production-bot.json --port 3000 --build
+    elizaos start --character ./production-bot.json --port 3000
     ```
 
     ### Production Deployment
@@ -89,10 +76,10 @@ Start the Eliza agent with configurable plugins and services.
     ```bash
     # With environment file
     cp .env.production .env
-    elizaos start --build
+    elizaos start
 
     # Background process (Linux/macOS)
-    nohup elizaos start --build > elizaos.log 2>&1 &
+    nohup elizaos start > elizaos.log 2>&1 &
     ```
 
     ### Health Checks
@@ -205,9 +192,9 @@ Start the Eliza agent with configurable plugins and services.
 
     ### Default Port
 
-    - Default: `3000`
+    - Port must be specified with `-p` or `--port` option
     - Automatically detects if port is in use
-    - Suggests alternative ports if default is unavailable
+    - Suggests alternative ports if specified port is unavailable
 
     ### Custom Port
 
@@ -222,19 +209,13 @@ Start the Eliza agent with configurable plugins and services.
 
     ## Build Process
 
-    ### Automatic Building
+    The `start` command does not include built-in build functionality. To build your project before starting:
 
     ```bash
-    # Build before starting (recommended for production)
-    elizaos start --build
+    # Build separately before starting
+    bun run build
+    elizaos start
     ```
-
-    ### When to Use --build
-
-    - **First deployment**: Ensure all TypeScript is compiled
-    - **After code changes**: Refresh compiled output
-    - **Production deployment**: Guarantee latest build
-    - **Troubleshooting**: Eliminate build-related issues
 
     ## Health Checks
 
@@ -309,15 +290,16 @@ Start the Eliza agent with configurable plugins and services.
     ### Build Failures
 
     ```bash
-    # Clean build and retry
-    elizaos start --build
-
-    # Check for TypeScript errors
+    # Build separately and check for errors
     bun run build
+    
+    # If build succeeds, then start
+    elizaos start
 
     # Install dependencies if missing
     bun install
-    elizaos start --build
+    bun run build
+    elizaos start
     ```
 
     ### Service Connection Issues

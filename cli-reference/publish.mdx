@@ -29,10 +29,10 @@ The `elizaos publish` command is the all-in-one tool for releasing your plugin. 
 
     | Option | Description |
     | ------ | ----------- |
-    | `--npm` | Publish to npm instead of GitHub Packages |
-    | `-t, --test` | Run a simulation of the publish process without making changes |
-    | `-d, --dry-run` | Generate registry files locally for inspection without publishing |
-    | `--skip-registry` | Publish the package but skip submitting to the registry |
+    | `--npm` | Publish to npm only (skip GitHub and registry) |
+    | `-t, --test` | Test publish process without making changes |
+    | `-d, --dry-run` | Generate registry files locally without publishing |
+    | `--skip-registry` | Skip publishing to the registry |
   </Tab>
 
   <Tab title="Examples">
@@ -69,7 +69,7 @@ The `elizaos publish` command is the all-in-one tool for releasing your plugin. 
     # Publish to npm but do not open a PR to the registry
     elizaos publish --skip-registry
 
-    # Test npm publishing workflow
+    # Test npm-only publishing (skip GitHub and registry)
     elizaos publish --test --npm
     ```
   </Tab>
@@ -289,7 +289,7 @@ The `elizaos publish` command is the all-in-one tool for releasing your plugin. 
     # Verify it's correct
     gh repo view yourusername/plugin-name
 
-    # Skip repo creation
+    # Publish to npm only (skip GitHub and registry)
     elizaos publish --npm
     ```
 

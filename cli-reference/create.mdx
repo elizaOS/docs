@@ -32,10 +32,7 @@ Initialize a new project, plugin, or agent.
     | Option | Description |
     | ------ | ----------- |
     | `-y, --yes` | Skip confirmation and use defaults (default: `false`) |
-    | `-t, --type <type>` | Type of template to use (`project`, `plugin`, `agent`, or `tee`) |
-    | `--template <name>` | Use a specific template by name (e.g., `default`, `minimal`) |
-    | `--no-install` | Skip automatic dependency installation after creation |
-    | `--no-git` | Skip `git init` for the new project |
+    | `--type <type>` | Type of template to use (`project`, `plugin`, `agent`, or `tee`) (default: `project`) |
     | `[name]` | Name for the project, plugin, or agent (optional) |
 
     ## Interactive Process
@@ -89,16 +86,16 @@ Initialize a new project, plugin, or agent.
 
     ```bash
     # Create a plugin interactively
-    elizaos create -t plugin
+    elizaos create --type plugin
 
     # Create a plugin with defaults
-    elizaos create -t plugin -y
+    elizaos create --type plugin -y
 
     # Create an agent character file
-    elizaos create -t agent my-character-name
+    elizaos create --type agent my-character-name
 
     # Create a TEE (Trusted Execution Environment) project
-    elizaos create -t tee my-tee-project
+    elizaos create --type tee my-tee-project
     ```
 
     ### Advanced Creation
