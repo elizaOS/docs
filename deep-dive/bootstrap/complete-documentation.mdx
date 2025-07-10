@@ -703,13 +703,29 @@ if (error) {
 ### 1. Basic Integration
 
 ```typescript
-import { bootstrapPlugin } from '@elizaos/plugin-bootstrap';
+import { Project, ProjectAgent, Character } from '@elizaos/core';
 
-// Register the plugin with your agent
-const agent = new AgentRuntime({
-  plugins: [bootstrapPlugin],
-  // ... other configuration
-});
+// Define your character with bootstrap plugin
+const character: Character = {
+  name: 'MyAgent',
+  bio: ['An intelligent agent powered by ElizaOS'],
+  plugins: [
+    '@elizaos/plugin-sql',
+    '@elizaos/plugin-bootstrap',
+  ],
+};
+
+// Create the agent
+const agent: ProjectAgent = {
+  character,
+  // Custom plugins go here at agent level
+  plugins: [],
+};
+
+// Export the project
+export const project = {
+  agents: [agent]
+};
 ```
 
 ### 2. Custom Event Handlers
