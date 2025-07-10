@@ -107,19 +107,35 @@ elizaos plugins add @elizaos/plugin-discord
 {
   "name": "MyAgent",
   "plugins": [
+    "@elizaos/plugin-sql",
     "@elizaos/plugin-twitter",
     "@elizaos/plugin-discord"
-  ]
+  ],
+  "bio": ["Your agent's description"],
+  "style": {
+    "all": ["conversational", "friendly"]
+  }
 }
 ```
 
 ```typescript character.ts
-export const character = {
+import { Character } from '@elizaos/core';
+
+export const character: Character = {
   name: "MyAgent",
   plugins: [
-    "@elizaos/plugin-twitter",
-    "@elizaos/plugin-discord"
-  ]
+    // Core plugins
+    "@elizaos/plugin-sql",
+    
+    // Conditional plugins based on environment variables
+    ...(process.env.TWITTER_API_KEY ? ["@elizaos/plugin-twitter"] : []),
+    ...(process.env.DISCORD_API_TOKEN ? ["@elizaos/plugin-discord"] : []),
+    ...(process.env.OPENAI_API_KEY ? ["@elizaos/plugin-openai"] : [])
+  ],
+  bio: ["Your agent's description"],
+  style: {
+    all: ["conversational", "friendly"]
+  }
 };
 ```
 
@@ -128,10 +144,10 @@ export const character = {
 To remove a plugin:
 
 ```bash
-elizaos remove-plugin @elizaos/plugin-twitter
+elizaos plugins remove @elizaos/plugin-twitter
 ```
 
-Remember to also remove it from your `character.json` file.
+Remember to also remove it from your character file (`.json` or `.ts`).
 
 #### Available Plugins
 

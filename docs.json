@@ -46,7 +46,6 @@
                   "deep-dive/bootstrap/index",
                   "deep-dive/bootstrap/complete-documentation",
                   "deep-dive/bootstrap/message-flow",
-                  "deep-dive/bootstrap/examples",
                   "deep-dive/bootstrap/testing-guide"
                 ]
               },
