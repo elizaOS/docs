@@ -10,6 +10,7 @@ permissions:
   contents: write
   pull-requests: write
   issues: write
+  id-token: write
 
 jobs:
   check-links:
@@ -87,14 +88,6 @@ jobs:
             - Number of links requiring manual review
             - List of all fixes applied with confidence levels
             - Files modified count
-
-          # Allow Claude to use bash commands for link checking and file editing
-          allowed_tools: "Bash(find . -name '*.mdx' -o -name '*.md'),Bash(grep -n),Bash(sed -i),Bash(curl -I),EditFile(*)"
-
-          # Custom environment variables
-          claude_env: |
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            REPOSITORY: ${{ github.repository }}
 
       - name: Check for Changes
         id: check-changes
