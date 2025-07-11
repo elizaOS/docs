@@ -106,12 +106,25 @@ Your agent automatically gets these new abilities:
 
 ### Examples in Chat
 
-```
-You: Process this article: https://example.com/ai-agents
-Agent: I'll fetch and process that article... Successfully added to knowledge base!
+**First, upload a document through the GUI:**
+1. Go to `http://localhost:3000`
+2. Click on your agent and open the Knowledge tab
+3. Upload a document (e.g., `company_q3_earnings.pdf`)
 
-You: What does the article say about agent architectures?
-Agent: According to the article, agent architectures typically consist of...
+**Then ask your agent about it:**
+
+```
+You: What were the Q3 revenue figures?
+Agent: Based on the Q3 earnings report in my knowledge base, the revenue was $2.3M, 
+       representing a 15% increase from Q2...
+
+You: Search your knowledge for information about profit margins
+Agent: I found relevant information about profit margins: The Q3 report shows gross 
+       margins improved to 42%, up from 38% in the previous quarter...
+
+You: What does the report say about future projections?
+Agent: According to the earnings report, the company projects Q4 revenue to reach 
+       $2.8M with continued margin expansion...
 ```
 
 ## 📂 Organizing Your Documents
