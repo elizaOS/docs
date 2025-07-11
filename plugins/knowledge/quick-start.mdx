@@ -24,7 +24,11 @@ export const character = {
 };
 ```
 
-**That's it!** Your agent can now learn from documents. No environment variables or API keys needed.
+**That's it!** Your agent can now learn from documents. You'll need an `OPENAI_API_KEY` in your `.env` file for embeddings.
+
+<Note>
+Add `OPENAI_API_KEY=your-api-key` to your `.env` file. This is used for creating document embeddings, even if you're using a different AI provider for chat.
+</Note>
 
 ### Step 2: Upload Documents (Optional)
 

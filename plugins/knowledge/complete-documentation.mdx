@@ -448,39 +448,6 @@ async function searchKnowledge(query: string, limit: number = 10): Promise<Knowl
 }
 ```
 
-### RAG Context Building
-
-Inject knowledge into agent prompts:
-
-```typescript
-function buildRAGContext(knowledge: KnowledgeItem[]): string {
-  if (knowledge.length === 0) return '';
-  
-  return `Based on the following information:\n\n${
-    knowledge.map((item, index) => 
-      `[${index + 1}] ${item.content}\n(Source: ${item.metadata.source})`
-    ).join('\n\n')
-  }\n\n`;
-}
-```
-
-### Conversation Memory with RAG
-
-Track knowledge usage:
-
-```typescript
-// Store which knowledge was used
-await runtime.messageManager.createMemory({
-  agentId: runtime.agentId,
-  userId: message.userId,
-  roomId: message.roomId,
-  content: {
-    text: response,
-    knowledgeUsed: knowledge.map(k => k.id)
-  }
-});
-```
-
 ## API Reference
 
 ### REST Endpoints
@@ -864,14 +831,6 @@ Enable verbose logging:
 ```env
 # .env
 LOG_LEVEL=debug
-KNOWLEDGE_DEBUG=true
-```
-
-```typescript
-// View processing details
-runtime.knowledgeService.on('processing', (event) => {
-  console.log('Processing:', event);
-});
 ```
 
 ## Summary
