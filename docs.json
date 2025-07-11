@@ -236,6 +236,17 @@
                   "plugins/sql/plugin-tables",
                   "plugins/sql/examples"
                 ]
+              },
+              {
+                "group": "Knowledge",
+                "pages": [
+                  "plugins/knowledge",
+                  "plugins/knowledge/quick-start",
+                  "plugins/knowledge/complete-documentation",
+                  "plugins/knowledge/architecture-flow",
+                  "plugins/knowledge/contextual-embeddings",
+                  "plugins/knowledge/examples"
+                ]
               }
             ]
           },
