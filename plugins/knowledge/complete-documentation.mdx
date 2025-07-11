@@ -3,16 +3,16 @@ title: Complete Developer Guide
 description: Comprehensive technical reference for the Knowledge plugin
 ---
 
-The `@elizaos/plugin-knowledge` package is the core Retrieval Augmented Generation (RAG) system for ElizaOS agents. It provides comprehensive document management, intelligent processing, and semantic retrieval capabilities.
+The `@elizaos/plugin-knowledge` package provides Retrieval Augmented Generation (RAG) capabilities for ElizaOS agents. It enables agents to store, search, and automatically use knowledge from uploaded documents and text.
 
-## Key Capabilities
+## Key Features
 
-- **Document Processing**: Extract and process text from PDFs, Word docs, and more
-- **Intelligent Chunking**: Content-aware splitting with configurable overlap
-- **Vector Embeddings**: Generate and store embeddings using OpenAI or Google
-- **Semantic Search**: Find relevant information using vector similarity
-- **Automatic Context**: Inject relevant knowledge into agent conversations
-- **Knowledge Management**: Built-in web interface for document control
+- **Multi-format Support**: Process PDFs, Word docs, text files, and more
+- **Smart Deduplication**: Content-based IDs prevent duplicate entries
+- **Automatic RAG**: Knowledge is automatically injected into relevant conversations
+- **Character Knowledge**: Load knowledge from character definitions
+- **REST API**: Manage documents via HTTP endpoints
+- **Conversation Tracking**: Track which knowledge was used in responses
 
 ## Architecture Overview
 
@@ -55,47 +55,170 @@ graph TB
 The main service class that handles all knowledge operations:
 
 ```typescript
-class KnowledgeService {
-  constructor(
-    private vectorStore: IMemoryManager,
-    private documentsManager: IDatabaseAdapter,
-    private embedder: IEmbeddingProvider
-  ) {}
+class KnowledgeService extends Service {
+  static readonly serviceType = 'knowledge';
+  private knowledgeConfig: KnowledgeConfig;
+  private knowledgeProcessingSemaphore: Semaphore;
 
-  async addKnowledge(options: AddKnowledgeOptions): Promise<void> {
-    // Process and store knowledge
+  constructor(runtime: IAgentRuntime, config?: Partial<KnowledgeConfig>) {
+    super(runtime);
+    this.knowledgeProcessingSemaphore = new Semaphore(10);
+
+    // Configuration with environment variable support
+    this.knowledgeConfig = {
+      CTX_KNOWLEDGE_ENABLED: parseBooleanEnv(config?.CTX_KNOWLEDGE_ENABLED),
+      LOAD_DOCS_ON_STARTUP: loadDocsOnStartup,
+      MAX_INPUT_TOKENS: config?.MAX_INPUT_TOKENS,
+      MAX_OUTPUT_TOKENS: config?.MAX_OUTPUT_TOKENS,
+      EMBEDDING_PROVIDER: config?.EMBEDDING_PROVIDER,
+      TEXT_PROVIDER: config?.TEXT_PROVIDER,
+      TEXT_EMBEDDING_MODEL: config?.TEXT_EMBEDDING_MODEL,
+    };
+
+    // Auto-load documents on startup if enabled
+    if (this.knowledgeConfig.LOAD_DOCS_ON_STARTUP) {
+      this.loadInitialDocuments();
+    }
   }
 
-  async searchKnowledge(query: string, limit: number = 10): Promise<KnowledgeItem[]> {
-    // Semantic search implementation
+  // Main public method for adding knowledge
+  async addKnowledge(options: AddKnowledgeOptions): Promise<{
+    clientDocumentId: string;
+    storedDocumentMemoryId: UUID;
+    fragmentCount: number;
+  }> {
+    // Generate content-based ID for deduplication
+    const contentBasedId = generateContentBasedId(options.content, agentId, {
+      includeFilename: options.originalFilename,
+      contentType: options.contentType,
+      maxChars: 2000,
+    });
+
+    // Check for duplicates
+    const existingDocument = await this.runtime.getMemoryById(contentBasedId);
+    if (existingDocument) {
+      // Return existing document info
+      return { clientDocumentId: contentBasedId, ... };
+    }
+
+    // Process new document
+    return this.processDocument({ ...options, clientDocumentId: contentBasedId });
   }
 
-  async removeKnowledge(id: string): Promise<void> {
-    // Remove knowledge and associated embeddings
+  // Semantic search for knowledge
+  async getKnowledge(
+    message: Memory,
+    scope?: { roomId?: UUID; worldId?: UUID; entityId?: UUID }
+  ): Promise<KnowledgeItem[]> {
+    const embedding = await this.runtime.useModel(ModelType.TEXT_EMBEDDING, {
+      text: message.content.text,
+    });
+
+    const fragments = await this.runtime.searchMemories({
+      tableName: 'knowledge',
+      embedding,
+      query: message.content.text,
+      ...scope,
+      count: 20,
+      match_threshold: 0.1,
+    });
+
+    return fragments.map(fragment => ({
+      id: fragment.id,
+      content: fragment.content,
+      similarity: fragment.similarity,
+      metadata: fragment.metadata,
+    }));
+  }
+
+  // RAG metadata enrichment for conversation tracking
+  async enrichConversationMemoryWithRAG(
+    memoryId: UUID,
+    ragMetadata: {
+      retrievedFragments: Array<{
+        fragmentId: UUID;
+        documentTitle: string;
+        similarityScore?: number;
+        contentPreview: string;
+      }>;
+      queryText: string;
+      totalFragments: number;
+      retrievalTimestamp: number;
+    }
+  ): Promise<void> {
+    // Enriches conversation memories with RAG usage data
   }
 }
 ```
 
-### Document Processor
+### Document Processing
 
-Handles text extraction and chunking:
+The service handles different file types with sophisticated processing logic:
 
 ```typescript
-class DocumentProcessor {
-  async extractText(buffer: Buffer, mimeType: string): Promise<string> {
-    switch (mimeType) {
-      case 'application/pdf':
-        return this.extractPDF(buffer);
-      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        return this.extractDOCX(buffer);
-      default:
-        return buffer.toString('utf-8');
+private async processDocument(options: AddKnowledgeOptions): Promise<{
+  clientDocumentId: string;
+  storedDocumentMemoryId: UUID;
+  fragmentCount: number;
+}> {
+  let fileBuffer: Buffer | null = null;
+  let extractedText: string;
+  let documentContentToStore: string;
+  const isPdfFile = contentType === 'application/pdf';
+
+  if (isPdfFile) {
+    // PDFs: Store original base64, extract text for fragments
+    fileBuffer = Buffer.from(content, 'base64');
+    extractedText = await extractTextFromDocument(fileBuffer, contentType, originalFilename);
+    documentContentToStore = content; // Keep base64 for PDFs
+  } else if (isBinaryContentType(contentType, originalFilename)) {
+    // Other binary files: Extract and store as plain text
+    fileBuffer = Buffer.from(content, 'base64');
+    extractedText = await extractTextFromDocument(fileBuffer, contentType, originalFilename);
+    documentContentToStore = extractedText; // Store extracted text
+  } else {
+    // Text files: Handle both base64 and plain text input
+    if (looksLikeBase64(content)) {
+      // Decode base64 text files
+      const decodedBuffer = Buffer.from(content, 'base64');
+      extractedText = decodedBuffer.toString('utf8');
+      documentContentToStore = extractedText;
+    } else {
+      // Already plain text
+      extractedText = content;
+      documentContentToStore = content;
     }
   }
 
-  chunkText(text: string, options: ChunkOptions): string[] {
-    // Intelligent chunking with overlap
-  }
+  // Create document memory with content-based ID
+  const documentMemory = createDocumentMemory({
+    text: documentContentToStore,
+    agentId,
+    clientDocumentId,
+    originalFilename,
+    contentType,
+    worldId,
+    fileSize: fileBuffer ? fileBuffer.length : extractedText.length,
+    documentId: clientDocumentId,
+    customMetadata: metadata,
+  });
+
+  // Store document and process fragments
+  await this.runtime.createMemory(documentMemory, 'documents');
+  
+  const fragmentCount = await processFragmentsSynchronously({
+    runtime: this.runtime,
+    documentId: clientDocumentId,
+    fullDocumentText: extractedText,
+    agentId,
+    contentType,
+    roomId: roomId || agentId,
+    entityId: entityId || agentId,
+    worldId: worldId || agentId,
+    documentTitle: originalFilename,
+  });
+
+  return { clientDocumentId, storedDocumentMemoryId, fragmentCount };
 }
 ```
 
@@ -103,47 +226,33 @@ class DocumentProcessor {
 
 The plugin provides two main actions:
 
-```typescript
-// PROCESS_KNOWLEDGE - Add new knowledge
-{
-  name: "PROCESS_KNOWLEDGE",
-  handler: async (runtime, message, state) => {
-    const knowledge = await extractKnowledge(message);
-    await runtime.knowledgeService.addKnowledge(knowledge);
-    return "Knowledge processed successfully";
-  }
-}
+#### PROCESS_KNOWLEDGE
+Adds knowledge from files or text content:
+- Supports file paths: `/path/to/document.pdf`
+- Direct text: "Add this to your knowledge: ..."
+- File types: PDF, DOCX, TXT, MD, CSV, etc.
+- Automatically splits content into searchable fragments
 
-// SEARCH_KNOWLEDGE - Query knowledge base
-{
-  name: "SEARCH_KNOWLEDGE",
-  handler: async (runtime, message, state) => {
-    const query = message.text;
-    const results = await runtime.knowledgeService.searchKnowledge(query);
-    return formatResults(results);
-  }
-}
-```
+#### SEARCH_KNOWLEDGE
+Explicitly searches the knowledge base:
+- Triggered by: "Search your knowledge for..."
+- Returns top 3 most relevant results
+- Displays formatted text snippets
 
 ### Knowledge Provider
 
-Automatically injects relevant knowledge into agent context:
+Automatically injects relevant knowledge into agent responses:
 
-```typescript
-const knowledgeProvider: Provider = {
-  get: async (runtime: IAgentRuntime, message: Memory) => {
-    const relevantKnowledge = await runtime.knowledgeService.searchKnowledge(
-      message.content.text,
-      5
-    );
-    
-    return relevantKnowledge.map(item => ({
-      text: item.content,
-      metadata: item.metadata
-    }));
-  }
-};
-```
+- **Dynamic**: Runs on every message to find relevant context
+- **Top 5 Results**: Retrieves up to 5 most relevant knowledge fragments
+- **RAG Tracking**: Enriches conversation memories with knowledge usage metadata
+- **Token Limit**: Caps knowledge at ~4000 tokens to prevent context overflow
+
+The provider automatically:
+1. Searches for relevant knowledge based on the user's message
+2. Formats it with a "# Knowledge" header
+3. Tracks which knowledge was used in the response
+4. Enriches the conversation memory with RAG metadata
 
 ## Document Processing Pipeline
 
@@ -152,35 +261,32 @@ const knowledgeProvider: Provider = {
 Knowledge can be added through multiple channels:
 
 ```typescript
-// File upload
-await knowledgeService.addKnowledge({
-  id: uuid(),
-  content: fileContent,
+// File upload (API endpoint sends base64-encoded content)
+const result = await knowledgeService.addKnowledge({
+  content: base64EncodedContent, // Base64 for binary files, can be plain text
+  originalFilename: 'document.pdf',
+  contentType: 'application/pdf',
+  agentId: agentId, // Optional, defaults to runtime.agentId
   metadata: {
-    source: 'upload',
-    filename: 'document.pdf',
-    mimeType: 'application/pdf'
+    tags: ['documentation', 'manual']
   }
 });
 
-// URL processing
-await knowledgeService.addKnowledge({
-  id: uuid(),
-  content: await fetchURL(url),
+// Direct text addition (internal use)
+await knowledgeService._internalAddKnowledge({
+  id: generateContentBasedId(content, agentId),
+  content: { text: "Important information..." },
   metadata: {
-    source: 'url',
-    url: url
-  }
-});
-
-// Direct text
-await knowledgeService.addKnowledge({
-  id: uuid(),
-  content: "Important information...",
-  metadata: {
+    type: MemoryType.DOCUMENT,
     source: 'direct'
   }
 });
+
+// Character knowledge (loaded automatically from character definition)
+await knowledgeService.processCharacterKnowledge([
+  "Path: knowledge/facts.md\nKey facts about the product...",
+  "Another piece of character knowledge..."
+]);
 ```
 
 ### 2. Text Extraction
@@ -199,18 +305,25 @@ const supportedFormats = {
 
 ### 3. Content-Based Deduplication
 
-Prevents duplicate content:
+Uses deterministic IDs to prevent duplicates:
 
 ```typescript
-function generateContentHash(content: string): string {
-  return createHash('sha256')
-    .update(normalizeContent(content))
-    .digest('hex');
-}
+// Generate content-based ID combining:
+// - Content (first 2KB)
+// - Agent ID
+// - Filename (if available)
+// - Content type
+const contentBasedId = generateContentBasedId(content, agentId, {
+  includeFilename: options.originalFilename,
+  contentType: options.contentType,
+  maxChars: 2000
+});
 
-async function isDuplicate(hash: string): Promise<boolean> {
-  const existing = await documentsManager.getByHash(hash);
-  return existing !== null;
+// Check if document already exists
+const existingDocument = await this.runtime.getMemoryById(contentBasedId);
+if (existingDocument) {
+  // Return existing document info instead of creating duplicate
+  return { clientDocumentId: contentBasedId, ... };
 }
 ```
 
@@ -448,37 +561,34 @@ Response: {
 
 ```typescript
 interface AddKnowledgeOptions {
-  id: string;
-  content: string | Buffer;
-  metadata?: {
-    source: 'upload' | 'url' | 'direct' | 'character';
-    filename?: string;
-    url?: string;
-    mimeType?: string;
-    tags?: string[];
-    [key: string]: any;
-  };
+  agentId?: UUID; // Optional, defaults to runtime.agentId
+  worldId: UUID;
+  roomId: UUID;
+  entityId: UUID;
+  clientDocumentId: UUID;
+  contentType: string; // MIME type
+  originalFilename: string;
+  content: string; // Base64 for binary, plain text for text files
+  metadata?: Record<string, unknown>;
 }
 
-interface KnowledgeItem {
-  id: string;
-  content: string;
-  metadata: Record<string, any>;
-  similarity?: number;
+interface KnowledgeConfig {
+  CTX_KNOWLEDGE_ENABLED: boolean;
+  LOAD_DOCS_ON_STARTUP: boolean;
+  MAX_INPUT_TOKENS?: string | number;
+  MAX_OUTPUT_TOKENS?: string | number;
+  EMBEDDING_PROVIDER?: string;
+  TEXT_PROVIDER?: string;
+  TEXT_EMBEDDING_MODEL?: string;
 }
 
-interface ProcessingOptions {
-  chunkSize?: number;
-  overlapSize?: number;
-  enableContextualEmbeddings?: boolean;
-  maxChunksPerDoc?: number;
-}
-
-interface ModelConfig {
-  provider: 'openai' | 'google' | 'openrouter';
-  model: string;
-  dimensions: number;
-  maxTokens: number;
+interface TextGenerationOptions {
+  provider?: 'anthropic' | 'openai' | 'openrouter' | 'google';
+  modelName?: string;
+  maxTokens?: number;
+  cacheDocument?: string; // For OpenRouter caching
+  cacheOptions?: { type: 'ephemeral' };
+  autoCacheContextualRetrieval?: boolean;
 }
 ```
 
@@ -594,50 +704,41 @@ async function processLargeFile(path: string) {
 }
 ```
 
-### Custom Knowledge Sources
+### Configuration Options
 
-```typescript
-// Add knowledge programmatically
-async function importKnowledgeBase() {
-  const documents = await fetchDocuments();
-  
-  for (const doc of documents) {
-    await runtime.knowledgeService.addKnowledge({
-      id: doc.id,
-      content: doc.content,
-      metadata: {
-        source: 'import',
-        category: doc.category
-      }
-    });
-  }
-}
+```env
+# Enable automatic document loading from agent's docs folder
+LOAD_DOCS_ON_STARTUP=true
+
+# Enable contextual embeddings for better retrieval
+CTX_KNOWLEDGE_ENABLED=true
+
+# Configure embedding provider (defaults to OpenAI)
+EMBEDDING_PROVIDER=openai
+TEXT_EMBEDDING_MODEL=text-embedding-3-small
 ```
 
-### Knowledge-Aware Actions
+### Using the Service
 
 ```typescript
-const researchAction: Action = {
-  name: "RESEARCH_TOPIC",
-  handler: async (runtime, message) => {
-    const topic = extractTopic(message);
-    
-    // Search existing knowledge
-    const knowledge = await runtime.knowledgeService.searchKnowledge(topic, 10);
-    
-    // Fetch additional info if needed
-    if (knowledge.length < 5) {
-      const webResults = await fetchWebResults(topic);
-      await runtime.knowledgeService.addKnowledge({
-        id: uuid(),
-        content: webResults,
-        metadata: { source: 'web', topic }
-      });
-    }
-    
-    return formatResearchResults(knowledge);
-  }
-};
+// Get the knowledge service
+const knowledgeService = runtime.getService<KnowledgeService>('knowledge');
+
+// Add knowledge programmatically
+const result = await knowledgeService.addKnowledge({
+  content: documentContent, // Base64 or plain text
+  originalFilename: 'guide.pdf',
+  contentType: 'application/pdf',
+  worldId: runtime.agentId,
+  roomId: message.roomId,
+  entityId: message.entityId
+});
+
+// Search for knowledge
+const results = await knowledgeService.getKnowledge(message, {
+  roomId: message.roomId,
+  worldId: runtime.agentId
+});
 ```
 
 ## Best Practices
@@ -775,27 +876,21 @@ runtime.knowledgeService.on('processing', (event) => {
 
 ## Summary
 
-The Knowledge Plugin provides a comprehensive RAG system with:
+The Knowledge Plugin provides a complete RAG system that:
 
-<CardGroup cols={2}>
-  <Card title="Document Processing" icon="file-lines">
-    Complete pipeline for extracting and processing various file formats
-  </Card>
-  <Card title="Smart Chunking" icon="scissors">
-    Intelligent content-aware splitting with deduplication
-  </Card>
-  <Card title="Vector Search" icon="magnifying-glass">
-    High-performance semantic search capabilities
-  </Card>
-  <Card title="RAG Integration" icon="brain">
-    Automatic knowledge injection into agent conversations
-  </Card>
-  <Card title="Web Interface" icon="window">
-    Built-in management UI for document control
-  </Card>
-  <Card title="Production Ready" icon="rocket">
-    Optimized for performance with caching and batch processing
-  </Card>
-</CardGroup>
+- **Processes Documents**: Handles PDFs, Word docs, text files, and more with automatic text extraction
+- **Manages Deduplication**: Uses content-based IDs to prevent duplicate knowledge entries
+- **Chunks Intelligently**: Splits documents into searchable fragments with configurable overlap
+- **Retrieves Semantically**: Finds relevant knowledge using vector similarity search
+- **Enhances Conversations**: Automatically injects relevant knowledge into agent responses
+- **Tracks Usage**: Records which knowledge was used in each conversation
 
-This comprehensive system enables ElizaOS agents to maintain and query large knowledge bases efficiently, providing accurate, contextual responses based on uploaded documents and accumulated knowledge.
+Key features:
+- Automatic document loading on startup
+- Character knowledge integration
+- RAG metadata tracking for conversation history
+- REST API for document management
+- Support for contextual embeddings
+- Provider-agnostic embedding support
+
+The plugin seamlessly integrates with ElizaOS agents to provide them with a searchable knowledge base that enhances their ability to provide accurate, contextual responses.

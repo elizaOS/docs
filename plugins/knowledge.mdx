@@ -28,7 +28,7 @@ The Knowledge Plugin is ElizaOS's core RAG system, providing intelligent documen
   <Card title="Quick Start" icon="rocket" href="/plugins/knowledge/quick-start">
     Get up and running in 5 minutes
   </Card>
-  <Card title="Configuration" icon="cog" href="/plugins/knowledge/basic-configuration">
+  <Card title="Configuration" icon="cog" href="/plugins/knowledge/complete-documentation#installation">
     Essential settings and options
   </Card>
   <Card title="Complete Reference" icon="book" href="/plugins/knowledge/complete-documentation">
@@ -72,38 +72,17 @@ The Knowledge Plugin transforms your ElizaOS agent into an intelligent knowledge
 ## Installation
 
 <Tabs>
-  <Tab title="npm">
+  <Tab title="elizaos">
     ```bash
-    npm install @elizaos/plugin-knowledge
+    elizaos plugins add @elizaos/plugin-knowledge
     ```
   </Tab>
-  <Tab title="pnpm">
+  <Tab title="bun">
     ```bash
-    pnpm add @elizaos/plugin-knowledge
-    ```
-  </Tab>
-  <Tab title="yarn">
-    ```bash
-    yarn add @elizaos/plugin-knowledge
+    bun add @elizaos/plugin-knowledge
     ```
   </Tab>
 </Tabs>
-
-## Basic Usage
-
-```typescript
-import { createKnowledgePlugin } from "@elizaos/plugin-knowledge";
-
-// Add to your agent configuration
-const agent = new Agent({
-  plugins: [
-    createKnowledgePlugin({
-      maxChunkSize: 2000,
-      overlapSize: 200
-    })
-  ]
-});
-```
 
 ## Supported File Types
 
@@ -128,7 +107,7 @@ const agent = new Agent({
   <Card title="Contextual Embeddings" icon="link" href="/plugins/knowledge/contextual-embeddings">
     50% better retrieval accuracy
   </Card>
-  <Card title="Testing Guide" icon="vial" href="/plugins/knowledge/testing-guide">
+  <Card title="Testing Guide" icon="vial" href="/plugins/knowledge/complete-documentation#troubleshooting">
     Test your knowledge base
   </Card>
   <Card title="API Reference" icon="terminal" href="/plugins/knowledge/complete-documentation#api-reference">
