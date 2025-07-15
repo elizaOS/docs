@@ -332,12 +332,7 @@
     "dark": "/logo/dark.png"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Discord",
-        "href": "https://discord.gg/ai16z"
-      }
-    ],
+    "links": [],
     "primary": {
       "type": "github",
       "href": "https://github.com/elizaos/eliza"
