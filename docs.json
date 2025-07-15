@@ -325,26 +325,7 @@
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Discord",
-          "href": "https://discord.gg/ai16z",
-          "icon": "discord"
-        },
-        {
-          "anchor": "GitHub",
-          "href": "https://github.com/elizaos/eliza",
-          "icon": "github"
-        },
-        {
-          "anchor": "Website",
-          "href": "https://elizaos.ai",
-          "icon": "globe"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.png",
@@ -353,7 +334,7 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
+        "label": "Discord",
         "href": "https://discord.gg/ai16z"
       }
     ],
