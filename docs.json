@@ -259,8 +259,7 @@
               "plugins/llm/anthropic",
               "plugins/llm/google-genai",
               "plugins/llm/ollama",
-              "plugins/llm/openrouter",
-              "plugins/llm/local-ai"
+              "plugins/llm/openrouter"
             ]
           },
           {
