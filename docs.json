@@ -296,6 +296,31 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "DeFi Plugins",
+            "pages": [
+              {
+                "group": "EVM",
+                "pages": [
+                  "plugins/defi/evm",
+                  "plugins/defi/evm/complete-documentation",
+                  "plugins/defi/evm/defi-operations-flow",
+                  "plugins/defi/evm/examples",
+                  "plugins/defi/evm/testing-guide"
+                ]
+              },
+              {
+                "group": "Solana",
+                "pages": [
+                  "plugins/defi/solana",
+                  "plugins/defi/solana/complete-documentation",
+                  "plugins/defi/solana/defi-operations-flow",
+                  "plugins/defi/solana/examples",
+                  "plugins/defi/solana/testing-guide"
+                ]
+              }
+            ]
           }
         ]
       }
