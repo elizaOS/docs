@@ -99,42 +99,6 @@ OpenRouter charges a small markup (usually ~10%) on top of provider prices:
 2. **Price transparency** - See costs per model
 3. **Credits system** - Pre-pay for usage
 
-## Advanced Features
-
-### Model Routing
-
-```json
-{
-  "settings": {
-    "openrouter": {
-      "route": "fallback",  // or "random"
-      "models": [
-        "anthropic/claude-3-opus",
-        "openai/gpt-4"
-      ]
-    }
-  }
-}
-```
-
-### Provider Preferences
-
-Prefer certain providers:
-
-```json
-{
-  "settings": {
-    "openrouter": {
-      "providers": {
-        "anthropic": 1.0,
-        "openai": 0.8,
-        "google": 0.6
-      }
-    }
-  }
-}
-```
-
 ## External Resources
 
 - [Plugin Source](https://github.com/elizaos/eliza/tree/main/packages/plugin-openrouter)
