@@ -47,6 +47,7 @@
           {
             "group": "Guides",
             "pages": [
+              "guides/plugin-developer-guide",
               "guides/plugin-publishing-guide",
               {
                 "group": "Plugin Migration (0.x to 1.x)",
