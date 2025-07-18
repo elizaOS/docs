@@ -49,8 +49,10 @@
             "pages": [
               "guides/plugin-developer-guide",
               "guides/plugin-publishing-guide",
+              "guides/compose-state-guide",
               {
                 "group": "Plugin Migration (0.x to 1.x)",
+                "icon": "arrow-right-arrow-left",
                 "pages": [
                   "guides/plugin-migration/overview",
                   "guides/plugin-migration/migration-guide",
