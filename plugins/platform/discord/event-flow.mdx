@@ -29,7 +29,7 @@ flowchart TD
     
     K --> L{Has Attachments?}
     L -->|Yes| M[Process Attachments]
-    L -->|No| N[Convert to ElizaOS Format]
+    L -->|No| N[Convert to elizaOS Format]
     M --> N
     
     N --> O[Add Discord Context]
@@ -106,7 +106,7 @@ sequenceDiagram
             C->>D: Ignore
         else Channel allowed
             C->>MM: handleMessage()
-            MM->>MM: Convert to ElizaOS format
+            MM->>MM: Convert to elizaOS format
             
             alt Has attachments
                 MM->>AH: processAttachments()
@@ -281,12 +281,12 @@ flowchart TD
 | `error` | Client error | Error handler |
 | `disconnect` | Lost connection | Reconnection handler |
 
-### ElizaOS Events Emitted
+### elizaOS Events Emitted
 
 | Event | When Emitted | Payload |
 |-------|--------------|---------|
 | `WORLD_JOINED` | Bot joins server | World, rooms, entities |
-| `MESSAGE_RECEIVED` | Message processed | ElizaOS message format |
+| `MESSAGE_RECEIVED` | Message processed | elizaOS message format |
 | `VOICE_MESSAGE_RECEIVED` | Voice transcribed | Transcribed message |
 | `REACTION_RECEIVED` | Reaction added | Reaction details |
 | `INTERACTION_RECEIVED` | Slash command used | Interaction data |

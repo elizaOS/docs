@@ -1,18 +1,18 @@
 ---
 title: State Management
-description: Comprehensive documentation on the composeState method in ElizaOS and how it interacts with different types of providers to build contextual state for agent decision-making
+description: Comprehensive documentation on the composeState method in elizaOS and how it interacts with different types of providers to build contextual state for agent decision-making
 icon: database
 ---
 
-This guide provides comprehensive documentation on the `composeState` method in ElizaOS and how it interacts with different types of providers to build contextual state for agent decision-making.
+This guide provides comprehensive documentation on the `composeState` method in elizaOS and how it interacts with different types of providers to build contextual state for agent decision-making.
 
 ## Introduction
 
-The `composeState` method is a core function in ElizaOS that aggregates data from multiple providers to create a comprehensive state object. This state represents the agent's understanding of the current context and is used for decision-making, action selection, and response generation.
+The `composeState` method is a core function in elizaOS that aggregates data from multiple providers to create a comprehensive state object. This state represents the agent's understanding of the current context and is used for decision-making, action selection, and response generation.
 
 ### What is State?
 
-State in ElizaOS is a structured object containing:
+State in elizaOS is a structured object containing:
 
 - **values**: Key-value pairs for direct access (used in templates)
 - **data**: Structured data from providers
@@ -87,7 +87,7 @@ async composeState(
 
 ## Provider Types
 
-ElizaOS includes various built-in providers, each serving a specific purpose:
+elizaOS includes various built-in providers, each serving a specific purpose:
 
 ### Core Providers
 
@@ -1150,7 +1150,7 @@ const customProvider: Provider = {
 
 ## Summary
 
-The `composeState` method is central to ElizaOS's context management system. It provides a flexible way to aggregate data from multiple sources, manage caching for performance, and create rich contextual state for agent decision-making. By understanding how to effectively use providers and manage state composition, you can build more intelligent and context-aware agents.
+The `composeState` method is central to elizaOS's context management system. It provides a flexible way to aggregate data from multiple sources, manage caching for performance, and create rich contextual state for agent decision-making. By understanding how to effectively use providers and manage state composition, you can build more intelligent and context-aware agents.
 
 Key takeaways:
 

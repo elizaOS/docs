@@ -1,10 +1,10 @@
 ---
 title: "Basic Migration Steps"
-description: "General framework for migrating ElizaOS plugins to v1.x"
+description: "General framework for migrating elizaOS plugins to v1.x"
 icon: "clipboard-list"
 ---
 
-> **Important**: This guide provides a general framework for migrating ElizaOS plugins to v1.x. Specific configurations will vary based on your plugin's functionality.
+> **Important**: This guide provides a general framework for migrating elizaOS plugins to v1.x. Specific configurations will vary based on your plugin's functionality.
 
 ## Step 1: Create Version Branch
 
@@ -36,12 +36,12 @@ rm -rf biome.json
 rm -f *.lock.json *.yml.lock
 ```
 
-> **Why?** The ElizaOS ecosystem has standardized on:
+> **Why?** The elizaOS ecosystem has standardized on:
 >
 > - **Bun's built-in test runner** (replacing Vitest) - All plugins must now use `bun test`
 > - **Prettier** for code formatting (replacing Biome)
 >
-> This ensures consistency across all ElizaOS plugins and simplifies the development toolchain.
+> This ensures consistency across all elizaOS plugins and simplifies the development toolchain.
 
 ---
 
@@ -65,7 +65,7 @@ Check if your package name contains the old namespace and update it:
 "name": "@elizaos/plugin-bnb"
 ```
 
-> **Important**: If your package name starts with `@elizaos-plugins/`, remove the "s" from "plugins" to change it to `@elizaos/`. This is the correct namespace for all ElizaOS plugins in v1.x.
+> **Important**: If your package name starts with `@elizaos-plugins/`, remove the "s" from "plugins" to change it to `@elizaos/`. This is the correct namespace for all elizaOS plugins in v1.x.
 
 ### 3.2 Dependencies
 
@@ -86,7 +86,7 @@ Add the following development dependencies:
 }
 ```
 
-> **Important**: `bun` and `@types/bun` are **REQUIRED** dependencies for all plugins in v1.x. The ElizaOS ecosystem has standardized on Bun's built-in test runner, replacing Vitest. Without these dependencies, your tests will not run properly.
+> **Important**: `bun` and `@types/bun` are **REQUIRED** dependencies for all plugins in v1.x. The elizaOS ecosystem has standardized on Bun's built-in test runner, replacing Vitest. Without these dependencies, your tests will not run properly.
 
 ### 3.4 Scripts Section
 

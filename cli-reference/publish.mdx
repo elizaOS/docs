@@ -1,10 +1,10 @@
 ---
 title: Publish Command
-description: Publish a plugin to npm, create a GitHub repository, and submit to the ElizaOS registry
+description: Publish a plugin to npm, create a GitHub repository, and submit to the elizaOS registry
 icon: cloud-arrow-up
 ---
 
-The `elizaos publish` command is the all-in-one tool for releasing your plugin. It handles packaging, publishing to npm, creating a source repository, and submitting your plugin to the official ElizaOS registry for discovery.
+The `elizaos publish` command is the all-in-one tool for releasing your plugin. It handles packaging, publishing to npm, creating a source repository, and submitting your plugin to the official elizaOS registry for discovery.
 
 <Tabs>
   <Tab title="Overview">
@@ -15,7 +15,7 @@ The `elizaos publish` command is the all-in-one tool for releasing your plugin. 
     - **Validates Your Plugin:** Checks your `package.json` and directory structure against registry requirements
     - **Publishes Your Package:** Pushes your plugin to npm
     - **Creates GitHub Repository:** Initializes a public GitHub repository for your plugin's source code
-    - **Submits to Registry:** Opens a Pull Request to the official [ElizaOS Plugin Registry](https://github.com/elizaos-plugins/registry)
+    - **Submits to Registry:** Opens a Pull Request to the official [elizaOS Plugin Registry](https://github.com/elizaos-plugins/registry)
 
     ## Usage
 
@@ -139,7 +139,7 @@ The `elizaos publish` command is the all-in-one tool for releasing your plugin. 
     git push && git push --tags
     ```
 
-    The ElizaOS registry automatically detects new npm versions.
+    The elizaOS registry automatically detects new npm versions.
   </Tab>
 
   <Tab title="Requirements">
@@ -182,7 +182,7 @@ The `elizaos publish` command is the all-in-one tool for releasing your plugin. 
     {
       "name": "plugin-example",
       "version": "1.0.0",
-      "description": "An example ElizaOS plugin that demonstrates best practices",
+              "description": "An example elizaOS plugin that demonstrates best practices",
       "main": "dist/index.js",
       "types": "dist/index.d.ts",
       "author": "Your Name <your.email@example.com>",
@@ -212,7 +212,7 @@ The `elizaos publish` command is the all-in-one tool for releasing your plugin. 
     ```
 
     <Note>
-    The `agentConfig` section tells ElizaOS agents how to load your plugin.
+    The `agentConfig` section tells elizaOS agents how to load your plugin.
     </Note>
   </Tab>
 
