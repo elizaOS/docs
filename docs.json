@@ -15,7 +15,7 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["index", "quickstart", "development"]
+            "pages": ["quickstart", "introduction", "development"]
           },
           {
             "group": "Core Concepts",
