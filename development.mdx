@@ -1,6 +1,6 @@
 ---
 title: 'Development'
-description: 'Learn how to develop with elizaOS - from simple character modifications to core framework contributions'
+description: 'Learn how to develop with ElizaOS - from simple character modifications to core framework contributions'
 ---
 
 <Info>
@@ -9,26 +9,26 @@ description: 'Learn how to develop with elizaOS - from simple character modifica
 
 ## Development Tracks
 
-elizaOS offers two distinct development paths depending on your goals and experience level:
+ElizaOS offers two distinct development paths depending on your goals and experience level:
 
 <CardGroup cols={2}>
   <Card title="Beginner Track" icon="user" color="#0EA5E9">
-    Perfect for creating and customizing your own AI agents using the elizaOS CLI
+    Perfect for creating and customizing your own AI agents using the ElizaOS CLI
   </Card>
   <Card title="Advanced Track" icon="code" color="#8B5CF6">
-    For contributors and developers building custom elizaOS versions
+    For contributors and developers building custom ElizaOS versions
   </Card>
 </CardGroup>
 
 ## Beginner Development Track
 
-The beginner track focuses on using the elizaOS CLI to create and customize your agents without diving into the core framework code.
+The beginner track focuses on using the ElizaOS CLI to create and customize your agents without diving into the core framework code.
 
 ### Getting Started with CLI Development
 
 <Steps>
   <Step title="Create Your Agent">
-    If you haven't already, create a new agent using the elizaOS CLI:
+    If you haven't already, create a new agent using the ElizaOS CLI:
     ```bash
     elizaos create my-custom-agent
     ```
@@ -56,14 +56,14 @@ The `character.json` file defines your agent's personality, knowledge, and behav
 ```json character.json
 {
   "name": "MyAgent",
-  "bio": "A helpful AI assistant created with elizaOS",
+  "bio": "A helpful AI assistant created with ElizaOS",
   "adjectives": [
     "friendly",
     "knowledgeable",
     "professional"
   ],
   "knowledge": [
-    "I am an AI assistant created with elizaOS",
+    "I am an AI assistant created with ElizaOS",
     "I can help with various tasks and questions"
   ],
   "messageExamples": [
@@ -92,7 +92,7 @@ Plugins extend your agent's capabilities with additional features:
 
 #### Installing Plugins
 
-Use the elizaOS CLI to add existing plugins:
+Use the ElizaOS CLI to add existing plugins:
 
 ```bash
 elizaos plugins add @elizaos/plugin-twitter
@@ -172,13 +172,13 @@ Visit `http://localhost:3000` to interact with your customized agent.
 
 ## Advanced Development Track
 
-The advanced track is for developers who want to contribute to the elizaOS core framework or build custom versions.
+The advanced track is for developers who want to contribute to the ElizaOS core framework or build custom versions.
 
 ### Setting Up the Monorepo
 
 <Steps>
   <Step title="Clone the Repository">
-    Clone the official elizaOS monorepo:
+    Clone the official ElizaOS monorepo:
     ```bash
     git clone https://github.com/elizaos/eliza.git
     cd eliza
@@ -202,12 +202,12 @@ The advanced track is for developers who want to contribute to the elizaOS core 
 
 ### Monorepo Structure
 
-The elizaOS monorepo is organized as follows:
+The ElizaOS monorepo is organized as follows:
 
 ```
 eliza/
 ├── packages/
-│   ├── core/           # Core elizaOS framework
+│   ├── core/           # Core ElizaOS framework
 │   ├── cli/            # CLI tool source code
 │   ├── client/         # Client libraries
 │   └── plugin-*/       # Official plugins
@@ -251,7 +251,7 @@ eliza/
 
 <Tabs>
   <Tab title="Core Framework">
-    Work on the fundamental elizaOS engine:
+    Work on the fundamental ElizaOS engine:
     - Agent reasoning logic
     - Memory management
     - Plugin system architecture
@@ -273,7 +273,7 @@ eliza/
   </Tab>
 </Tabs>
 
-### Creating Custom elizaOS Versions
+### Creating Custom ElizaOS Versions
 
 For specialized use cases, you might want to create a custom fork:
 
@@ -366,7 +366,7 @@ bun run dev
     Comprehensive guides and API references
   </Card>
 
-  <Card title="GitHub Issues" icon="github" href="https://github.com/elizaOS/eliza/issues">
+  <Card title="GitHub Issues" icon="github" href="https://github.com/elizaos/eliza/issues">
     Report bugs and request features
   </Card>
 
@@ -391,6 +391,6 @@ bun run dev
   </Step>
 
   <Step title="Share Your Work">
-    Share your creations with the elizaOS community!
+    Share your creations with the ElizaOS community!
   </Step>
 </Steps>
