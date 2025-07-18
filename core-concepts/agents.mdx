@@ -28,14 +28,21 @@ The complete TypeScript interface for agents:
 | `username` | string | ❌ | Social media username |
 | `system` | string | ❌ | System prompt override |
 | `templates` | object | ❌ | Custom prompt templates |
-    all?: string[];        // General style rules
-    chat?: string[];       // Chat-specific style
-    post?: string[];       // Post-specific style
-  };
-  
-  // Advanced
-  templates?: Templates;     // Custom prompt templates
+
+### Style Object Structure
+
+```typescript
+style: {
+  all?: string[];        // General style rules
+  chat?: string[];       // Chat-specific style
+  post?: string[];       // Post-specific style
 }
+```
+
+### Templates Object Structure
+
+```typescript
+templates?: Templates;     // Custom prompt templates
 ```
 
 ## Working Example
