@@ -1,6 +1,6 @@
 ---
 title: Update Command
-description: Update your project's ElizaOS dependencies and CLI to the latest published versions
+description: Update your project's elizaOS dependencies and CLI to the latest published versions
 icon: arrows-rotate
 ---
 
@@ -46,7 +46,7 @@ icon: arrows-rotate
     Current CLI version: 1.3.5
     Latest CLI version: 1.4.0
 
-    ElizaOS packages that can be updated:
+    elizaOS packages that can be updated:
       - @elizaos/core (1.3.0) → 1.4.0
       - @elizaos/plugin-openai (1.2.5) → 1.4.0
 
@@ -79,7 +79,7 @@ icon: arrows-rotate
 
     When you run `elizaos update`, it performs the following steps:
 
-    1. **Detects Project Type**: Determines if you're in an ElizaOS project or plugin.
+    1. **Detects Project Type**: Determines if you're in an elizaOS project or plugin.
     2. **Checks CLI Version**: Compares your installed CLI version with the latest available on npm.
     3. **Scans Dependencies**: Finds all `@elizaos/*` packages in your project's `package.json`.
     4. **Shows Update Plan**: Lists the packages and/or CLI that have available updates.
@@ -107,9 +107,9 @@ icon: arrows-rotate
 
     The update command automatically detects:
 
-    - **ElizaOS Projects**: Updates project dependencies and rebuilds
-    - **ElizaOS Plugins**: Updates plugin dependencies and rebuilds
-    - **Non-ElizaOS Projects**: Shows error message
+    - **elizaOS Projects**: Updates project dependencies and rebuilds
+    - **elizaOS Plugins**: Updates plugin dependencies and rebuilds
+    - **Non-elizaOS Projects**: Shows error message
 
     ## Workspace Support
 
@@ -124,7 +124,7 @@ icon: arrows-rotate
     ```bash
     $ elizaos update --check
 
-    ElizaOS packages found:
+    elizaOS packages found:
       - @elizaos/core (workspace:*) → Skipped (workspace reference)
       - @elizaos/plugin-openai (1.2.5) → 1.4.0
       - @elizaos/plugin-discord (workspace:*) → Skipped (workspace reference)
@@ -138,7 +138,7 @@ icon: arrows-rotate
 
     - Update regularly to get latest features and fixes
     - Use `--check` to monitor available updates
-    - Subscribe to ElizaOS release notes
+    - Subscribe to elizaOS release notes
 
     ### Stability Considerations
 
