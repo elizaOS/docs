@@ -14,7 +14,7 @@
         "tab": "Docs",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Getting Started",
             "pages": ["index", "quickstart", "development"]
           },
           {
