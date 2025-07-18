@@ -1,0 +1,240 @@
+{
+  "summary": {
+    "totalFiles": 6,
+    "totalLinks": 25,
+    "internalLinks": 21,
+    "externalLinks": 4,
+    "anchorLinks": 0,
+    "validLinks": 25,
+    "invalidLinks": 0,
+    "skippedLinks": 0,
+    "fixedLinks": 25
+  },
+  "fixes": [
+    {
+      "file": "plugins/knowledge/examples.mdx",
+      "line": 333,
+      "originalLink": "quick-start",
+      "fixedLink": "quick-start.mdx",
+      "type": "Card href attribute missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/sql.mdx",
+      "line": 218,
+      "originalLink": "./database-adapters",
+      "fixedLink": "./database-adapters.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/sql.mdx",
+      "line": 219,
+      "originalLink": "./schema-management",
+      "fixedLink": "./schema-management.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/sql.mdx",
+      "line": 220,
+      "originalLink": "./plugin-tables",
+      "fixedLink": "./plugin-tables.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/sql.mdx",
+      "line": 221,
+      "originalLink": "./examples",
+      "fixedLink": "./examples.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/llm.mdx",
+      "line": 235,
+      "originalLink": "./openai",
+      "fixedLink": "./openai.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/llm.mdx",
+      "line": 236,
+      "originalLink": "./anthropic",
+      "fixedLink": "./anthropic.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/llm.mdx",
+      "line": 237,
+      "originalLink": "./google-genai",
+      "fixedLink": "./google-genai.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/llm.mdx",
+      "line": 238,
+      "originalLink": "./openrouter",
+      "fixedLink": "./openrouter.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/llm.mdx",
+      "line": 242,
+      "originalLink": "./ollama",
+      "fixedLink": "./ollama.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/defi/evm.mdx",
+      "line": 145,
+      "originalLink": "./evm/complete-documentation",
+      "fixedLink": "./evm/complete-documentation.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/defi/evm.mdx",
+      "line": 146,
+      "originalLink": "./evm/defi-operations-flow",
+      "fixedLink": "./evm/defi-operations-flow.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/defi/evm.mdx",
+      "line": 147,
+      "originalLink": "./evm/examples",
+      "fixedLink": "./evm/examples.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/defi/evm.mdx",
+      "line": 148,
+      "originalLink": "./evm/testing-guide",
+      "fixedLink": "./evm/testing-guide.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/defi/solana.mdx",
+      "line": 164,
+      "originalLink": "./solana/complete-documentation",
+      "fixedLink": "./solana/complete-documentation.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/defi/solana.mdx",
+      "line": 165,
+      "originalLink": "./solana/defi-operations-flow",
+      "fixedLink": "./solana/defi-operations-flow.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/defi/solana.mdx",
+      "line": 166,
+      "originalLink": "./solana/examples",
+      "fixedLink": "./solana/examples.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "plugins/defi/solana.mdx",
+      "line": 167,
+      "originalLink": "./solana/testing-guide",
+      "fixedLink": "./solana/testing-guide.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "guides/plugin-migration/overview.mdx",
+      "line": 13,
+      "originalLink": "./migration-guide",
+      "fixedLink": "./migration-guide.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "guides/plugin-migration/overview.mdx",
+      "line": 20,
+      "originalLink": "./state-and-providers-guide",
+      "fixedLink": "./state-and-providers-guide.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "guides/plugin-migration/overview.mdx",
+      "line": 27,
+      "originalLink": "./prompt-and-generation-guide",
+      "fixedLink": "./prompt-and-generation-guide.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "guides/plugin-migration/overview.mdx",
+      "line": 34,
+      "originalLink": "./advanced-migration-guide",
+      "fixedLink": "./advanced-migration-guide.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "guides/plugin-migration/overview.mdx",
+      "line": 41,
+      "originalLink": "./completion-requirements",
+      "fixedLink": "./completion-requirements.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "guides/plugin-migration/overview.mdx",
+      "line": 48,
+      "originalLink": "./testing-guide",
+      "fixedLink": "./testing-guide.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "guides/plugin-migration/overview.mdx",
+      "line": 133,
+      "originalLink": "./migration-guide",
+      "fixedLink": "./migration-guide.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "guides/plugin-migration/advanced-migration-guide.mdx",
+      "line": 7,
+      "originalLink": "./migration-guide",
+      "fixedLink": "./migration-guide.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    },
+    {
+      "file": "guides/plugin-migration/advanced-migration-guide.mdx",
+      "line": 461,
+      "originalLink": "./migration-guide",
+      "fixedLink": "./migration-guide.mdx",
+      "type": "Relative link missing extension",
+      "confidence": "high"
+    }
+  ],
+  "filesModified": [
+    "plugins/knowledge/examples.mdx",
+    "plugins/sql.mdx",
+    "plugins/llm.mdx",
+    "plugins/defi/evm.mdx",
+    "plugins/defi/solana.mdx",
+    "guides/plugin-migration/overview.mdx",
+    "guides/plugin-migration/advanced-migration-guide.mdx"
+  ]
+}
