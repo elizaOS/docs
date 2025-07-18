@@ -6,9 +6,9 @@ description: "Comprehensive technical documentation for the bootstrap plugin's a
 
 ## Overview
 
-The `@elizaos/plugin-bootstrap` package is the **core message handler** for ElizaOS agents. It provides the fundamental event handlers, actions, providers, evaluators, and services that enable agents to process messages from any communication platform (Discord, Telegram, message bus server, etc.) and generate intelligent responses.
+The `@elizaos/plugin-bootstrap` package is the **core message handler** for elizaOS agents. It provides the fundamental event handlers, actions, providers, evaluators, and services that enable agents to process messages from any communication platform (Discord, Telegram, message bus server, etc.) and generate intelligent responses.
 
-This plugin is essential for any ElizaOS agent as it contains the core logic for:
+This plugin is essential for any elizaOS agent as it contains the core logic for:
 
 - Processing incoming messages
 - Determining whether to respond
@@ -691,7 +691,7 @@ import { Project, ProjectAgent, Character } from '@elizaos/core';
 // Define your character with bootstrap plugin
 const character: Character = {
   name: 'MyAgent',
-  bio: ['An intelligent agent powered by ElizaOS'],
+      bio: ['An intelligent agent powered by elizaOS'],
   plugins: [
     '@elizaos/plugin-sql',
     '@elizaos/plugin-bootstrap',
@@ -853,7 +853,7 @@ await runtime.createTask({
 
 ## Summary
 
-The `@elizaos/plugin-bootstrap` package is the heart of ElizaOS's message processing system. It provides a complete framework for:
+The `@elizaos/plugin-bootstrap` package is the heart of elizaOS's message processing system. It provides a complete framework for:
 
 - Receiving and processing messages from any platform
 - Making intelligent response decisions
@@ -862,4 +862,4 @@ The `@elizaos/plugin-bootstrap` package is the heart of ElizaOS's message proces
 - Learning from interactions
 - Managing background tasks
 
-Understanding this plugin is essential for developing effective ElizaOS agents and extending the platform's capabilities.
+Understanding this plugin is essential for developing effective elizaOS agents and extending the platform's capabilities.

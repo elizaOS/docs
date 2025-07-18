@@ -1,16 +1,16 @@
 ---
 title: "Language Model Configuration"
-description: "Understanding and configuring Language Model plugins in ElizaOS"
+description: "Understanding and configuring Language Model plugins in elizaOS"
 ---
 
 
-ElizaOS uses a plugin-based architecture for integrating different Language Model providers. This guide explains how to configure and use LLM plugins, including fallback mechanisms for embeddings and model registration.
+elizaOS uses a plugin-based architecture for integrating different Language Model providers. This guide explains how to configure and use LLM plugins, including fallback mechanisms for embeddings and model registration.
 
 ## Key Concepts
 
 ### Model Types
 
-ElizaOS supports many types of AI operations. Here are the most common ones:
+elizaOS supports many types of AI operations. Here are the most common ones:
 
 1. **TEXT_GENERATION** (`TEXT_SMALL`, `TEXT_LARGE`) - Having conversations and generating responses
 2. **TEXT_EMBEDDING** - Converting text into numbers for memory and search
@@ -72,7 +72,7 @@ Think of it like choosing team players - you pick specialists first, then all-ro
 
 ### Why This Order Matters
 
-When you ask ElizaOS to do something, it looks for the best model in order:
+When you ask elizaOS to do something, it looks for the best model in order:
 
 - **Generate text?** → Anthropic gets first shot (if loaded)
 - **Create embeddings?** → Anthropic can't, so OpenAI steps in
@@ -115,9 +115,9 @@ runtime.registerModel(
 );
 ```
 
-### How ElizaOS Picks the Right Model
+### How elizaOS Picks the Right Model
 
-When you ask ElizaOS to do something, it:
+When you ask elizaOS to do something, it:
 
 1. **Checks what type of work it is** (text? embeddings? objects?)
 2. **Looks at who signed up** for that job
@@ -136,14 +136,14 @@ But for embeddings:
 
 ## Embedding Fallback Strategy
 
-Remember: Not all plugins can create embeddings! Here's how ElizaOS handles this:
+Remember: Not all plugins can create embeddings! Here's how elizaOS handles this:
 
 **The Problem**: 
 - You're using Anthropic (great at chat, can't do embeddings)
-- But ElizaOS needs embeddings for memory and search
+- But elizaOS needs embeddings for memory and search
 
 **The Solution**: 
-ElizaOS automatically finds another plugin that CAN do embeddings!
+elizaOS automatically finds another plugin that CAN do embeddings!
 
 ```typescript
 // What happens behind the scenes:
@@ -314,7 +314,7 @@ Success: Plugin @elizaos/plugin-openai initialized successfully
 
 ## Migration from v0.x
 
-In ElizaOS v0.x, models were configured directly in character files:
+In elizaOS v0.x, models were configured directly in character files:
 
 ```json
 // ❌ OLD (v0.x) - No longer works
