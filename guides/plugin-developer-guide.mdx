@@ -1,13 +1,13 @@
 ---
 title: Plugin Developer Guide
-description: Comprehensive guide covering all aspects of plugin development in the ElizaOS system
+description: Comprehensive guide covering all aspects of plugin development in the elizaOS system
 icon: code
 ---
 
-This comprehensive guide covers all aspects of plugin development in the ElizaOS system, consolidating patterns and best practices from platform plugins, LLM plugins, and DeFi plugins.
+This comprehensive guide covers all aspects of plugin development in the elizaOS system, consolidating patterns and best practices from platform plugins, LLM plugins, and DeFi plugins.
 
 <Note>
-This guide uses `bun` as the package manager, which is the preferred tool for ElizaOS development. Bun provides faster installation times and built-in TypeScript support.
+This guide uses `bun` as the package manager, which is the preferred tool for elizaOS development. Bun provides faster installation times and built-in TypeScript support.
 </Note>
 
 ## Table of Contents
@@ -32,7 +32,7 @@ This guide uses `bun` as the package manager, which is the preferred tool for El
 
 ## Introduction
 
-ElizaOS plugins are modular extensions that enhance AI agents with new capabilities, integrations, and behaviors. The plugin system follows a consistent architecture that enables:
+elizaOS plugins are modular extensions that enhance AI agents with new capabilities, integrations, and behaviors. The plugin system follows a consistent architecture that enables:
 
 - **Modularity**: Add or remove functionality without modifying core code
 - **Reusability**: Share plugins across different agents
@@ -49,7 +49,7 @@ ElizaOS plugins are modular extensions that enhance AI agents with new capabilit
 
 ## Quick Start: Scaffolding Plugins with CLI
 
-The easiest way to create a new plugin is using the ElizaOS CLI, which provides interactive scaffolding with pre-configured templates. This is the recommended approach for most developers.
+The easiest way to create a new plugin is using the elizaOS CLI, which provides interactive scaffolding with pre-configured templates. This is the recommended approach for most developers.
 
 ### Using `elizaos create`
 
@@ -149,16 +149,16 @@ The scaffolded plugin includes:
 - ✅ Basic tests structure
 
 <Tip>
-The CLI templates follow all ElizaOS conventions and best practices, making it easy to get started without worrying about configuration.
+The CLI templates follow all elizaOS conventions and best practices, making it easy to get started without worrying about configuration.
 </Tip>
 
 ### Using Your Plugin in Projects
 
-Plugins don't necessarily need to be in the ElizaOS monorepo. You have two options for using your plugin in a project:
+Plugins don't necessarily need to be in the elizaOS monorepo. You have two options for using your plugin in a project:
 
 #### Option 1: Plugin Inside the Monorepo
 
-If you're developing your plugin within the ElizaOS monorepo (in the `packages/` directory), you need to add it as a workspace dependency:
+If you're developing your plugin within the elizaOS monorepo (in the `packages/` directory), you need to add it as a workspace dependency:
 
 1. Add your plugin to the root `package.json` as a workspace dependency:
 
@@ -186,7 +186,7 @@ const agent = {
 
 #### Option 2: Plugin Outside the Monorepo
 
-If you're creating a plugin outside of the ElizaOS monorepo (recommended for most users), use `bun link`:
+If you're creating a plugin outside of the elizaOS monorepo (recommended for most users), use `bun link`:
 
 1. In your plugin directory, build and link it:
 
@@ -1876,9 +1876,9 @@ export const uploadRoute: Route = {
 
 ## Advanced: Creating Plugins Manually
 
-For developers working within the ElizaOS monorepo or those who need complete control over their plugin structure, you can create plugins manually. This approach is useful when:
+For developers working within the elizaOS monorepo or those who need complete control over their plugin structure, you can create plugins manually. This approach is useful when:
 
-- Contributing directly to the ElizaOS monorepo
+- Contributing directly to the elizaOS monorepo
 - Creating highly customized plugin structures
 - Integrating with existing codebases
 - Learning the internals of plugin architecture
@@ -2006,7 +2006,7 @@ import { myProvider } from './providers/myProvider';
 
 export const myPlugin: Plugin = {
   name: 'myplugin',
-  description: 'My custom plugin for ElizaOS',
+      description: 'My custom plugin for elizaOS',
   services: [MyService], // Pass the class constructor, not an instance
   actions: [myAction],
   providers: [myProvider],
@@ -2202,7 +2202,7 @@ export class DeFiService extends Service {
 
 ### Configuration Hierarchy
 
-ElizaOS follows a specific hierarchy for configuration resolution. Understanding this is critical for proper plugin behavior:
+elizaOS follows a specific hierarchy for configuration resolution. Understanding this is critical for proper plugin behavior:
 
 ```typescript
 // Configuration resolution order (first found wins):
@@ -2526,7 +2526,7 @@ async function handleOperation<T>(operation: () => Promise<T>, context: string):
 
 ## Publishing and Distribution
 
-For detailed information on publishing your plugin to npm and the ElizaOS registry, see our [Plugin Publishing Guide](/guides/plugin-publishing-guide).
+For detailed information on publishing your plugin to npm and the elizaOS registry, see our [Plugin Publishing Guide](/guides/plugin-publishing-guide).
 
 ### Quick Reference
 
@@ -2699,9 +2699,9 @@ bun install --force
 
 ## Getting Help
 
-- **Documentation**: Check the main ElizaOS docs
+- **Documentation**: Check the main elizaOS docs
 - **Examples**: Study existing plugins in `packages/`
-- **Community**: Join the ElizaOS Discord
+- **Community**: Join the elizaOS Discord
 - **Issues**: Report bugs on GitHub
 
 Remember: The plugin system is designed to be flexible and extensible. When in doubt, look at existing plugins for patterns and inspiration.

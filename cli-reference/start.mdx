@@ -1,6 +1,6 @@
 ---
 title: Start Command
-description: Launch and manage ElizaOS projects and agents in production mode
+description: Launch and manage elizaOS projects and agents in production mode
 icon: play
 ---
 
@@ -95,7 +95,7 @@ icon: play
   <Tab title="Features">
     ## Production Features
 
-    When you run `start`, ElizaOS provides production-ready features:
+    When you run `start`, elizaOS provides production-ready features:
 
     1. **Optimized Performance**: Runs with production optimizations
     2. **Stable Configuration**: Uses saved configuration by default
@@ -105,7 +105,7 @@ icon: play
 
     ## Startup Process
 
-    When you run the `start` command, ElizaOS:
+    When you run the `start` command, elizaOS:
 
     1. **Project Detection**: Detects whether you're in a project or plugin directory
     2. **Configuration Loading**: Loads and validates the configuration
@@ -119,10 +119,10 @@ icon: play
 
     ## Project Detection
 
-    ElizaOS automatically detects the type of directory you're in and adjusts its behavior accordingly:
+    elizaOS automatically detects the type of directory you're in and adjusts its behavior accordingly:
 
-    - **ElizaOS Projects**: Loads project configuration and starts defined agents
-    - **ElizaOS Plugins**: Runs in plugin test mode with the default character
+    - **elizaOS Projects**: Loads project configuration and starts defined agents
+    - **elizaOS Plugins**: Runs in plugin test mode with the default character
     - **Other Directories**: Uses the default Eliza character
 
     ## Configuration Management
@@ -153,7 +153,7 @@ icon: play
     ### From .env File
 
     ```bash
-    # ElizaOS looks for .env in the project directory
+    # elizaOS looks for .env in the project directory
     cd my-project
     elizaos start  # Loads from ./my-project/.env
     ```
@@ -172,7 +172,7 @@ icon: play
 
     ### Character Loading Errors
 
-    If character files fail to load, ElizaOS will:
+    If character files fail to load, elizaOS will:
 
     1. **Log Errors**: Display detailed error messages for each failed character
     2. **Continue Starting**: Use any successfully loaded characters

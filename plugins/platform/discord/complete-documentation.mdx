@@ -1,11 +1,11 @@
 ---
 title: "Developer Guide"
-description: "Comprehensive Discord integration for ElizaOS agents. It enables agents to operate as fully-featured Discord bots with advanced features and capabilities."
+description: "Comprehensive Discord integration for elizaOS agents. It enables agents to operate as fully-featured Discord bots with advanced features and capabilities."
 ---
 
 ## Overview
 
-The `@elizaos/plugin-discord` package provides comprehensive Discord integration for ElizaOS agents. It enables agents to operate as fully-featured Discord bots with support for text channels, voice channels, direct messages, slash commands, and media processing.
+The `@elizaos/plugin-discord` package provides comprehensive Discord integration for elizaOS agents. It enables agents to operate as fully-featured Discord bots with support for text channels, voice channels, direct messages, slash commands, and media processing.
 
 This plugin handles all Discord-specific functionality including:
 - Initializing and managing the Discord bot connection
@@ -96,7 +96,7 @@ export class MessageManager {
   private inlinePositionalCallbacks: Map<string, (message: DiscordMessage, args: string) => void>;
   
   async handleMessage(message: DiscordMessage): Promise<void> {
-    // Convert Discord message to ElizaOS format
+    // Convert Discord message to elizaOS format
     // Process attachments
     // Send to bootstrap plugin
     // Handle response

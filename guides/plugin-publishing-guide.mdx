@@ -1,10 +1,10 @@
 ---
 title: Plugin Publishing Guide
-description: A complete guide to creating, developing, and publishing ElizaOS plugins
+description: A complete guide to creating, developing, and publishing elizaOS plugins
 icon: book-open
 ---
 
-This guide walks you through the entire process of creating, developing, and publishing an ElizaOS plugin. By the end, you'll have a published plugin available in the ElizaOS registry.
+This guide walks you through the entire process of creating, developing, and publishing an elizaOS plugin. By the end, you'll have a published plugin available in the elizaOS registry.
 
 ## Prerequisites
 
@@ -19,13 +19,13 @@ Before you begin, ensure you have:
 
 1. Go to GitHub → Settings → Developer settings → Personal access tokens
 2. Click "Generate new token (classic)"
-3. Name it "ElizaOS Publishing"
+3. Name it "elizaOS Publishing"
 4. Select scopes: `repo`, `read:org`, and `workflow`
 5. Save the token securely
 
 ## Step 1: Create Your Plugin
 
-Start by creating a new plugin using the ElizaOS CLI:
+Start by creating a new plugin using the elizaOS CLI:
 
 ```bash
 # Create a new plugin with the interactive wizard
@@ -36,7 +36,7 @@ cd plugin-my-awesome-plugin
 ```
 
 <Note>
-The CLI automatically prefixes your plugin name with `plugin-` to follow ElizaOS conventions.
+The CLI automatically prefixes your plugin name with `plugin-` to follow elizaOS conventions.
 </Note>
 
 ## Step 2: Understand Plugin Structure
@@ -171,7 +171,7 @@ Update your `package.json` with accurate information:
 {
   "name": "plugin-my-awesome-plugin",
   "version": "1.0.0",
-  "description": "A plugin that adds awesome functionality to ElizaOS agents",
+      "description": "A plugin that adds awesome functionality to elizaOS agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Your Name <your.email@example.com>",
@@ -203,7 +203,7 @@ Update your `package.json` with accurate information:
 ```
 
 <Warning>
-The `agentConfig` section is required for your plugin to be properly loaded by ElizaOS agents.
+The `agentConfig` section is required for your plugin to be properly loaded by elizaOS agents.
 </Warning>
 
 ## Step 5: Add Required Images
@@ -233,7 +233,7 @@ Create a comprehensive README.md:
 ```markdown
 # My Awesome Plugin
 
-A plugin that adds awesome functionality to ElizaOS agents.
+A plugin that adds awesome functionality to elizaOS agents.
 
 ## Features
 
@@ -344,7 +344,7 @@ This command will:
 2. Build your TypeScript code
 3. Publish to npm
 4. Create a GitHub repository
-5. Open a PR to the ElizaOS registry
+5. Open a PR to the elizaOS registry
 
 ### What Happens Next
 
@@ -430,7 +430,7 @@ If your PR is not approved:
 - Write clean, documented code
 - Include comprehensive tests
 - Use TypeScript types properly
-- Follow ElizaOS conventions
+- Follow elizaOS conventions
 
 ### Documentation
 - Clear README with examples
@@ -452,7 +452,7 @@ If your PR is not approved:
 
 ## Resources
 
-- [ElizaOS Core Documentation](/core-concepts)
+- [elizaOS Core Documentation](/core-concepts)
 - [Plugin API Reference](/api-reference)
 - [Example Plugins](https://github.com/elizaos-plugins)
 - [Discord Community](https://discord.gg/ai16z)

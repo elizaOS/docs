@@ -1,11 +1,11 @@
 ---
 title: "Developer Guide"
-description: "Comprehensive Telegram Bot API integration for ElizaOS agents. It enables agents to operate as Telegram bots with advanced features and capabilities."
+description: "Comprehensive Telegram Bot API integration for elizaOS agents. It enables agents to operate as Telegram bots with advanced features and capabilities."
 ---
 
 ## Overview
 
-The `@elizaos/plugin-telegram` package provides comprehensive Telegram Bot API integration for ElizaOS agents. It enables agents to operate as Telegram bots with support for private chats, groups, channels, media processing, interactive buttons, and forum topics.
+The `@elizaos/plugin-telegram` package provides comprehensive Telegram Bot API integration for elizaOS agents. It enables agents to operate as Telegram bots with support for private chats, groups, channels, media processing, interactive buttons, and forum topics.
 
 This plugin handles all Telegram-specific functionality including:
 - Initializing and managing the Telegram bot connection via Telegraf
@@ -92,7 +92,7 @@ export class MessageManager {
   private messageCallbacks: Map<string, (response: Content) => void>;
   
   async handleMessage(ctx: Context): Promise<void> {
-    // Convert Telegram message to ElizaOS format
+    // Convert Telegram message to elizaOS format
     // Process media if present
     // Send to bootstrap plugin
     // Handle response
@@ -206,7 +206,7 @@ sequenceDiagram
     participant B as Bot (Telegraf)
     participant S as TelegramService
     participant M as MessageManager
-    participant E as ElizaOS
+    participant E as elizaOS
     
     U->>T: Send message
     T->>B: Update received
