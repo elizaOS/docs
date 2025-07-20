@@ -372,7 +372,7 @@ const sentimentEvaluator: Evaluator = {
 
   handler: async (runtime, message, state) => {
     const prompt = `Analyze the sentiment of the recent conversation.
-    
+
 ${state.recentMessages}
 
 Provide a sentiment analysis with:
@@ -514,8 +514,7 @@ runtime.on(EventType.ENTITY_JOINED, async (payload) => {
 
 ```typescript
 import { AgentRuntime, Plugin, EventType, ChannelType } from '@elizaos/core';
-import { bootstrapPlugin } from '@elizaos/plugin-bootstrap';
-import { sqlitePlugin } from '@elizaos/plugin-sql';
+
 
 // Custom support plugin
 const supportPlugin: Plugin = {
@@ -667,7 +666,7 @@ Guidelines:
     },
   },
 
-  plugins: [bootstrapPlugin, sqlitePlugin, supportPlugin],
+  plugins: [bootstrapPlugin, pglitePlugin, supportPlugin],
 
   settings: {
     CONVERSATION_LENGTH: 50, // Longer context for support
@@ -964,7 +963,7 @@ const supportBotCharacter: Character = {
 <support-priorities>
 PRIORITY 1 (Always respond):
 - Error messages or bug reports
-- Account issues or login problems  
+- Account issues or login problems
 - Payment or billing questions
 - Direct help requests
 

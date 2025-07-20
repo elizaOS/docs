@@ -37,7 +37,7 @@ icon: circle-plus
 
     1. **What would you like to name your project?** - Enter your project name
     2. **Select your database:** - Choose between:
-       - `sqlite` (local, file-based database)
+       - `pglite` (local, file-based database)
        - `postgres` (requires connection details)
 
     ## Default Values (with -y flag)
@@ -46,7 +46,7 @@ icon: circle-plus
 
     - **Default name**: `myproject`
     - **Default type**: `project`
-    - **Default database**: `sqlite`
+    - **Default database**: `pglite`
   </Tab>
 
   <Tab title="Examples">
@@ -59,12 +59,12 @@ icon: circle-plus
 
     This will prompt you for:
     - Project name
-    - Database selection (sqlite or postgres)
+    - Database selection (pglite or postgres)
 
     ### Quick Creation with Defaults
 
     ```bash
-    # Create project with defaults (name: "myproject", database: sqlite)
+    # Create project with defaults (name: "myproject", database: pglite)
     elizaos create -y
     ```
 
