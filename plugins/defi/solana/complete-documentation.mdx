@@ -9,17 +9,14 @@ This guide provides comprehensive documentation of the Solana plugin's architect
 
 The Solana plugin follows a modular architecture optimized for high-performance blockchain interactions:
 
-```
-┌─────────────────┐     ┌──────────────┐     ┌──────────────┐
-│     Actions     │────▶│ SolanaService│────▶│  Solana RPC  │
-│  (User Intent)  │     │  (Core Logic)│     │  Connection  │
-└─────────────────┘     └──────────────┘     └──────────────┘
-         │                      │                     │
-         ▼                      ▼                     ▼
-┌─────────────────┐     ┌──────────────┐     ┌──────────────┐
-│   AI Templates  │     │   Providers  │     │ Birdeye API  │
-│  (NLP Parsing)  │     │ (Wallet Data)│     │ (Price Data) │
-└─────────────────┘     └──────────────┘     └──────────────┘
+```mermaid
+flowchart LR
+    A[Actions<br/>User Intent] --> B[SolanaService<br/>Core Logic]
+    B --> C[Solana RPC<br/>Connection]
+    
+    A --> D[AI Templates<br/>NLP Parsing]
+    B --> E[Providers<br/>Wallet Data]
+    C --> F[Birdeye API<br/>Price Data]
 ```
 
 ## Core Components
