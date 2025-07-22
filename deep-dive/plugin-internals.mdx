@@ -310,3 +310,232 @@ export const plugin: Plugin = {
 };
 ```
 
+## 8. Action Chaining and Callbacks
+
+### Overview
+
+Action chaining in elizaOS allows multiple actions to execute sequentially with each action having access to the results of previous actions. This enables complex workflows where actions can build upon each other's outputs. The system uses callbacks for real-time user feedback and an `ActionResult` interface for passing data between actions.
+
+### The ActionResult Interface
+
+Actions return an `ActionResult` object that standardizes how actions communicate their outcomes:
+
+```typescript
+export interface ActionResult {
+  /** Whether the action succeeded - defaults to true */
+  success: boolean;
+  
+  /** Optional text description of the result */
+  text?: string;
+  
+  /** Values to merge into the state */
+  values?: Record<string, any>;
+  
+  /** Data payload containing action-specific results */
+  data?: Record<string, any>;
+  
+  /** Error information if the action failed */
+  error?: string | Error;
+}
+```
+
+### Handler Callbacks
+
+The `HandlerCallback` provides a mechanism for actions to send immediate feedback to users before the action completes:
+
+```typescript
+export type HandlerCallback = (response: Content, files?: any) => Promise<Memory[]>;
+```
+
+Example usage from plugin-linear:
+```typescript
+async handler(
+  runtime: IAgentRuntime,
+  message: Memory,
+  _state?: State,
+  _options?: Record<string, unknown>,
+  callback?: HandlerCallback
+): Promise<ActionResult> {
+  try {
+    // ... perform action logic ...
+    
+    // Send success message to user via callback
+    await callback?.({
+      text: `✅ Created Linear issue: ${issue.title} (${issue.identifier})\n\nView it at: ${issue.url}`,
+      source: message.content.source
+    });
+    
+    // Return structured result for potential chaining
+    return {
+      text: `Created issue: ${issue.title} (${issue.identifier})`,
+      success: true,
+      data: {
+        issueId: issue.id,
+        identifier: issue.identifier,
+        url: issue.url
+      }
+    };
+  } catch (error) {
+    // Send error message to user
+    await callback?.({
+      text: `❌ Failed to create issue: ${error.message}`,
+      source: message.content.source
+    });
+    
+    return {
+      text: `Failed to create issue: ${error.message}`,
+      success: false
+    };
+  }
+}
+```
+
+### Action Context and Previous Results
+
+When multiple actions are executed in sequence, each action receives an `ActionContext` that provides access to previous action results:
+
+```typescript
+export interface ActionContext {
+  /** Results from previously executed actions in this run */
+  previousResults: ActionResult[];
+  
+  /** Get a specific previous result by action name */
+  getPreviousResult?: (actionName: string) => ActionResult | undefined;
+}
+```
+
+The runtime automatically provides this context in the `options` parameter:
+
+```typescript
+async handler(
+  runtime: IAgentRuntime,
+  message: Memory,
+  state?: State,
+  options?: Record<string, unknown>,
+  callback?: HandlerCallback
+): Promise<ActionResult> {
+  // Access the action context
+  const context = options?.context as ActionContext;
+  
+  // Get results from a specific previous action
+  const previousResult = context?.getPreviousResult?.('CREATE_LINEAR_ISSUE');
+  
+  if (previousResult?.data?.issueId) {
+    // Use data from previous action
+    const issueId = previousResult.data.issueId;
+    // ... continue with logic using previous result ...
+  }
+}
+```
+
+### Action Execution Flow
+
+The runtime's `processActions` method manages the execution flow:
+
+1. **Action Planning**: When multiple actions are detected, the runtime creates an execution plan
+2. **Sequential Execution**: Actions execute in the order specified by the agent
+3. **State Accumulation**: Each action's results are merged into the accumulated state
+4. **Working Memory**: Results are stored in working memory for access during execution
+5. **Error Handling**: Failed actions don't stop the chain unless marked as critical
+
+### Working Memory Management
+
+The runtime maintains a working memory that stores recent action results:
+
+```typescript
+// Results are automatically stored in state.data.workingMemory
+const memoryEntry: WorkingMemoryEntry = {
+  actionName: action.name,
+  result: actionResult,
+  timestamp: Date.now()
+};
+```
+
+The system keeps the most recent 50 entries (configurable) to prevent memory bloat.
+
+### Best Practices for Action Chaining
+
+1. **Always Return ActionResult**: Even for simple actions, return a proper `ActionResult` object:
+   ```typescript
+   return {
+     success: true,
+     text: "Action completed",
+     data: { /* any data for next actions */ }
+   };
+   ```
+
+2. **Use Callbacks for User Feedback**: Send immediate feedback via callbacks rather than waiting for the action to complete:
+   ```typescript
+   await callback?.({
+     text: "Processing your request...",
+     source: message.content.source
+   });
+   ```
+
+3. **Store Identifiers in Data**: When creating resources, store identifiers that subsequent actions might need:
+   ```typescript
+   return {
+     success: true,
+     data: {
+       resourceId: created.id,
+       resourceUrl: created.url
+     }
+   };
+   ```
+
+4. **Handle Missing Dependencies**: Check if required previous results exist:
+   ```typescript
+   const previousResult = context?.getPreviousResult?.('REQUIRED_ACTION');
+   if (!previousResult?.success) {
+     return {
+       success: false,
+       text: "Required previous action did not complete successfully"
+     };
+   }
+   ```
+
+5. **Maintain Backward Compatibility**: The runtime handles legacy action returns (void, boolean) but new actions should use `ActionResult`.
+
+### Example: Multi-Step Workflow
+
+Here's an example of a multi-step workflow using action chaining:
+
+```typescript
+// User: "Create a bug report for the login issue and assign it to John"
+// Agent executes: REPLY, CREATE_LINEAR_ISSUE, UPDATE_LINEAR_ISSUE
+
+// Action 1: CREATE_LINEAR_ISSUE
+{
+  success: true,
+  data: {
+    issueId: "abc-123",
+    identifier: "BUG-456"
+  }
+}
+
+// Action 2: UPDATE_LINEAR_ISSUE (can access previous result)
+async handler(runtime, message, state, options, callback) {
+  const context = options?.context as ActionContext;
+  const createResult = context?.getPreviousResult?.('CREATE_LINEAR_ISSUE');
+  
+  if (createResult?.data?.issueId) {
+    // Use the issue ID from previous action
+    await updateIssue(createResult.data.issueId, { assignee: "John" });
+    
+    return {
+      success: true,
+      text: "Issue assigned to John"
+    };
+  }
+}
+```
+
+### Common Patterns
+
+1. **Create and Configure**: Create a resource, then configure it
+2. **Search and Update**: Find resources, then modify them
+3. **Validate and Execute**: Check conditions, then perform actions
+4. **Aggregate and Report**: Collect data from multiple sources, then summarize
+
+The action chaining system provides a powerful way to build complex, multi-step workflows while maintaining clean separation between individual actions.
+
