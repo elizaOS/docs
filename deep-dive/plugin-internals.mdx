@@ -361,7 +361,7 @@ async handler(
     
     // Send success message to user via callback
     await callback?.({
-      text: `✅ Created Linear issue: ${issue.title} (${issue.identifier})\n\nView it at: ${issue.url}`,
+      text: `Created Linear issue: ${issue.title} (${issue.identifier})\n\nView it at: ${issue.url}`,
       source: message.content.source
     });
     
@@ -378,7 +378,7 @@ async handler(
   } catch (error) {
     // Send error message to user
     await callback?.({
-      text: `❌ Failed to create issue: ${error.message}`,
+      text: `Failed to create issue: ${error.message}`,
       source: message.content.source
     });
     
