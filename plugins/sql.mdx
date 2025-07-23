@@ -35,24 +35,13 @@ The `@elizaos/plugin-sql` provides comprehensive database management for elizaOS
 
 The plugin consists of several key components:
 
-```
-┌─────────────────────────────────┐
-│      elizaOS Runtime            │
-└────────────┬────────────────────┘
-             │
-┌────────────▼────────────────────┐
-│    DatabaseMigrationService     │
-│  • Schema Discovery             │
-│  • Migration Orchestration      │
-└────────────┬────────────────────┘
-             │
-┌────────────▼────────────────────┐
-│      Database Adapters          │
-├─────────────────────────────────┤
-│ PGLite Adapter │ PG Adapter     │
-│ • Development  │ • Production   │
-│ • File-based   │ • Pooled       │
-└────────────────┴────────────────┘
+```mermaid
+flowchart TD
+    A[elizaOS Runtime] --> B[DatabaseMigrationService<br/>• Schema Discovery<br/>• Migration Orchestration]
+    B --> C[Database Adapters]
+    
+    C --> D[PGLite Adapter<br/>• Development<br/>• File-based]
+    C --> E[PG Adapter<br/>• Production<br/>• Pooled]
 ```
 
 ## Core Components

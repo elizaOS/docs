@@ -9,17 +9,13 @@ This guide provides an in-depth look at the EVM plugin's architecture, component
 
 The EVM plugin follows a modular architecture with clear separation of concerns:
 
-```
-┌─────────────────┐     ┌──────────────┐     ┌──────────────┐
-│     Actions     │────▶│   Service    │────▶│  Blockchain  │
-│  (User Intent)  │     │  (EVMService)│     │   (Viem)     │
-└─────────────────┘     └──────────────┘     └──────────────┘
-         │                      │
-         ▼                      ▼
-┌─────────────────┐     ┌──────────────┐
-│    Templates    │     │  Providers   │
-│  (AI Prompts)   │     │ (Data Supply)│
-└─────────────────┘     └──────────────┘
+```mermaid
+flowchart LR
+    A[Actions<br/>User Intent] --> B[Service<br/>EVMService]
+    B --> C[Blockchain<br/>Viem]
+    
+    A --> D[Templates<br/>AI Prompts]
+    B --> E[Providers<br/>Data Supply]
 ```
 
 ## Core Components
