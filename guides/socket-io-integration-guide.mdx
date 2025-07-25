@@ -4,8 +4,6 @@ description: Complete guide for integrating Socket.IO real-time communication wi
 icon: plug
 ---
 
-# Socket.IO Integration with Eliza - Complete Guide
-
 ## Overview
 
 This guide explains how Socket.IO works in the Eliza NextJS starter and provides solutions for integrating external clients (like browser extensions) with the Eliza server.
@@ -118,7 +116,7 @@ const roomId = 'your-room-id'; // This should match the agent/channel ID
 
 // 2. CRITICAL: Join the room when connected
 socket.on('connect', function() {
-  console.log('✅ Connected to Eliza, socket ID:', socket.id);
+  console.log('[SUCCESS] Connected to Eliza, socket ID:', socket.id);
   
   // JOIN THE ROOM - This is required to receive broadcasts!
   socket.emit('message', {
@@ -129,31 +127,31 @@ socket.on('connect', function() {
     }
   });
   
-  console.log('📨 Sent room join request for room:', roomId);
+  console.log('[SENT] Room join request for room:', roomId);
 });
 
 // 3. LISTEN FOR THE CORRECT EVENT: "messageBroadcast" (not "message")
 socket.on('messageBroadcast', function(data) {
-  console.log('📩 Received broadcast:', data);
+  console.log('[RECEIVED] Broadcast:', data);
   
   // Check if this message is for your room
   if (data.roomId === roomId || data.channelId === roomId) {
-    console.log('✅ Message is for our room!');
+    console.log('[SUCCESS] Message is for our room!');
     console.log('Sender:', data.senderName);
     console.log('Text:', data.text);
     console.log('Full data:', JSON.stringify(data, null, 2));
   } else {
-    console.log('❌ Message is for different room:', data.roomId || data.channelId);
+    console.log('[ERROR] Message is for different room:', data.roomId || data.channelId);
   }
 });
 
 // 4. Listen for other important events
 socket.on('messageComplete', function(data) {
-  console.log('✅ Message processing complete:', data);
+  console.log('[SUCCESS] Message processing complete:', data);
 });
 
 socket.on('connection_established', function(data) {
-  console.log('✅ Connection established:', data);
+  console.log('[SUCCESS] Connection established:', data);
 });
 
 // 5. Send a message (make sure format is exact)
@@ -172,7 +170,7 @@ function sendMessageToEliza(text) {
     }
   };
   
-  console.log('📤 Sending message:', messagePayload);
+  console.log('[SENDING] Message:', messagePayload);
   socket.emit('message', messagePayload);
 }
 
@@ -188,24 +186,24 @@ function generateUUID() {
 // 6. Debug: Log ALL events (remove in production)
 const originalEmit = socket.emit;
 socket.emit = function() {
-  console.log('⬆️ Emitting:', arguments[0], arguments[1]);
+  console.log('[EMIT] Event:', arguments[0], arguments[1]);
   return originalEmit.apply(socket, arguments);
 };
 
 // For Socket.IO v1.3.0, use this to catch all events:
 const onevent = socket.onevent;
 socket.onevent = function(packet) {
-  console.log('⬇️ Received event:', packet.data);
+  console.log('[RECEIVE] Event:', packet.data);
   onevent.call(socket, packet);
 };
 
 // Connection error handling
 socket.on('connect_error', function(error) {
-  console.error('❌ Connection error:', error);
+  console.error('[ERROR] Connection error:', error);
 });
 
 socket.on('disconnect', function(reason) {
-  console.log('🔌 Disconnected:', reason);
+  console.log('[DISCONNECTED] Reason:', reason);
 });
 
 // Test the connection
@@ -221,10 +219,10 @@ socket.on('connect', function() {
 
 ### 1. Event Name
 ```javascript
-// ❌ WRONG
+// [WRONG]
 socket.on('message', handler)
 
-// ✅ CORRECT
+// [CORRECT]
 socket.on('messageBroadcast', handler)
 ```
 
