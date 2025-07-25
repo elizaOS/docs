@@ -64,20 +64,6 @@
                 ]
               }
             ]
-          },
-          {
-            "group": "Reference",
-            "icon": "file-text",
-            "pages": [
-              {
-                "name": "llms.txt",
-                "href": "/llms.txt"
-              },
-              {
-                "name": "llms-full.txt",
-                "href": "/llms-full.txt"
-              }
-            ]
           }
         ]
       },
