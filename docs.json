@@ -68,7 +68,16 @@
           {
             "group": "Reference",
             "icon": "file-text",
-            "pages": ["llms", "llms-full"]
+            "pages": [
+              {
+                "name": "llms.txt",
+                "href": "/llms.txt"
+              },
+              {
+                "name": "llms-full.txt",
+                "href": "/llms-full.txt"
+              }
+            ]
           }
         ]
       },
