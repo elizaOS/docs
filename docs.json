@@ -9,6 +9,15 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Docs for LLMs",
+          "icon": "robot",
+          "href": "https://eliza.how/llms-full.txt"
+        }
+      ]
+    },
     "tabs": [
       {
         "tab": "Docs",
@@ -64,10 +73,6 @@
                 ]
               }
             ]
-          },
-          {
-            "group": "For LLMs",
-            "pages": ["llms.txt", "llms-full.txt"]
           }
         ]
       },
