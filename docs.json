@@ -64,6 +64,10 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "For LLMs",
+            "pages": ["llms.txt", "llms-full.txt"]
           }
         ]
       },
