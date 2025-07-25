@@ -64,6 +64,11 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "Reference",
+            "icon": "file-text",
+            "pages": ["llms", "llms-full"]
           }
         ]
       },
