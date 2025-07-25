@@ -1,4 +1,8 @@
 name: Claude Code
+# Cancel previous runs for the same PR/branch
+concurrency:
+  group: cli-tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 on:
   issue_comment:
