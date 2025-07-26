@@ -60,6 +60,7 @@
               "guides/plugin-publishing-guide",
               "guides/plugin-schema-guide",
               "guides/compose-state-guide",
+              "guides/socket-io-integration-guide",
               {
                 "group": "Plugin Migration (0.x to 1.x)",
                 "icon": "arrow-right-arrow-left",
