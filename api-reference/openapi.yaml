@@ -3607,6 +3607,382 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  # Sessions API endpoints
+  /api/messaging/sessions:
+    post:
+      tags:
+        - messaging
+      summary: Create a new session
+      description: |
+        Creates a new chat session for a user with a specific agent. Sessions provide a simplified way to interact
+        with agents without the complexity of managing servers, channels, or participants.
+        
+        **Key Benefits:**
+        - No channel management required - just provide agent and user IDs
+        - Automatic infrastructure handling - no need to create servers or channels
+        - Persistent conversation state maintained across messages
+        - Ideal for building chat interfaces, personal assistants, and direct user-to-agent interactions
+        
+        Sessions maintain conversation state and context across multiple messages, providing a persistent chat experience
+        similar to modern AI assistants.
+      operationId: createSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - agentId
+                - userId
+              properties:
+                agentId:
+                  type: string
+                  format: uuid
+                  description: ID of the agent to start a session with
+                userId:
+                  type: string
+                  format: uuid
+                  description: ID of the user creating the session
+                metadata:
+                  type: object
+                  description: Additional metadata for the session
+                  properties:
+                    platform:
+                      type: string
+                      description: Platform the session is created from
+                    username:
+                      type: string
+                      description: Username of the user
+                    discriminator:
+                      type: string
+                      description: User discriminator (e.g., Discord discriminator)
+                    avatar:
+                      type: string
+                      description: URL to user's avatar
+      responses:
+        "200":
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: string
+                    description: Unique identifier for the created session
+                  agentId:
+                    type: string
+                    format: uuid
+                  userId:
+                    type: string
+                    format: uuid
+                  createdAt:
+                    type: string
+                    format: date-time
+                  metadata:
+                    type: object
+        "400":
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/sessions/health:
+    get:
+      tags:
+        - messaging
+      summary: Sessions API health check
+      description: Check the health status of the sessions API and get active session count
+      operationId: getSessionsHealth
+      responses:
+        "200":
+          description: Sessions API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, unhealthy]
+                  activeSessions:
+                    type: integer
+                    description: Number of currently active sessions
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/messaging/sessions/{sessionId}:
+    get:
+      tags:
+        - messaging
+      summary: Get session information
+      description: Retrieve information about a specific session including metadata and activity details
+      operationId: getSession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the session
+      responses:
+        "200":
+          description: Session information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: string
+                  agentId:
+                    type: string
+                    format: uuid
+                  userId:
+                    type: string
+                    format: uuid
+                  createdAt:
+                    type: string
+                    format: date-time
+                  lastActivity:
+                    type: string
+                    format: date-time
+                  metadata:
+                    type: object
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - messaging
+      summary: End a session
+      description: End an active session and optionally archive its data
+      operationId: endSession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the session to end
+      responses:
+        "200":
+          description: Session ended successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Session ended successfully"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/sessions/{sessionId}/messages:
+    post:
+      tags:
+        - messaging
+      summary: Send a message to a session
+      description: Send a message within an active session. The agent will process and respond to the message.
+      operationId: sendSessionMessage
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  description: The message content
+                attachments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: Type of attachment
+                      url:
+                        type: string
+                        description: URL of the attachment
+                      name:
+                        type: string
+                        description: Name of the attachment
+                metadata:
+                  type: object
+                  description: Additional message metadata
+      responses:
+        "200":
+          description: Message sent and processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Message ID
+                  content:
+                    type: string
+                    description: Agent's response
+                  authorId:
+                    type: string
+                    format: uuid
+                  isAgent:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    format: date-time
+                  metadata:
+                    type: object
+                    properties:
+                      thought:
+                        type: string
+                        description: Agent's internal thought process
+                      actions:
+                        type: array
+                        items:
+                          type: string
+                        description: Actions performed by the agent
+        "400":
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags:
+        - messaging
+      summary: Get session messages
+      description: Retrieve messages from a session with pagination support
+      operationId: getSessionMessages
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the session
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+          description: Maximum number of messages to return
+        - name: before
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Get messages before this timestamp
+        - name: after
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Get messages after this timestamp
+      responses:
+        "200":
+          description: Messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        content:
+                          type: string
+                        authorId:
+                          type: string
+                          format: uuid
+                        isAgent:
+                          type: boolean
+                        createdAt:
+                          type: string
+                          format: date-time
+                        metadata:
+                          type: object
+                  hasMore:
+                    type: boolean
+                    description: Whether there are more messages available
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   # Socket.IO Events Documentation
   /websocket:
     get:

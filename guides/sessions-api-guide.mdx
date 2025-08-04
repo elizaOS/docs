@@ -1,0 +1,414 @@
+---
+title: Sessions API Guide
+description: Learn how to use the Sessions API for persistent, stateful conversations with ElizaOS agents
+---
+
+The Sessions API provides a way to create persistent, stateful conversations with ElizaOS agents. Unlike direct messaging, sessions maintain conversation context and state across multiple interactions, enabling more coherent and contextual conversations.
+
+## Why Use Sessions?
+
+### Simplified Architecture - No Channel Management Required
+
+One of the key advantages of the Sessions API is that it **eliminates the complexity of channel management**. Traditional messaging approaches require you to:
+
+1. Create or find a server
+2. Create or find a channel within that server
+3. Add agents to the channel
+4. Manage channel participants
+5. Handle channel lifecycle (creation, deletion, cleanup)
+
+With Sessions API, you simply:
+1. Create a session with an agent
+2. Send messages
+
+That's it! The Sessions API handles all the underlying infrastructure automatically.
+
+### Traditional Messaging Flow (Complex)
+```javascript
+// Traditional approach requires multiple steps
+// 1. Create/find server
+const server = await createServer({ name: 'My Server' });
+
+// 2. Create/find channel
+const channel = await createChannel({ 
+  serverId: server.id, 
+  name: 'chat-channel',
+  type: 'direct'
+});
+
+// 3. Add agent to server
+await addAgentToServer(server.id, agentId);
+
+// 4. Add agent to channel
+await addAgentToChannel(channel.id, agentId);
+
+// 5. Finally send message
+await sendMessage(channel.id, { content: 'Hello' });
+```
+
+### Sessions API Flow (Simple)
+```javascript
+// Sessions approach - just two steps
+// 1. Create session
+const { sessionId } = await createSession({ agentId, userId });
+
+// 2. Send message
+await sendSessionMessage(sessionId, { content: 'Hello' });
+```
+
+## Overview
+
+Sessions are designed for:
+- **Zero Channel Management**: No need to create servers, channels, or manage participants
+- **Instant Setup**: Start conversations immediately with just agent and user IDs
+- **Persistent Conversations**: Maintain chat history and context across multiple messages
+- **State Management**: Track conversation stage, user intent, and engagement metrics
+- **User Experience**: Provide a consistent chat experience similar to modern AI assistants
+- **Multi-Platform Support**: Works across different platforms with metadata support
+
+## Key Concepts
+
+### Session Lifecycle
+
+1. **Creation**: Start a new session with an agent
+2. **Active**: Send and receive messages within the session
+3. **Paused**: Session is temporarily inactive but can be resumed
+4. **Ended**: Session is terminated and archived
+
+### Session State
+
+Each session maintains:
+- **Conversation Stage**: greeting, discovery, engaged, resolution, closing
+- **User Intent**: Tracked topics and goals
+- **Sentiment Analysis**: User's emotional state (positive, neutral, negative, mixed)
+- **Engagement Level**: High, medium, or low user engagement
+- **Agent Confidence**: How confident the agent is in its responses
+
+## Quick Start
+
+The Sessions API dramatically simplifies agent interactions. Here's a complete example that would require 5+ API calls with traditional messaging:
+
+### Complete Example: Chat Application
+
+```javascript
+// Initialize a chat with an agent - that's all the setup needed!
+async function startChat(agentId, userId) {
+  // One API call to create session
+  const response = await fetch('/api/messaging/sessions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ agentId, userId })
+  });
+  
+  const { sessionId } = await response.json();
+  
+  // Now you can immediately start chatting
+  return sessionId;
+}
+
+// Send messages without any channel management
+async function sendMessage(sessionId, message) {
+  const response = await fetch(
+    `/api/messaging/sessions/${sessionId}/messages`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: message })
+    }
+  );
+  
+  return response.json();
+}
+
+// That's it! No servers, channels, or participant management needed
+```
+
+### 1. Create a Session
+
+```javascript
+const response = await fetch('http://localhost:3000/api/messaging/sessions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    agentId: 'your-agent-id',
+    userId: 'your-user-id',
+    metadata: {
+      platform: 'web',
+      username: 'john_doe',
+    }
+  })
+});
+
+const { sessionId } = await response.json();
+```
+
+### 2. Send Messages
+
+```javascript
+const messageResponse = await fetch(
+  `http://localhost:3000/api/messaging/sessions/${sessionId}/messages`,
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      content: 'Hello, I need help with my account',
+      metadata: {
+        userTimezone: 'America/New_York'
+      }
+    })
+  }
+);
+
+const agentResponse = await messageResponse.json();
+console.log(agentResponse.content); // Agent's response
+console.log(agentResponse.metadata.thought); // Agent's internal reasoning
+```
+
+### 3. Retrieve Message History
+
+```javascript
+const messagesResponse = await fetch(
+  `http://localhost:3000/api/messaging/sessions/${sessionId}/messages?limit=20`,
+  {
+    method: 'GET',
+  }
+);
+
+const { messages, hasMore } = await messagesResponse.json();
+```
+
+### 4. End a Session
+
+```javascript
+await fetch(
+  `http://localhost:3000/api/messaging/sessions/${sessionId}`,
+  {
+    method: 'DELETE',
+  }
+);
+```
+
+## Advanced Features
+
+### Session Metadata
+
+Include platform-specific metadata when creating sessions:
+
+```javascript
+{
+  metadata: {
+    platform: 'discord',
+    username: 'user#1234',
+    discriminator: '1234',
+    avatar: 'https://cdn.discord.com/avatars/...',
+    guildId: 'guild-id',
+    channelId: 'channel-id'
+  }
+}
+```
+
+### Pagination
+
+Retrieve messages with pagination:
+
+```javascript
+// Get messages before a specific timestamp
+const before = new Date('2024-01-15T10:00:00Z').toISOString();
+const response = await fetch(
+  `/api/messaging/sessions/${sessionId}/messages?before=${before}&limit=50`
+);
+
+// Get messages after a specific timestamp
+const after = new Date('2024-01-15T09:00:00Z').toISOString();
+const response = await fetch(
+  `/api/messaging/sessions/${sessionId}/messages?after=${after}&limit=50`
+);
+```
+
+### Health Monitoring
+
+Check the sessions API health:
+
+```javascript
+const healthResponse = await fetch('/api/messaging/sessions/health');
+const { status, activeSessions } = await healthResponse.json();
+```
+
+## When to Use Sessions vs Traditional Messaging
+
+### Use Sessions When:
+- **Building chat interfaces**: Web apps, mobile apps, or any UI with a chat component
+- **Direct user-to-agent conversations**: One-on-one interactions between a user and an agent
+- **Simplified integration**: You want to get up and running quickly without infrastructure complexity
+- **Stateful conversations**: You need the agent to maintain context throughout the conversation
+- **Personal assistants**: Building AI assistants that remember user preferences and conversation history
+
+### Use Traditional Messaging When:
+- **Multi-agent coordination**: Multiple agents need to communicate in the same channel
+- **Group conversations**: Multiple users and agents interacting together
+- **Platform integrations**: Integrating with Discord, Slack, or other platforms that have their own channel concepts
+- **Broadcast scenarios**: One agent sending messages to multiple channels/users
+- **Complex routing**: Custom message routing logic between different channels and servers
+
+## Best Practices
+
+### 1. Session Management
+
+- **One Session Per Conversation**: Create a new session for each distinct conversation
+- **Clean Up**: End sessions when conversations are complete
+- **Timeout Handling**: Implement client-side timeout detection for inactive sessions
+
+### 2. Error Handling
+
+```javascript
+try {
+  const response = await fetch(`/api/messaging/sessions/${sessionId}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: message })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    if (response.status === 404) {
+      // Session not found - create a new one
+      await createNewSession();
+    } else {
+      console.error('Error:', error.message);
+    }
+  }
+} catch (error) {
+  console.error('Network error:', error);
+}
+```
+
+### 3. State Persistence
+
+Sessions automatically persist state between messages. The agent maintains:
+- Conversation context
+- User preferences discovered during chat
+- Topics discussed
+- Actions taken
+
+### 4. Concurrent Sessions
+
+- Users can have multiple active sessions with different agents
+- Each session maintains independent state
+- Sessions are isolated from each other
+
+## Integration Examples
+
+### React Hook
+
+```javascript
+import { useState, useCallback } from 'react';
+
+function useElizaSession(agentId, userId) {
+  const [sessionId, setSessionId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const startSession = useCallback(async () => {
+    const response = await fetch('/api/messaging/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agentId, userId })
+    });
+    const data = await response.json();
+    setSessionId(data.sessionId);
+    return data.sessionId;
+  }, [agentId, userId]);
+
+  const sendMessage = useCallback(async (content) => {
+    if (!sessionId) await startSession();
+    
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `/api/messaging/sessions/${sessionId}/messages`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        }
+      );
+      const message = await response.json();
+      setMessages(prev => [...prev, message]);
+      return message;
+    } finally {
+      setLoading(false);
+    }
+  }, [sessionId]);
+
+  return { sessionId, messages, sendMessage, loading };
+}
+```
+
+### WebSocket Integration
+
+For real-time updates, combine the Sessions API with WebSocket:
+
+```javascript
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:3000');
+
+// Join session room for real-time updates
+socket.emit('join', { 
+  roomId: sessionId,
+  agentId: agentId 
+});
+
+// Listen for real-time messages
+socket.on('messageBroadcast', (message) => {
+  if (message.roomId === sessionId) {
+    updateMessageList(message);
+  }
+});
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Session Not Found (404)**
+   - Session may have expired or been deleted
+   - Create a new session and retry
+
+2. **Agent Not Available**
+   - Ensure the agent is started and running
+   - Check agent logs for errors
+
+3. **Slow Responses**
+   - Check agent's model configuration
+   - Monitor system resources
+   - Consider implementing response streaming
+
+### Debugging
+
+Enable debug logging:
+
+```javascript
+const response = await fetch('/api/messaging/sessions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Debug': 'true'  // Enable debug info in response
+  },
+  body: JSON.stringify({ agentId, userId })
+});
+```
+
+## API Reference
+
+For complete API documentation, see:
+- [Create Session](/api-reference/messaging/create-session)
+- [Get Session Info](/api-reference/messaging/get-session)
+- [Send Message](/api-reference/messaging/send-session-message)
+- [Get Messages](/api-reference/messaging/get-session-messages)
+- [End Session](/api-reference/messaging/end-session)
+- [Health Check](/api-reference/messaging/sessions-health-check)
