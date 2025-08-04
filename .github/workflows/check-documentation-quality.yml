@@ -108,13 +108,15 @@ jobs:
             4. Ignore common boilerplate text
             5. Check for other quality issues
 
-            **Output Summary (save as JSON for PR description):**
+            **Output Summary (for internal tracking only - DO NOT save to files):**
             - Total files scanned
             - Number of double header issues fixed
             - Number of duplicate content instances resolved
             - Other quality issues fixed
             - List of all files modified with specific changes
             - Statistics on improvements made
+            
+            **IMPORTANT: Do NOT create or save any report files, JSON files, or analysis files to the repository. Only modify the actual documentation files that need fixing.**
 
           # Allow Claude to use bash commands for finding and editing files
           allowed_tools: "Bash(find . -name '*.mdx'),Bash(grep -n),Bash(head -n),Bash(sed -i),Bash(awk),EditFile(*)"
@@ -138,8 +140,17 @@ jobs:
       - name: Commit and Push Changes
         if: steps.check-changes.outputs.changes == 'true'
         run: |
-          # Stage all changes
+          # Stage only documentation changes, exclude reports
           git add -A
+          git reset HEAD -- "*.md" "*.json" "*report*" "*_report*" "*-report*" || true
+          git reset HEAD -- "*analysis*" "*summary*" "*_analysis*" "*_summary*" || true
+          
+          # Verify no report files are staged
+          if git diff --cached --name-only | grep -E "(report|analysis|summary)" > /dev/null; then
+            echo "Error: Report files detected in staging area"
+            git diff --cached --name-only | grep -E "(report|analysis|summary)"
+            exit 1
+          fi
 
           # Create detailed commit message
           git commit -m "fix: automated documentation quality improvements" \
