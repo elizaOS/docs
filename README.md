@@ -1,6 +1,6 @@
 # ElizaOS Documentation
 
-Welcome to the official documentation repository for [ElizaOS](https://github.com/elizaos/elizaos) - a powerful framework for building AI agents with memory, planning, and tool use capabilities.
+Welcome to the official documentation repository for [ElizaOS](https://github.com/elizaos/eliza) - a powerful framework for building AI agents with memory, planning, and tool use capabilities.
 
 ## 📚 About This Documentation
 
@@ -102,7 +102,7 @@ Find the installation link in your [Mintlify dashboard](https://dashboard.mintli
 
 ## 📖 Learn More
 
-- [ElizaOS GitHub Repository](https://github.com/elizaos/elizaos)
+- [ElizaOS GitHub Repository](https://github.com/elizaos/eliza)
 - [Mintlify Documentation](https://mintlify.com/docs)
 - [MDX Documentation](https://mdxjs.com/)
 
