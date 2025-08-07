@@ -62,6 +62,7 @@
               "guides/compose-state-guide",
               "guides/sessions-api-guide",
               "guides/socket-io-integration-guide",
+              "guides/mcp-setup-guide",
               {
                 "group": "Plugin Migration (0.x to 1.x)",
                 "icon": "arrow-right-arrow-left",

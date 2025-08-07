@@ -267,7 +267,7 @@ await runtime.evaluate(message, state, shouldRespond, callback, responseMessages
 
 ### 1. Should Respond Decision Tree
 
-```
+```text
 Is DM? → YES → Respond
 Is Voice DM? → YES → Respond
 Is API Call? → YES → Respond
@@ -280,14 +280,14 @@ Run shouldRespond LLM →
 
 ### 2. Response Type Decision
 
-```
+```text
 Actions = [REPLY] only AND Providers = [] → Simple Response
 Otherwise → Complex Response with Action Processing
 ```
 
 ### 3. Evaluator Trigger Conditions
 
-```
+```text
 Message Count > ConversationLength / 4 → Run Reflection
 New Interaction → Update Relationships
 Facts Mentioned → Extract and Store

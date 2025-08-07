@@ -12,7 +12,7 @@ This repository contains the comprehensive documentation for ElizaOS, including:
 - **API Reference** - Complete API documentation for all modules
 - **Examples** - Real-world implementations and patterns
 
-## 🚀 Development
+## Development
 
 ### Prerequisites
 
@@ -71,7 +71,7 @@ We welcome contributions to improve the ElizaOS documentation! Here's how you ca
 - Test all code snippets
 - Add images/diagrams for complex concepts
 
-## 🚢 Publishing Changes
+## Publishing Changes
 
 Changes are automatically deployed when merged to the main branch. The documentation is hosted using Mintlify's infrastructure.
 
