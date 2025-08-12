@@ -82,6 +82,7 @@
       },
       {
         "tab": "API Reference",
+        "pages": ["api-reference/index"],
         "groups": [
           {
             "group": "Agents",
@@ -234,7 +235,7 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["plugins/overview"]
+            "pages": ["plugins/overview", "plugins/registry"]
           },
           {
             "group": "Core Plugins",
