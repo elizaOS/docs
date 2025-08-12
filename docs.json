@@ -234,7 +234,7 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["plugins/overview"]
+            "pages": ["plugins/overview", "plugins/registry"]
           },
           {
             "group": "Core Plugins",
