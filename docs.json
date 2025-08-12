@@ -82,6 +82,7 @@
       },
       {
         "tab": "API Reference",
+        "pages": ["api-reference/index"],
         "groups": [
           {
             "group": "Agents",
