@@ -1,5 +1,62 @@
 ---
 title: "Sessions Health Check"
-description: "Check the health status of the sessions service"
+description: "Check the health status of the sessions service and get active session statistics"
 openapi: get /api/messaging/sessions/health
 ---
+
+<Note>
+This endpoint provides real-time health metrics for the Sessions API service, including active session counts and service uptime.
+</Note>
+
+## Response
+
+<ResponseField name="status" type="string">
+  Service health status: "healthy", "degraded", or "unhealthy"
+</ResponseField>
+
+<ResponseField name="activeSessions" type="number">
+  Number of currently active (non-expired) sessions
+</ResponseField>
+
+<ResponseField name="timestamp" type="string">
+  ISO timestamp of the health check
+</ResponseField>
+
+<ResponseField name="expiringSoon" type="number">
+  Number of sessions that are within their warning threshold
+</ResponseField>
+
+<ResponseField name="invalidSessions" type="number">
+  Number of corrupted or invalid sessions detected (only shown if > 0)
+</ResponseField>
+
+<ResponseField name="uptime" type="number">
+  Service uptime in seconds
+</ResponseField>
+
+## Example Response
+
+```json
+{
+  "status": "healthy",
+  "activeSessions": 42,
+  "timestamp": "2024-01-15T10:30:45.123Z",
+  "expiringSoon": 3,
+  "uptime": 3600.5
+}
+```
+
+## Health Status Meanings
+
+- **healthy**: Service is operating normally
+- **degraded**: Service is operational but experiencing issues (e.g., invalid sessions detected)
+- **unhealthy**: Service is not operational or experiencing critical issues
+
+## Usage
+
+This endpoint is useful for:
+- Monitoring service availability
+- Tracking session volume
+- Detecting memory leaks (via active session count)
+- Setting up health check probes in orchestration systems
+- Dashboard metrics and alerting

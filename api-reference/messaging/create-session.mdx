@@ -1,5 +1,75 @@
 ---
-title: Create Session
-description: Create a new conversation session with an agent
+title: "Create Session"
+description: "Create a new conversation session with an agent with configurable timeout and renewal policies"
 openapi: post /api/messaging/sessions
 ---
+
+<Note>
+The Sessions API provides a simplified way to manage conversations without dealing with servers and channels. Sessions automatically handle timeout management, renewal, and expiration.
+</Note>
+
+## Request Body
+
+<ParamField body="agentId" type="string" required>
+  UUID of the agent to create a session with
+</ParamField>
+
+<ParamField body="userId" type="string" required>
+  UUID of the user initiating the session
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Optional metadata to attach to the session
+</ParamField>
+
+<ParamField body="timeoutConfig" type="object">
+  Optional timeout configuration for the session
+  
+  <Expandable title="Timeout Configuration Properties">
+    <ParamField body="timeoutMinutes" type="number">
+      Inactivity timeout in minutes (5-1440). Default: 30
+    </ParamField>
+    
+    <ParamField body="autoRenew" type="boolean">
+      Whether to automatically renew on activity. Default: true
+    </ParamField>
+    
+    <ParamField body="maxDurationMinutes" type="number">
+      Maximum total session duration in minutes. Default: 720 (12 hours)
+    </ParamField>
+    
+    <ParamField body="warningThresholdMinutes" type="number">
+      Minutes before expiration to trigger warning. Default: 5
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="sessionId" type="string">
+  Unique identifier for the created session
+</ResponseField>
+
+<ResponseField name="agentId" type="string">
+  UUID of the agent
+</ResponseField>
+
+<ResponseField name="userId" type="string">
+  UUID of the user
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  ISO timestamp of session creation
+</ResponseField>
+
+<ResponseField name="expiresAt" type="string">
+  ISO timestamp when the session will expire
+</ResponseField>
+
+<ResponseField name="timeoutConfig" type="object">
+  The active timeout configuration for this session
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  Any metadata attached to the session
+</ResponseField>
