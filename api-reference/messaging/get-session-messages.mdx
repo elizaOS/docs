@@ -1,5 +1,115 @@
 ---
 title: "Get Session Messages"
-description: "Retrieve messages from a conversation session"
+description: "Retrieve messages from a conversation session with cursor-based pagination"
 openapi: get /api/messaging/sessions/{sessionId}/messages
 ---
+
+<Note>
+Messages are returned in reverse chronological order (newest first) by default. Use the cursor values for efficient pagination through large conversation histories.
+</Note>
+
+## Path Parameters
+
+<ParamField path="sessionId" type="string" required>
+  The unique identifier of the session
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="limit" type="number">
+  Number of messages to retrieve (1-100). Default: 50
+</ParamField>
+
+<ParamField query="before" type="number">
+  Timestamp to get messages before (for older messages)
+</ParamField>
+
+<ParamField query="after" type="number">
+  Timestamp to get messages after (for newer messages)
+</ParamField>
+
+## Response
+
+<ResponseField name="messages" type="array">
+  Array of messages in the conversation
+  
+  <Expandable title="Message Properties">
+    <ResponseField name="id" type="string">
+      Unique message identifier
+    </ResponseField>
+    
+    <ResponseField name="content" type="string">
+      Message content
+    </ResponseField>
+    
+    <ResponseField name="authorId" type="string">
+      UUID of the message author
+    </ResponseField>
+    
+    <ResponseField name="isAgent" type="boolean">
+      Whether the message is from the agent
+    </ResponseField>
+    
+    <ResponseField name="createdAt" type="string">
+      ISO timestamp of message creation
+    </ResponseField>
+    
+    <ResponseField name="metadata" type="object">
+      Message metadata including agent thoughts and actions
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="hasMore" type="boolean">
+  Whether more messages are available
+</ResponseField>
+
+<ResponseField name="cursors" type="object">
+  Pagination cursors for fetching additional messages
+  
+  <Expandable title="Cursor Properties">
+    <ResponseField name="before" type="number">
+      Use this timestamp to get older messages
+    </ResponseField>
+    
+    <ResponseField name="after" type="number">
+      Use this timestamp to get newer messages
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Usage
+
+<CodeGroup>
+
+```javascript Initial Fetch
+// Get the most recent 20 messages
+const response = await fetch(
+  '/api/messaging/sessions/abc-123/messages?limit=20'
+);
+
+const { messages, hasMore, cursors } = await response.json();
+```
+
+```javascript Pagination - Older
+// Get older messages using the 'before' cursor
+const olderMessages = await fetch(
+  `/api/messaging/sessions/abc-123/messages?before=${cursors.before}&limit=20`
+);
+```
+
+```javascript Pagination - Newer
+// Get newer messages using the 'after' cursor
+const newerMessages = await fetch(
+  `/api/messaging/sessions/abc-123/messages?after=${cursors.after}&limit=20`
+);
+```
+
+```javascript Range Query
+// Get messages between two timestamps
+const rangeMessages = await fetch(
+  `/api/messaging/sessions/abc-123/messages?after=1704614400000&before=1704618000000`
+);
+```
+
+</CodeGroup>

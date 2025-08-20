@@ -50,7 +50,8 @@
               "deep-dive/runtime",
               "deep-dive/services",
               "deep-dive/plugin-internals",
-              "deep-dive/real-world-patterns"
+              "deep-dive/real-world-patterns",
+              "deep-dive/sessions-architecture"
             ]
           },
           {
@@ -128,12 +129,22 @@
               "api-reference/messaging/delete-channel-message",
               "api-reference/messaging/delete-all-channel-messages",
               "api-reference/messaging/delete-all-channel-messages-by-user",
-              "api-reference/messaging/create-session",
-              "api-reference/messaging/get-session",
-              "api-reference/messaging/end-session",
-              "api-reference/messaging/send-session-message",
-              "api-reference/messaging/get-session-messages",
-              "api-reference/messaging/sessions-health-check",
+              {
+                "group": "Sessions API",
+                "pages": [
+                  "api-reference/messaging/sessions-api-reference",
+                  "api-reference/messaging/create-session",
+                  "api-reference/messaging/get-session",
+                  "api-reference/messaging/send-session-message",
+                  "api-reference/messaging/get-session-messages",
+                  "api-reference/messaging/renew-session",
+                  "api-reference/messaging/update-session-timeout",
+                  "api-reference/messaging/session-heartbeat",
+                  "api-reference/messaging/end-session",
+                  "api-reference/messaging/list-sessions",
+                  "api-reference/messaging/sessions-health-check"
+                ]
+              },
               "api-reference/messaging/add-agent-to-server",
               "api-reference/messaging/add-agent-to-channel",
               "api-reference/messaging/remove-agent-from-server",

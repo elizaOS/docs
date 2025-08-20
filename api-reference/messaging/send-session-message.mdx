@@ -1,5 +1,101 @@
 ---
 title: "Send Session Message"
-description: "Send a message to a conversation session"
+description: "Send a message to a conversation session with automatic renewal tracking"
 openapi: post /api/messaging/sessions/{sessionId}/messages
 ---
+
+<Note>
+Sending a message automatically updates the session's last activity timestamp. If auto-renewal is enabled, the session will be renewed, extending its expiration time.
+</Note>
+
+## Path Parameters
+
+<ParamField path="sessionId" type="string" required>
+  The unique identifier of the session
+</ParamField>
+
+## Request Body
+
+<ParamField body="content" type="string" required>
+  The message content (maximum 4000 characters)
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Optional metadata to attach to the message
+</ParamField>
+
+<ParamField body="attachments" type="array">
+  Optional array of attachments
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  Unique identifier of the created message
+</ResponseField>
+
+<ResponseField name="content" type="string">
+  The message content
+</ResponseField>
+
+<ResponseField name="authorId" type="string">
+  UUID of the message author (user or agent)
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  ISO timestamp of message creation
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  Any metadata attached to the message
+</ResponseField>
+
+<ResponseField name="sessionStatus" type="object">
+  Current session status after sending the message
+  
+  <Expandable title="Session Status Properties">
+    <ResponseField name="expiresAt" type="string">
+      Updated expiration timestamp
+    </ResponseField>
+    
+    <ResponseField name="renewalCount" type="number">
+      Total number of times the session has been renewed
+    </ResponseField>
+    
+    <ResponseField name="wasRenewed" type="boolean">
+      Whether the session was renewed by this message
+    </ResponseField>
+    
+    <ResponseField name="isNearExpiration" type="boolean">
+      Whether the session is within the warning threshold
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Error Responses
+
+<ResponseExample>
+```json
+// 404 - Session not found
+{
+  "error": "Session not found",
+  "details": {
+    "sessionId": "abc-123"
+  }
+}
+
+// 410 - Session expired
+{
+  "error": "Session has expired",
+  "details": {
+    "sessionId": "abc-123",
+    "expiresAt": "2024-01-15T10:30:00Z"
+  }
+}
+
+// 400 - Invalid content
+{
+  "error": "Content exceeds maximum length of 4000 characters"
+}
+```
+</ResponseExample>

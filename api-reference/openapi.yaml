@@ -3660,8 +3660,26 @@ paths:
                     avatar:
                       type: string
                       description: URL to user's avatar
+                timeoutConfig:
+                  type: object
+                  description: Optional timeout configuration for the session
+                  properties:
+                    timeoutMinutes:
+                      type: integer
+                      minimum: 5
+                      maximum: 1440
+                      description: Inactivity timeout in minutes (5-1440). Default 30
+                    autoRenew:
+                      type: boolean
+                      description: Whether to automatically renew on activity. Default true
+                    maxDurationMinutes:
+                      type: integer
+                      description: Maximum total session duration in minutes. Default 720 (12 hours)
+                    warningThresholdMinutes:
+                      type: integer
+                      description: Minutes before expiration to trigger warning. Default 5
       responses:
-        "200":
+        "201":
           description: Session created successfully
           content:
             application/json:
@@ -3682,6 +3700,22 @@ paths:
                     format: date-time
                   metadata:
                     type: object
+                  expiresAt:
+                    type: string
+                    format: date-time
+                    description: When the session will expire
+                  timeoutConfig:
+                    type: object
+                    description: Active timeout configuration for the session
+                    properties:
+                      timeoutMinutes:
+                        type: integer
+                      autoRenew:
+                        type: boolean
+                      maxDurationMinutes:
+                        type: integer
+                      warningThresholdMinutes:
+                        type: integer
         "400":
           description: Invalid request parameters
           content:
@@ -3701,12 +3735,43 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+    get:
+      tags:
+        - messaging
+      summary: List all active sessions
+      description: Administrative endpoint to list all active sessions in the system
+      operationId: listSessions
+      responses:
+        "200":
+          description: Sessions list retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SessionInfo"
+                  total:
+                    type: integer
+                    description: Total number of active sessions
+                  stats:
+                    type: object
+                    properties:
+                      totalSessions:
+                        type: integer
+                      activeSessions:
+                        type: integer
+                      expiredSessions:
+                        type: integer
+
   /api/messaging/sessions/health:
     get:
       tags:
         - messaging
       summary: Sessions API health check
-      description: Check the health status of the sessions API and get active session count
+      description: Check the health status of the sessions API and get active session statistics
       operationId: getSessionsHealth
       responses:
         "200":
@@ -3718,13 +3783,22 @@ paths:
                 properties:
                   status:
                     type: string
-                    enum: [healthy, unhealthy]
+                    enum: [healthy, degraded, unhealthy]
                   activeSessions:
                     type: integer
                     description: Number of currently active sessions
                   timestamp:
                     type: string
                     format: date-time
+                  expiringSoon:
+                    type: integer
+                    description: Number of sessions near expiration
+                  invalidSessions:
+                    type: integer
+                    description: Number of invalid sessions detected (only shown if > 0)
+                  uptime:
+                    type: number
+                    description: Service uptime in seconds
 
   /api/messaging/sessions/{sessionId}:
     get:
@@ -3764,8 +3838,39 @@ paths:
                     format: date-time
                   metadata:
                     type: object
+                  expiresAt:
+                    type: string
+                    format: date-time
+                    description: When the session will expire
+                  timeoutConfig:
+                    type: object
+                    description: Current timeout configuration
+                    properties:
+                      timeoutMinutes:
+                        type: integer
+                      autoRenew:
+                        type: boolean
+                      maxDurationMinutes:
+                        type: integer
+                      warningThresholdMinutes:
+                        type: integer
+                  renewalCount:
+                    type: integer
+                    description: Number of times the session has been renewed
+                  timeRemaining:
+                    type: integer
+                    description: Milliseconds until session expiration
+                  isNearExpiration:
+                    type: boolean
+                    description: Whether the session is within the warning threshold
         "404":
           description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "410":
+          description: Session has expired
           content:
             application/json:
               schema:
@@ -3808,6 +3913,141 @@ paths:
                 $ref: "#/components/schemas/Error"
         "500":
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/sessions/{sessionId}/renew:
+    post:
+      tags:
+        - messaging
+      summary: Renew a session
+      description: Manually renew a session to extend its expiration time. This is useful even if auto-renewal is disabled.
+      operationId: renewSession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the session to renew
+      responses:
+        "200":
+          description: Session renewed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionInfo"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "410":
+          description: Session has expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Cannot renew - maximum duration reached
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/sessions/{sessionId}/timeout:
+    patch:
+      tags:
+        - messaging
+      summary: Update session timeout configuration
+      description: Update the timeout configuration for an active session
+      operationId: updateSessionTimeout
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timeoutMinutes:
+                  type: integer
+                  minimum: 5
+                  maximum: 1440
+                  description: New timeout in minutes
+                autoRenew:
+                  type: boolean
+                  description: Whether to enable auto-renewal
+                maxDurationMinutes:
+                  type: integer
+                  description: Maximum total session duration
+                warningThresholdMinutes:
+                  type: integer
+                  description: Minutes before expiration to trigger warning
+      responses:
+        "200":
+          description: Timeout configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionInfo"
+        "400":
+          description: Invalid timeout configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "410":
+          description: Session has expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/sessions/{sessionId}/heartbeat:
+    post:
+      tags:
+        - messaging
+      summary: Send session heartbeat
+      description: Keep a session alive with a heartbeat. If auto-renewal is enabled, this will also renew the session.
+      operationId: sessionHeartbeat
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the session
+      responses:
+        "200":
+          description: Heartbeat received successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionInfo"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "410":
+          description: Session has expired
           content:
             application/json:
               schema:
@@ -3857,7 +4097,7 @@ paths:
                   type: object
                   description: Additional message metadata
       responses:
-        "200":
+        "201":
           description: Message sent and processed successfully
           content:
             application/json:
@@ -3869,26 +4109,32 @@ paths:
                     description: Message ID
                   content:
                     type: string
-                    description: Agent's response
+                    description: The message content
                   authorId:
                     type: string
                     format: uuid
-                  isAgent:
-                    type: boolean
                   createdAt:
                     type: string
                     format: date-time
                   metadata:
                     type: object
+                  sessionStatus:
+                    type: object
+                    description: Current session status after sending the message
                     properties:
-                      thought:
+                      expiresAt:
                         type: string
-                        description: Agent's internal thought process
-                      actions:
-                        type: array
-                        items:
-                          type: string
-                        description: Actions performed by the agent
+                        format: date-time
+                        description: Updated expiration timestamp
+                      renewalCount:
+                        type: integer
+                        description: Total number of times the session has been renewed
+                      wasRenewed:
+                        type: boolean
+                        description: Whether the session was renewed by this message
+                      isNearExpiration:
+                        type: boolean
+                        description: Whether the session is within the warning threshold
         "400":
           description: Invalid request parameters
           content:
@@ -3897,6 +4143,12 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "410":
+          description: Session has expired
           content:
             application/json:
               schema:
@@ -3970,8 +4222,24 @@ paths:
                   hasMore:
                     type: boolean
                     description: Whether there are more messages available
+                  cursors:
+                    type: object
+                    description: Pagination cursors for fetching additional messages
+                    properties:
+                      before:
+                        type: integer
+                        description: Use this timestamp to get older messages
+                      after:
+                        type: integer
+                        description: Use this timestamp to get newer messages
         "404":
           description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "410":
+          description: Session has expired
           content:
             application/json:
               schema:
@@ -4096,6 +4364,61 @@ paths:
 
 components:
   schemas:
+    SessionInfo:
+      type: object
+      description: Complete session information with status and timeout details
+      properties:
+        sessionId:
+          type: string
+          description: Unique session identifier
+        agentId:
+          type: string
+          format: uuid
+          description: UUID of the agent
+        userId:
+          type: string
+          format: uuid
+          description: UUID of the user
+        createdAt:
+          type: string
+          format: date-time
+          description: Session creation timestamp
+        lastActivity:
+          type: string
+          format: date-time
+          description: Last activity timestamp
+        metadata:
+          type: object
+          description: Session metadata
+        expiresAt:
+          type: string
+          format: date-time
+          description: When the session will expire
+        timeoutConfig:
+          type: object
+          description: Current timeout configuration
+          properties:
+            timeoutMinutes:
+              type: integer
+              description: Inactivity timeout in minutes
+            autoRenew:
+              type: boolean
+              description: Whether auto-renewal is enabled
+            maxDurationMinutes:
+              type: integer
+              description: Maximum total session duration
+            warningThresholdMinutes:
+              type: integer
+              description: Minutes before expiration to trigger warning
+        renewalCount:
+          type: integer
+          description: Number of times the session has been renewed
+        timeRemaining:
+          type: integer
+          description: Milliseconds until session expiration
+        isNearExpiration:
+          type: boolean
+          description: Whether the session is within the warning threshold
     Error:
       type: object
       properties:

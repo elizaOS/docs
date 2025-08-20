@@ -1,5 +1,56 @@
 ---
 title: "End Session"
-description: "End an active conversation session"
+description: "Explicitly end and delete a conversation session"
 openapi: delete /api/messaging/sessions/{sessionId}
 ---
+
+<Note>
+This endpoint immediately ends a session regardless of its timeout configuration. The session is removed from memory but the underlying channel and messages are preserved for historical reference.
+</Note>
+
+## Path Parameters
+
+<ParamField path="sessionId" type="string" required>
+  The unique identifier of the session to delete
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Whether the session was successfully deleted
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Confirmation message with the session ID
+</ResponseField>
+
+## Example Response
+
+```json
+{
+  "success": true,
+  "message": "Session abc-123-def-456 deleted successfully"
+}
+```
+
+## Error Responses
+
+<ResponseExample>
+```json
+// 404 - Session not found
+{
+  "error": "Session not found",
+  "code": "SESSION_NOT_FOUND",
+  "details": {
+    "sessionId": "abc-123"
+  }
+}
+```
+</ResponseExample>
+
+## Important Notes
+
+- Deleting a session does not delete the conversation history
+- The underlying channel and messages remain in the database
+- Active WebSocket connections for the session will be terminated
+- Any pending operations on the session will fail after deletion
