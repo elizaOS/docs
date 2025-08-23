@@ -36,6 +36,14 @@ Before you begin, make sure you have the following installed:
   </Card>
 </CardGroup>
 
+<Note>
+  **Windows Users:** You have two options for installing elizaOS:
+  
+  **Option 1:** Use WSL2 ([Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)) for a Linux environment on Windows
+  
+  **Option 2:** Install natively on Windows, but first install [Git Bash](https://git-scm.com/downloads) and use it as your terminal for running Node.js, Bun, and elizaOS CLI installation and use
+</Note>
+
 ## Quick Installation
 
 Once you've installed Node.js and Bun, follow these steps to get elizaOS running quickly:
@@ -181,6 +189,44 @@ Install the elizaOS CLI globally using Bun:
     - OpenAI account has no credits remaining
     
     **Note:** You can also configure environment variables in the terminal with `elizaos env`
+  </Accordion>
+
+  <Accordion icon="windows" title="Windows Installation Issues">
+    If you're installing elizaOS natively on Windows (not using WSL2), follow these steps ( or watch the tutorial video [here](https://youtu.be/QiRg0C1zDjU?si=akR0bIbbiWYVxEQd)):
+    
+    **Step 1: Install Git Bash**
+    - Download and install [Git for Windows](https://git-scm.com/downloads) which includes Git Bash
+    - **Important:** Use Git Bash as your terminal, not PowerShell or Command Prompt
+    
+    **Step 2: Install Node.js**
+    - Download and install [Node.js for Windows](https://nodejs.org/en/download/)
+    - Install version 23.3 or higher
+    
+    **Step 3: Add Node to your PATH for Git Bash**
+    - Open PowerShell **as Administrator**
+    - Run this command to add Node to your bash profile:
+    ```powershell
+    echo 'export PATH=$PATH:"/c/Program Files/nodejs"' >> ~/.bashrc
+    ```
+    - Close and restart Git Bash for changes to take effect
+    
+    **Step 4: Verify Node installation**
+    - In Git Bash, run:
+    ```bash
+    node --version
+    ```
+    - You should see your Node.js version
+    
+    **Step 5: Install Bun**
+    - In Git Bash, run:
+    ```bash
+    powershell -c "irm bun.sh/install.ps1 | iex"
+    ```
+    
+    **Common Windows-specific issues:**
+    - If `npm` command not found: Node wasn't added to PATH correctly, restart Git Bash
+    - If scripts fail: Make sure you're using Git Bash, not PowerShell or CMD
+    - If permission errors: Run Git Bash as Administrator when installing global packages
   </Accordion>
 
   <Accordion icon="database" title="Database connection issues">
