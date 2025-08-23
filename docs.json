@@ -31,7 +31,7 @@
           {
             "group": "Getting Started",
             "pages": [
-              "overview",
+              "index",
               "installation",
               "quickstart",
               "what-you-can-build"
