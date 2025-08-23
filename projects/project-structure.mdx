@@ -41,6 +41,32 @@ const project: Project = {
 
 export default project;
 ```
+
+### Real-World Project Pattern
+
+From the elizaOS starter project:
+
+```typescript
+// packages/project-starter/src/index.ts
+import { type IAgentRuntime, type Project, type ProjectAgent } from '@elizaos/core';
+import { character } from './character.ts';
+
+const initCharacter = ({ runtime }: { runtime: IAgentRuntime }) => {
+  logger.info('Initializing character');
+  logger.info('Name: ', character.name);
+};
+
+export const projectAgent: ProjectAgent = {
+  character,
+  init: async (runtime: IAgentRuntime) => await initCharacter({ runtime }),
+  // plugins: [starterPlugin], // Custom plugins here
+};
+
+const project: Project = {
+  agents: [projectAgent],
+};
+
+export default project;
 ```
 
 ## Character Configuration
@@ -56,6 +82,45 @@ export const character: Character = {
     "@elizaos/plugin-bootstrap",
     ...(process.env.DISCORD_API_TOKEN ? ["@elizaos/plugin-discord"] : [])
   ]
+};
+```
+
+### Production Character Configuration Pattern
+
+Characters define personality and plugin configuration with comprehensive settings:
+
+```typescript
+export const character: Character = {
+  name: 'Eliza',
+  plugins: [
+    // Core plugins first
+    '@elizaos/plugin-sql',
+    
+    // Conditional plugins based on environment
+    ...(process.env.ANTHROPIC_API_KEY ? ['@elizaos/plugin-anthropic'] : []),
+    ...(process.env.OPENAI_API_KEY ? ['@elizaos/plugin-openai'] : []),
+    ...(process.env.DISCORD_API_TOKEN ? ['@elizaos/plugin-discord'] : []),
+    ...(process.env.TELEGRAM_BOT_TOKEN ? ['@elizaos/plugin-telegram'] : []),
+    
+    // Bootstrap plugin (unless explicitly disabled)
+    ...(!process.env.IGNORE_BOOTSTRAP ? ['@elizaos/plugin-bootstrap'] : []),
+  ],
+  settings: {
+    secrets: {},
+    avatar: 'https://elizaos.github.io/eliza-avatars/Eliza/portrait.png',
+  },
+  system: 'Respond to all messages in a helpful, conversational manner...',
+  bio: [
+    'Engages with all types of questions and conversations',
+    'Provides helpful, concise responses',
+    // ...
+  ],
+  topics: ['general knowledge', 'problem solving', 'technology'],
+  messageExamples: [/* conversation examples */],
+  style: {
+    all: ['Keep responses concise', 'Use clear language'],
+    chat: ['Be conversational', 'Show personality'],
+  },
 };
 ```
 
@@ -83,6 +148,35 @@ const project: Project = {
 };
 
 export default project;
+```
+
+### Advanced Multi-Agent Pattern
+
+The framework supports complex multi-agent configurations with individual initialization and plugin sets:
+
+```typescript
+const project: Project = {
+  agents: [
+    {
+      character: elizaCharacter,
+      init: async (runtime) => { 
+        // Eliza-specific initialization
+        await setupElizaKnowledgeBase(runtime);
+        logger.info('Eliza agent initialized');
+      },
+      plugins: [/* Eliza-specific plugins */],
+    },
+    {
+      character: assistantCharacter,
+      init: async (runtime) => { 
+        // Assistant-specific initialization
+        await connectToAPIs(runtime);
+        logger.info('Assistant agent initialized');
+      },
+      plugins: [/* Assistant-specific plugins */],
+    },
+  ],
+};
 ```
 
 ## Environment Configuration
