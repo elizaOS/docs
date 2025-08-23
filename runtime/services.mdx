@@ -186,13 +186,84 @@ class NotificationService extends Service {
 }
 ```
 
+## Real-World Service Patterns
+
+### Task Service Pattern
+
+Services run in the background and handle ongoing tasks:
+
+```typescript
+export class TaskService extends Service {
+  static serviceType = ServiceType.TASK;
+  capabilityDescription = 'The agent is able to schedule and execute tasks';
+  
+  static async start(runtime: IAgentRuntime): Promise<Service> {
+    const service = new TaskService(runtime);
+    await service.startTimer();
+    return service;
+  }
+  
+  static async stop(runtime: IAgentRuntime) {
+    const service = runtime.getService(ServiceType.TASK);
+    if (service) {
+      await service.stop();
+    }
+  }
+  
+  private async startTimer() {
+    this.timer = setInterval(async () => {
+      await this.checkTasks();
+    }, this.TICK_INTERVAL);
+  }
+}
+```
+
+### Platform Service Pattern (Discord Example)
+
+```typescript
+export class DiscordService extends Service implements IDiscordService {
+  static serviceType: string = DISCORD_SERVICE_NAME;
+  capabilityDescription = "The agent is able to send and receive messages on discord";
+  
+  constructor(runtime: IAgentRuntime) {
+    super(runtime);
+    
+    // Parse environment configuration
+    const token = runtime.getSetting("DISCORD_API_TOKEN");
+    if (!token) {
+      this.client = null;
+      return;
+    }
+    
+    // Initialize Discord client
+    this.client = new DiscordJsClient({
+      intents: [/* Discord intents */],
+      partials: [/* Discord partials */]
+    });
+    
+    // Set up event handlers
+    this.setupEventHandlers();
+  }
+  
+  private setupEventHandlers() {
+    this.client.on('messageCreate', async (message) => {
+      // Convert Discord message to Memory format
+      const memory = await this.convertToMemory(message);
+      // Process through runtime
+      await this.runtime.processActions(memory, []);
+    });
+  }
+}
+```
+
 ## Best Practices
 
-- Implement graceful shutdown in `stop()`
-- Handle errors without crashing
-- Use environment variables for config
-- Avoid blocking operations
-- Clean up resources properly
+- **Graceful Initialization**: Handle missing API tokens gracefully in service constructors
+- **Implement graceful shutdown**: Always implement proper cleanup in `stop()`
+- **Handle errors without crashing**: Services should log errors but continue running
+- **Use environment variables for config**: Check environment variables for service configuration
+- **Avoid blocking operations**: Use async operations and intervals
+- **Clean up resources properly**: Clear timers, close connections, free memory
 
 ## Common Services
 

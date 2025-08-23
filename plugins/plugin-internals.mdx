@@ -539,3 +539,292 @@ async handler(runtime, message, state, options, callback) {
 
 The action chaining system provides a powerful way to build complex, multi-step workflows while maintaining clean separation between individual actions.
 
+## 9. Real-World Implementation Patterns
+
+This section documents actual patterns and structures used in production elizaOS plugins based on examination of real implementations.
+
+### Basic Plugin Structure Pattern
+
+Every plugin follows this core structure pattern (from `plugin-starter`):
+
+```typescript
+import type { Plugin } from '@elizaos/core';
+
+export const myPlugin: Plugin = {
+  name: 'plugin-name',
+  description: 'Plugin description',
+  
+  // Core components
+  actions: [],      // Actions the plugin provides
+  providers: [],    // Data providers
+  services: [],     // Background services
+  evaluators: [],   // Response evaluators
+  
+  // Optional components
+  init: async (config) => {},  // Initialization logic
+  models: {},       // Custom model implementations
+  routes: [],       // HTTP routes
+  events: {},       // Event handlers
+  tests: [],        // Test suites
+  dependencies: [], // Other required plugins
+};
+```
+
+### Bootstrap Plugin Pattern
+
+The most complex and comprehensive plugin that provides core functionality:
+
+```typescript
+export const bootstrapPlugin: Plugin = {
+  name: 'bootstrap',
+  description: 'Agent bootstrap with basic actions and evaluators',
+  actions: [
+    actions.replyAction,
+    actions.followRoomAction,
+    actions.ignoreAction,
+    actions.sendMessageAction,
+    actions.generateImageAction,
+    // ... more actions
+  ],
+  providers: [
+    providers.timeProvider,
+    providers.entitiesProvider,
+    providers.characterProvider,
+    providers.recentMessagesProvider,
+    // ... more providers
+  ],
+  services: [TaskService],
+  evaluators: [evaluators.reflectionEvaluator],
+  events: {
+    [EventType.MESSAGE_RECEIVED]: [messageReceivedHandler],
+    [EventType.POST_GENERATED]: [postGeneratedHandler],
+    // ... more event handlers
+  }
+};
+```
+
+### Service Plugin Pattern (Discord, Telegram)
+
+Platform integration plugins focus on service implementation:
+
+```typescript
+// Discord Plugin
+const discordPlugin: Plugin = {
+  name: "discord",
+  description: "Discord service plugin for integration with Discord servers",
+  services: [DiscordService],
+  actions: [
+    chatWithAttachments,
+    downloadMedia,
+    joinVoice,
+    leaveVoice,
+    summarize,
+    transcribeMedia,
+  ],
+  providers: [channelStateProvider, voiceStateProvider],
+  tests: [new DiscordTestSuite()],
+  init: async (config, runtime) => {
+    // Check for required API tokens
+    const token = runtime.getSetting("DISCORD_API_TOKEN");
+    if (!token) {
+      logger.warn("Discord API Token not provided");
+    }
+  },
+};
+
+// Telegram Plugin (minimal)
+const telegramPlugin: Plugin = {
+  name: TELEGRAM_SERVICE_NAME,
+  description: 'Telegram client plugin',
+  services: [TelegramService],
+  tests: [new TelegramTestSuite()],
+};
+```
+
+### Action Implementation Pattern
+
+Actions follow a consistent structure with validation and execution:
+
+```typescript
+const helloWorldAction: Action = {
+  name: 'HELLO_WORLD',
+  similes: ['GREET', 'SAY_HELLO'],  // Alternative names
+  description: 'Responds with a simple hello world message',
+  
+  validate: async (runtime, message, state) => {
+    // Return true if action can be executed
+    return true;
+  },
+  
+  handler: async (runtime, message, state, options, callback, responses) => {
+    try {
+      const responseContent: Content = {
+        text: 'hello world!',
+        actions: ['HELLO_WORLD'],
+        source: message.content.source,
+      };
+      
+      if (callback) {
+        await callback(responseContent);
+      }
+      
+      return responseContent;
+    } catch (error) {
+      logger.error('Error in HELLO_WORLD action:', error);
+      throw error;
+    }
+  },
+  
+  examples: [
+    [
+      {
+        name: '{{name1}}',
+        content: { text: 'Can you say hello?' }
+      },
+      {
+        name: '{{name2}}',
+        content: { 
+          text: 'hello world!',
+          actions: ['HELLO_WORLD']
+        }
+      }
+    ]
+  ]
+};
+```
+
+### Complex Action Pattern (Reply Action)
+
+```typescript
+export const replyAction = {
+  name: 'REPLY',
+  similes: ['GREET', 'REPLY_TO_MESSAGE', 'SEND_REPLY', 'RESPOND'],
+  description: 'Replies to the current conversation',
+  
+  validate: async (runtime) => true,
+  
+  handler: async (runtime, message, state, options, callback, responses) => {
+    // Compose state with providers
+    state = await runtime.composeState(message, ['RECENT_MESSAGES']);
+    
+    // Generate response using LLM
+    const prompt = composePromptFromState({ state, template: replyTemplate });
+    const response = await runtime.useModel(ModelType.OBJECT_LARGE, { prompt });
+    
+    const responseContent = {
+      thought: response.thought,
+      text: response.message || '',
+      actions: ['REPLY'],
+    };
+    
+    await callback(responseContent);
+    return true;
+  }
+};
+```
+
+### Provider Implementation Pattern
+
+Providers supply contextual data to the agent:
+
+```typescript
+export const timeProvider: Provider = {
+  name: 'TIME',
+  get: async (runtime, message) => {
+    const currentDate = new Date();
+    const options = {
+      timeZone: 'UTC',
+      dateStyle: 'full' as const,
+      timeStyle: 'long' as const,
+    };
+    const humanReadable = new Intl.DateTimeFormat('en-US', options).format(currentDate);
+    
+    return {
+      data: { time: currentDate },
+      values: { time: humanReadable },
+      text: `The current date and time is ${humanReadable}.`,
+    };
+  },
+};
+```
+
+### Environment-Based Plugin Loading
+
+Plugins are conditionally loaded based on environment variables:
+
+```typescript
+const plugins = [
+  // Always loaded
+  '@elizaos/plugin-sql',
+  
+  // Conditionally loaded based on API keys
+  ...(process.env.ANTHROPIC_API_KEY ? ['@elizaos/plugin-anthropic'] : []),
+  ...(process.env.OPENAI_API_KEY ? ['@elizaos/plugin-openai'] : []),
+  
+  // Platform plugins
+  ...(process.env.DISCORD_API_TOKEN ? ['@elizaos/plugin-discord'] : []),
+  ...(process.env.TELEGRAM_BOT_TOKEN ? ['@elizaos/plugin-telegram'] : []),
+];
+```
+
+### Plugin Initialization Pattern
+
+Plugins can have initialization logic:
+
+```typescript
+const myPlugin: Plugin = {
+  name: 'my-plugin',
+  config: {
+    EXAMPLE_VARIABLE: process.env.EXAMPLE_VARIABLE,
+  },
+  async init(config: Record<string, string>) {
+    // Validate configuration
+    const validatedConfig = await configSchema.parseAsync(config);
+    
+    // Set environment variables
+    for (const [key, value] of Object.entries(validatedConfig)) {
+      if (value) process.env[key] = value;
+    }
+  },
+};
+```
+
+### Common Environment Variables
+
+Plugins commonly use these environment variables:
+
+```bash
+# AI Model Providers
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+GOOGLE_GENERATIVE_AI_API_KEY=
+OLLAMA_API_ENDPOINT=
+
+# Platform Integrations
+DISCORD_API_TOKEN=
+TELEGRAM_BOT_TOKEN=
+TWITTER_API_KEY=
+TWITTER_API_SECRET_KEY=
+TWITTER_ACCESS_TOKEN=
+TWITTER_ACCESS_TOKEN_SECRET=
+
+# Plugin Control
+IGNORE_BOOTSTRAP=  # Skip bootstrap plugin
+CHANNEL_IDS=       # Restrict Discord to specific channels
+
+# Database
+POSTGRES_URL=
+PGLITE_DATA_DIR=
+```
+
+## Best Practices
+
+1. **Plugin Dependencies**: Use the `dependencies` array to specify required plugins
+2. **Conditional Loading**: Check environment variables before loading platform-specific plugins
+3. **Service Initialization**: Handle missing API tokens gracefully in service constructors
+4. **Event Handlers**: Keep event handlers focused and delegate to specialized functions
+5. **Provider Data**: Return structured data with `data`, `values`, and `text` fields
+6. **Action Validation**: Always implement validation logic before execution
+7. **Error Handling**: Use try-catch blocks and log errors appropriately
+8. **Type Safety**: Use TypeScript types from `@elizaos/core` for all plugin components
+

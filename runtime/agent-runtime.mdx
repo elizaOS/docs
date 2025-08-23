@@ -159,6 +159,75 @@ const memories = await runtime.databaseAdapter.searchMemories({
 });
 ```
 
+## Event Handling Patterns
+
+Plugins can handle various system events through the event system:
+
+```typescript
+const events = {
+  [EventType.MESSAGE_RECEIVED]: [
+    async (payload: MessagePayload) => {
+      await messageReceivedHandler({
+        runtime: payload.runtime,
+        message: payload.message,
+        callback: payload.callback,
+      });
+    },
+  ],
+  
+  [EventType.WORLD_JOINED]: [
+    async (payload: WorldPayload) => {
+      await handleServerSync(payload);
+    },
+  ],
+  
+  [EventType.ENTITY_JOINED]: [
+    async (payload: EntityPayload) => {
+      await syncSingleUser(/* params */);
+    },
+  ],
+};
+```
+
+### Event Types
+
+The system supports various event types:
+- **World events**: WORLD_JOINED, WORLD_CONNECTED, WORLD_LEFT
+- **Entity events**: ENTITY_JOINED, ENTITY_LEFT, ENTITY_UPDATED
+- **Room events**: ROOM_JOINED, ROOM_LEFT
+- **Message events**: MESSAGE_RECEIVED, MESSAGE_SENT, MESSAGE_DELETED
+- **Voice events**: VOICE_MESSAGE_RECEIVED, VOICE_MESSAGE_SENT
+- **Run events**: RUN_STARTED, RUN_ENDED, RUN_TIMEOUT
+- **Action/Evaluator events**: ACTION_STARTED/COMPLETED, EVALUATOR_STARTED/COMPLETED
+- **Model events**: MODEL_USED
+
+### Event Handler Registration
+
+Event handlers are registered during plugin initialization:
+
+```typescript
+// In plugin definition
+const myPlugin: Plugin = {
+  name: 'my-plugin',
+  events: {
+    [EventType.MESSAGE_RECEIVED]: [
+      messageReceivedHandler,
+      logMessageHandler,
+    ],
+    [EventType.RUN_COMPLETED]: [
+      cleanupHandler,
+    ],
+  },
+};
+
+// Handlers receive typed payloads
+async function messageReceivedHandler(payload: MessagePayload) {
+  const { runtime, message, callback } = payload;
+  // Process message
+  await runtime.processActions(message, []);
+}
+```
+
 ## Best Practices
 
 - Initialize plugins in dependency order

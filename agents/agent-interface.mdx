@@ -85,6 +85,94 @@ export const character: Character = {
 };
 ```
 
+## Production Character Configuration
+
+Real-world character configurations follow comprehensive patterns:
+
+```typescript
+export const character: Character = {
+  name: 'Eliza',
+  plugins: [
+    // Core plugins first
+    '@elizaos/plugin-sql',
+    
+    // Conditional plugins based on environment
+    ...(process.env.ANTHROPIC_API_KEY ? ['@elizaos/plugin-anthropic'] : []),
+    ...(process.env.OPENAI_API_KEY ? ['@elizaos/plugin-openai'] : []),
+    ...(process.env.DISCORD_API_TOKEN ? ['@elizaos/plugin-discord'] : []),
+    ...(process.env.TELEGRAM_BOT_TOKEN ? ['@elizaos/plugin-telegram'] : []),
+    
+    // Bootstrap plugin (unless explicitly disabled)
+    ...(!process.env.IGNORE_BOOTSTRAP ? ['@elizaos/plugin-bootstrap'] : []),
+  ],
+  settings: {
+    secrets: {},
+    avatar: 'https://elizaos.github.io/eliza-avatars/Eliza/portrait.png',
+  },
+  system: 'Respond to all messages in a helpful, conversational manner...',
+  bio: [
+    'Engages with all types of questions and conversations',
+    'Provides helpful, concise responses',
+    'Adapts communication style to context',
+    'Maintains consistent personality across platforms'
+  ],
+  topics: ['general knowledge', 'problem solving', 'technology'],
+  messageExamples: [
+    [
+      {
+        name: '{{user}}',
+        content: { text: 'What can you help me with?' }
+      },
+      {
+        name: 'Eliza',
+        content: { 
+          text: 'I can assist with a wide range of topics including coding, research, creative writing, and general problem-solving. What would you like to explore?'
+        }
+      }
+    ]
+  ],
+  style: {
+    all: [
+      'Keep responses concise and clear',
+      'Use appropriate technical depth based on context',
+      'Maintain a helpful and professional tone'
+    ],
+    chat: [
+      'Be conversational and engaging',
+      'Show personality while remaining helpful',
+      'Ask clarifying questions when needed'
+    ],
+    post: [
+      'Create engaging and informative content',
+      'Use formatting for readability',
+      'Include relevant examples when appropriate'
+    ]
+  },
+};
+```
+
+### Environment-Based Plugin Loading Pattern
+
+Plugins are conditionally loaded based on environment variables:
+
+```typescript
+const plugins = [
+  // Always loaded
+  '@elizaos/plugin-sql',
+  
+  // Conditionally loaded based on API keys
+  ...(process.env.ANTHROPIC_API_KEY ? ['@elizaos/plugin-anthropic'] : []),
+  ...(process.env.OPENAI_API_KEY ? ['@elizaos/plugin-openai'] : []),
+  
+  // Platform plugins
+  ...(process.env.DISCORD_API_TOKEN ? ['@elizaos/plugin-discord'] : []),
+  ...(process.env.TELEGRAM_BOT_TOKEN ? ['@elizaos/plugin-telegram'] : []),
+  
+  // Bootstrap plugin (unless explicitly disabled)
+  ...(!process.env.IGNORE_BOOTSTRAP ? ['@elizaos/plugin-bootstrap'] : []),
+];
+```
+
 ## Knowledge Configuration
 
 ```typescript
@@ -228,12 +316,15 @@ Characters can be defined in TypeScript (recommended) or JSON:
 
 ## Best Practices
 
-- Keep personality traits consistent
-- Provide diverse message examples
-- Focus knowledge on the agent's purpose
-- Test conversations before deploying
-- Use TypeScript for better type safety
-- Load plugins conditionally based on environment
+- **Keep personality traits consistent**: Ensure bio, adjectives, and style align
+- **Provide diverse message examples**: Cover various interaction patterns
+- **Focus knowledge on the agent's purpose**: Keep knowledge domain-specific
+- **Test conversations before deploying**: Validate agent responses
+- **Use TypeScript for better type safety**: Leverage type checking for configuration
+- **Load plugins conditionally based on environment**: Check for API keys before loading
+- **Order plugins by dependency**: Load core plugins before dependent ones
+- **Use environment variables for secrets**: Never hardcode sensitive data
+- **Implement graceful fallbacks**: Handle missing plugins or services
 
 ## Next Steps
 
