@@ -1,74 +1,97 @@
 ---
 title: Overview
-description: 'Get started with the most popular AI agentic framework'
+description: 'Build autonomous AI agents with the most popular agentic framework'
 ---
 
 ## What is elizaOS?
 
-elizaOS is a TypeScript-based framework for building autonomous AI agents that can:
+elizaOS is a TypeScript framework for building AI agents that can think, learn, and act autonomously. Create agents with unique personalities, equip them with tools to interact with the world, and let them work toward their goals independently.
+
+Get started with one of the quick links below, or read on to learn more about elizaOS.
+
+<CardGroup cols={2}>
+  <Card
+    title="Installation"
+    icon="download"
+    href="/installation"
+    horizontal
+  />
+  <Card
+    title="Quickstart"
+    icon="rocket"
+    href="/quickstart"
+    horizontal
+  />
+  <Card
+    title="What You Can Build"
+    icon="lightbulb-on"
+    href="/what-you-can-build"
+    horizontal
+  />
+  <Card
+    title="Deploy Your Agent"
+    icon="cloud"
+    href="/guides/deploy-your-agent"
+    horizontal
+  />
+  <Card
+    title="API Reference"
+    icon="terminal"
+    href="/api-reference/agents/create-a-new-agent"
+    horizontal
+  />
+  <Card
+    title="CLI Reference"
+    icon="command"
+    href="/cli"
+    horizontal
+  />
+  <Card
+    title="Explore Plugin Registry"
+    icon="puzzle-piece"
+    href="/plugins"
+    horizontal
+  />
+  <Card
+    title="Contribute to Core"
+    icon="code-branch"
+    href="/guides/contribute-to-core"
+    horizontal
+  />
+</CardGroup>
+
+## Key Capabilities
+
+elizaOS agents are more than chatbots. They're autonomous entities that can:
 
 - **Define unique personalities and goals** through character files
 - **Take actions in the real world** by equipping agents with plugins
 - **Orchestrate multi-step workflows** through natural language conversations
 - **Remember and learn** from interactions with persistent memory
-- **Run anywhere** - locally for development or deploy to production
+- **Run anywhere** locally for development or deploy to production
 
-The elizaOS framework ships with 90+ official plugins spanning social platforms, blockchain networks, AI providers, generative models, DeFi protocols, gaming, and more. Its plugin architecture lets you mix and match capabilities without modifying core. 
+## Plugin Ecosystem
 
-With elizaOS, you give your agent a personality and a goal, equip it with the right plugins, and let it work to achieve results. Your agents can trade onchain, manage social media accounts, create content, analyze data, or interact with any API, blockchain, website or repo. elizaOS agents operate autonomously, taking actions based on their goals and the capabilities you've given them.
+The framework ships with 90+ official plugins spanning:
 
-## Next Steps
+- **Social platforms** - Discord, Twitter, Telegram, and more
+- **Blockchain networks** - Ethereum, Solana, Base, and other chains
+- **AI providers** - OpenAI, Anthropic, Llama, and local models
+- **DeFi protocols** - Trading, lending, yield farming
+- **Content creation** - Image generation, video, music
+- **Data analysis** - Web scraping, API integrations, databases
 
-Ready to build your first agent? Start here:
+The plugin architecture lets you mix and match capabilities without modifying core code. Your agents can trade onchain, manage social media accounts, create content, analyze data, or interact with any API, blockchain, website or repository.
 
-<CardGroup cols={2}>
-  <Card
-    title="Quickstart"
-    icon="rocket"
-    href="/quickstart"
-  >
-    Get your first AI agent running in minutes
-  </Card>
-  <Card
-    title="What You Can Build"
-    icon="lightbulb-on"
-    href="/what-you-can-build"
-  >
-    Develop and customize your agents
-  </Card>
-</CardGroup>
+## Design Philosophy
 
-## Core Concepts
+elizaOS is built on three core principles:
 
-Explore the powerful capabilities that make elizaOS the go-to choice for AI agent development.
+**1. Character-Driven**  
+Agents aren't just code - they're entities with personalities, goals, and unique voices. Character files define who your agent is and what it wants to achieve.
 
-<CardGroup cols={2}>
-  <Card
-    title="Agent Architecture"
-    icon="brain"
-    href="/deep-dive/architecture"
-  >
-    Understand the core agent architecture
-  </Card>
-  <Card
-    title="API Reference"
-    icon="terminal"
-    href="/api-reference/agents/create-a-new-agent"
-  >
-    Complete API documentation for elizaOS
-  </Card>
-  <Card
-    title="Plugins"
-    icon="puzzle-piece"
-    href="/core-concepts/plugins"
-  >
-    Learn about plugins and their capabilities
-  </Card>
-  <Card
-    title="Examples"
-    icon="lightbulb"
-    href="/guides/plugin-publishing-guide"
-  >
-    Learn from real-world agent implementations
-  </Card>
-</CardGroup>
+**2. Action-Oriented**  
+Agents don't just talk, they do. Through actions and evaluators, agents can interact with external systems, make decisions, and work toward their goals autonomously.
+
+**3. Memory-Persistent**  
+Every interaction shapes your agent. With built-in memory systems, agents remember conversations, learn from experiences, and build relationships over time.
