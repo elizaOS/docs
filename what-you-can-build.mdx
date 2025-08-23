@@ -1,0 +1,188 @@
+---
+title: 'What You Can Build'
+description: 'See what is possible with elizaOS - from trading bots to social media managers'
+---
+
+## Popular Agent Types
+
+Discover what the elizaOS community is building and get inspired for your next project.
+
+## 🎯 Social Media Management
+
+**Build agents that handle your entire social media presence**
+
+<CardGroup cols={2}>
+  <Card title="Content Creator Bot" icon="pen">
+    **What it does:**
+    - Generates engaging posts and threads
+    - Schedules content across platforms
+    - Responds to mentions and comments
+    - Analyzes trending topics
+    
+    **Plugins needed:**
+    ```bash
+    @elizaos/plugin-twitter
+    @elizaos/plugin-discord  
+    @elizaos/plugin-openai
+    plugin-web-search
+    ```
+    
+    **Perfect for:** Influencers, brands, content creators
+  </Card>
+  
+  <Card title="Community Manager" icon="users">
+    **What it does:**
+    - Welcomes new members
+    - Answers common questions
+    - Moderates discussions  
+    - Escalates complex issues
+    
+    **Plugins needed:**
+    ```bash
+    @elizaos/plugin-discord
+    @elizaos/plugin-telegram
+    @elizaos/plugin-knowledge
+    @elizaos/plugin-anthropic
+    ```
+    
+    **Perfect for:** Discord servers, Telegram groups, communities
+  </Card>
+</CardGroup>
+
+## 💰 DeFi Trading & Finance
+
+**Create sophisticated trading systems that work 24/7**
+
+<CardGroup cols={2}>
+  <Card title="Automated Trader" icon="chart-line">
+    **What it does:**
+    - Executes trades based on technical analysis
+    - Manages multiple portfolios
+    - Implements risk management rules
+    - Provides trade notifications
+    
+    **Plugins needed:**
+    ```bash
+    @elizaos/plugin-evm
+    @elizaos/plugin-solana
+    plugin-jupiter
+    plugin-dexscreener
+    @elizaos/plugin-anthropic
+    ```
+    
+    **Perfect for:** Active traders, fund managers, DeFi protocols
+  </Card>
+  
+  <Card title="Portfolio Manager" icon="briefcase">
+    **What it does:**
+    - Tracks portfolio performance
+    - Rebalances allocations
+    - Provides market analysis
+    - Sends alerts on major moves
+    
+    **Plugins needed:**
+    ```bash
+    plugin-dexscreener
+    plugin-coingecko
+    @elizaos/plugin-sql
+    @elizaos/plugin-telegram
+    ```
+    
+    **Perfect for:** Investors, DAOs, crypto funds
+  </Card>
+</CardGroup>
+
+## 🏢 Business & Productivity
+
+**Automate workflows and boost team productivity**
+
+<CardGroup cols={2}>
+  <Card title="Customer Support" icon="headset">
+    **What it does:**
+    - Handles common inquiries
+    - Creates support tickets
+    - Escalates complex issues
+    - Provides 24/7 availability
+    
+    **Plugins needed:**
+    ```bash
+    @elizaos/plugin-discord
+    @elizaos/plugin-knowledge
+    @elizaos/plugin-sql
+    plugin-zendesk
+    ```
+    
+    **Perfect for:** SaaS companies, e-commerce, service businesses
+  </Card>
+  
+  <Card title="Research Assistant" icon="magnifying-glass">
+    **What it does:**
+    - Gathers market intelligence
+    - Summarizes research papers
+    - Tracks competitor activity
+    - Generates insights reports
+    
+    **Plugins needed:**
+    ```bash
+    plugin-web-search
+    plugin-firecrawl
+    @elizaos/plugin-anthropic
+    plugin-notion
+    ```
+    
+    **Perfect for:** Consultants, analysts, researchers
+  </Card>
+</CardGroup>
+
+## Getting Started with Use Cases
+
+### 1. Choose Your Domain
+
+Pick a use case that matches your needs:
+- **High ROI:** Trading, customer support, content creation
+- **Easy to start:** Social media management, community moderation
+- **Innovative:** Gaming NPCs, creative assistants
+
+### 2. Start Simple
+
+Begin with basic functionality:
+```typescript
+// Start with core features
+plugins: [
+  "@elizaos/plugin-bootstrap",
+  "@elizaos/plugin-openai",
+  // Add one domain-specific plugin
+]
+```
+
+### 3. Iterate and Expand
+
+Add capabilities as you learn:
+```typescript
+// Expand with advanced features
+plugins: [
+  // ... existing plugins
+  "plugin-advanced-analytics",
+  "plugin-custom-integrations"
+]
+```
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="Build Your Agent" icon="rocket" href="/quickstart">
+    Follow our quickstart guide to build your first agent
+  </Card>
+  
+  <Card title="Explore Plugins" icon="puzzle-piece" href="/plugins/overview">
+    Browse 90+ plugins to add capabilities
+  </Card>
+  
+  <Card title="Join Community" icon="discord" href="https://discord.com/invite/ai16z">
+    Share your use case and get help from experts
+  </Card>
+  
+  <Card title="Advanced Patterns" icon="brain" href="/development/advanced-patterns">
+    Learn sophisticated agent architectures
+  </Card>
+</CardGroup>
