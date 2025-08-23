@@ -19,6 +19,7 @@
       "anchors": [
         {
           "anchor": "Docs for LLMs",
+          "icon": "robot",
           "href": "https://eliza.how/llms-full.txt"
         }
       ]

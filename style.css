@@ -121,3 +121,24 @@
   padding-top: 0.125rem !important; /* Match reduced padding of other nav items */
   padding-bottom: 0.125rem !important; /* Equal top and bottom */
 }
+
+/* Fix centering of robot icon SVG within its container */
+div.mr-4.p-1 {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Alternative selector for the robot icon container */
+a[href*="llms-full.txt"] div.rounded-md.p-1 {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Adjust the SVG mask position to center it properly */
+a[href*="llms-full.txt"] svg[style*="robot.svg"] {
+  -webkit-mask-position: center center !important;
+  mask-position: center center !important;
+  transform: translateY(1px) !important; /* Fine-tune vertical position */
+}
