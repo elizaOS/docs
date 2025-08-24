@@ -143,6 +143,13 @@ a[href*="llms-full.txt"] svg[style*="robot.svg"] {
   transform: translateY(1px) !important; /* Fine-tune vertical position */
 }
 
+/* Fix agent card image spacing */
+[data-component-part="card-title"] [data-rmiz] {
+  margin-right: 12px !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
 /* Agent card plugin pill styling */
 .agent-plugin-pill {
   display: inline-block;
