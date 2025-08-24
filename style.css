@@ -148,15 +148,15 @@ a[href*="llms-full.txt"] svg[style*="robot.svg"] {
   margin-right: 12px !important;
   display: inline-block !important;
   vertical-align: middle !important;
-  width: 40px !important;
-  height: 40px !important;
+  width: 48px !important;
+  height: 48px !important;
   flex-shrink: 0 !important;
 }
 
 /* Ensure images maintain exact size */
 [data-component-part="card-title"] [data-rmiz] img {
-  width: 40px !important;
-  height: 40px !important;
+  width: 48px !important;
+  height: 48px !important;
   object-fit: cover !important;
 }
 
