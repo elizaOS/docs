@@ -148,6 +148,32 @@ a[href*="llms-full.txt"] svg[style*="robot.svg"] {
   margin-right: 12px !important;
   display: inline-block !important;
   vertical-align: middle !important;
+  width: 40px !important;
+  height: 40px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Ensure images maintain exact size */
+[data-component-part="card-title"] [data-rmiz] img {
+  width: 40px !important;
+  height: 40px !important;
+  object-fit: cover !important;
+}
+
+/* Keep agent card titles on one line */
+[data-component-part="card-title"] > span[style*="display: flex"] {
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+}
+
+/* Reduce text sizes for better fit */
+[data-component-part="card-title"] {
+  font-size: 14px !important;
+}
+
+[data-component-part="card-content"] {
+  font-size: 13px !important;
+  line-height: 1.4 !important;
 }
 
 /* Agent card plugin pill styling */
