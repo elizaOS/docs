@@ -3,10 +3,6 @@ title: 'Quickstart'
 description: 'Create and run your first elizaOS agent in 3 minutes'
 ---
 
-## Before You Begin
-
-Make sure you have elizaOS installed. If not, follow the [installation guide](/installation) first.
-
 ## Create Your First Agent
 
 Let's create a project with our default Eliza character that can chat and take actions.
@@ -20,7 +16,7 @@ Let's create a project with our default Eliza character that can chat and take a
   </Step>
 
   <Step title="Configure Your Project">
-    During the interactive setup process, you'll be prompted to make the following selections:
+    During the interactive setup, you'll be prompted to make the following selections:
 
     1. **Project Name**: Enter your desired project name
     2. **Database**: Select `pglite` for a lightweight, local PostgreSQL option
@@ -46,7 +42,7 @@ Let's create a project with our default Eliza character that can chat and take a
     ```bash
     elizaos start
     ```
-    Your agent is now running with the default Eliza character!
+    Wait a few seconds for the server to start up.
   </Step>
 
   <Step title="Chat with Your Agent">
@@ -57,29 +53,6 @@ Let's create a project with our default Eliza character that can chat and take a
     Start chatting with Eliza through the web interface!
   </Step>
 </Steps>
-
-## Understanding Your Project
-
-Your new project includes:
-
-- **`src/character.ts`** - Your agent's personality and configuration
-- **`.env`** - Environment variables for API keys and settings
-- **`tsconfig.json`** - TypeScript configuration
-- **`package.json`** - Project dependencies and scripts
-
-### The Default Character
-
-Open `src/character.ts` to see your agent's configuration:
-
-```typescript
-export const character = {
-  name: "Eliza",
-  bio: "A friendly AI assistant",
-  // ... personality traits, example messages, etc.
-}
-```
-
-This character file defines your agent's personality, knowledge, and behavior patterns.
 
 ## What's Next?
 
@@ -136,6 +109,7 @@ This character file defines your agent's personality, knowledge, and behavior pa
   <Accordion icon="wrench" title="Other Common Issues">
     **When in doubt, turn it off and on again:**
     - Stop the server with `Ctrl+C`, then start it again with `elizaos start`
+    - Check the [installation guide](/installation) to confirm you installed everything correctly
     
     **Still can't access the frontend after 10 seconds?**
     - If you can't reach `http://localhost:3000`, delete your project and start fresh
@@ -143,10 +117,6 @@ This character file defines your agent's personality, knowledge, and behavior pa
     ```bash
     rm -rf my-eliza-project && elizaos create
     ```
-    - Follow the Quickstart steps again carefully.
-    
-    **Need more help?**
-    - Check the [installation guide](/installation) for system requirements
-    - Visit the [troubleshooting section](/installation#troubleshooting) for detailed solutions
+    - Follow the Quickstart steps again carefully
   </Accordion>
 </AccordionGroup>
