@@ -29,7 +29,7 @@
         "tab": "Docs",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "GETTING STARTED",
             "pages": [
               "index",
               "installation",
@@ -38,7 +38,7 @@
             ]
           },
           {
-            "group": "Guides",
+            "group": "GUIDES",
             "pages": [
               "guides/customize-your-agent",
               "guides/multi-agent-projects",
@@ -52,14 +52,14 @@
             ]
           },
           {
-            "group": "Projects",
+            "group": "PROJECTS",
             "pages": [
               "projects/project-structure",
               "projects/runtime-configuration"
             ]
           },
           {
-            "group": "Agents",
+            "group": "AGENTS",
             "pages": [
               "agents/agent-interface",
               "agents/memory-and-context",
@@ -67,7 +67,7 @@
             ]
           },
           {
-            "group": "Plugins",
+            "group": "PLUGINS",
             "pages": [
               "plugins/plugin-overview",
               "plugins/plugin-internals",
@@ -75,7 +75,7 @@
               "plugins/providers",
               "plugins/evaluators",
               {
-                "group": "Plugin Migration (0.x to 1.x)",
+                "group": "PLUGIN MIGRATION (0.x to 1.x)",
                 "pages": [
                   "plugins/plugin-migration/overview",
                   "plugins/plugin-migration/migration-guide",
@@ -89,7 +89,7 @@
             ]
           },
           {
-            "group": "Runtime",
+            "group": "RUNTIME",
             "pages": [
               "runtime/system-architecture",
               "runtime/agent-runtime",
@@ -102,7 +102,7 @@
             ]
           },
           {
-            "group": "Tutorials",
+            "group": "TUTORIALS",
             "pages": [
               "tutorials/building-a-twitter-bot",
               "tutorials/using-spartan"
@@ -115,7 +115,7 @@
         "pages": ["api-reference/index"],
         "groups": [
           {
-            "group": "Agents",
+            "group": "AGENTS",
             "pages": [
               "api-reference/agents/create-a-new-agent",
               "api-reference/agents/get-agent-details",
@@ -131,7 +131,7 @@
             ]
           },
           {
-            "group": "Audio",
+            "group": "AUDIO",
             "pages": [
               "api-reference/audio/generate-speech-from-text",
               "api-reference/audio/synthesize-speech-from-text",
