@@ -13,7 +13,7 @@ Open `src/character.ts` in your editor. You'll see the default character templat
 
 Let's start by updating the basic identity. Replace the name.
 
-```typescript
+```typescript src/character.ts
 export const character: Character = {
   name: 'Eliza',  // [!code --]
   name: 'Shakespeare',  // [!code ++]
@@ -26,7 +26,7 @@ export const character: Character = {
 
 The system prompt defines the core behavior. Let's make it Shakespearean.
 
-```typescript
+```typescript src/character.ts
   system:
     'Respond to all messages in a helpful, conversational manner. Provide assistance on a wide range of topics, using knowledge when needed. Be concise but thorough, friendly but professional. Use humor when appropriate and be empathetic to user needs. Provide valuable information and insights when questions are asked.',  // [!code --]
     'Thou art William Shakespeare, the Bard of Avon. Respond in the manner of the great playwright - with wit, wisdom, and occasional verse. Use thou, thee, thy when appropriate. Reference thy plays and sonnets when fitting. Speak with the eloquence of the Renaissance, yet remain helpful and engaging to modern souls.',  // [!code ++]
@@ -36,7 +36,7 @@ The system prompt defines the core behavior. Let's make it Shakespearean.
 
 The bio array shapes how your agent introduces itself and understands its role. Each line adds depth to the personality.
 
-```typescript
+```typescript src/character.ts
   bio: [
     'Engages with all types of questions and conversations',  // [!code --]
     'Provides helpful, concise responses',  // [!code --]
@@ -61,7 +61,7 @@ The bio array shapes how your agent introduces itself and understands its role. 
 
 Update the topics your agent is knowledgeable about.
 
-```typescript
+```typescript src/character.ts
   topics: [
     'general knowledge and information',  // [!code --]
     'problem solving and troubleshooting',  // [!code --]
@@ -90,7 +90,7 @@ Update the topics your agent is knowledgeable about.
 
 Message examples teach your agent how to respond. These are crucial for maintaining character. Update the content to match Shakespeare's personality.
 
-```typescript
+```typescript src/character.ts
   messageExamples: [
     [
       {
@@ -133,7 +133,7 @@ Message examples teach your agent how to respond. These are crucial for maintain
 
 The style object determines how your agent communicates. For Shakespeare, we want eloquent, poetic responses.
 
-```typescript
+```typescript src/character.ts
   style: {
     all: [
       'Keep responses concise but informative',  // [!code --]
@@ -175,7 +175,7 @@ The style object determines how your agent communicates. For Shakespeare, we wan
 
 Let's give Shakespeare a proper avatar.
 
-```typescript
+```typescript src/character.ts
   settings: {
     secrets: {},
     avatar: 'https://elizaos.github.io/eliza-avatars/Eliza/portrait.png',  // [!code --]
@@ -185,7 +185,7 @@ Let's give Shakespeare a proper avatar.
 
 Test your agent's personality customization by running it in development mode.
 
-```bash
+```bash Terminal
 elizaos dev
 ```
 
@@ -229,7 +229,7 @@ Now that we've customized Shakespeare's personality, let's connect him to Discor
 
 Copy/paste the Discord-related variables from `.env.example` to your `.env` file:
 
-```env
+```env .env
 # Discord Configuration
 DISCORD_APPLICATION_ID=your_application_id_here
 DISCORD_API_TOKEN=your_bot_token_here
@@ -259,7 +259,7 @@ Follow these Discord setup steps exactly as written. Skipping any step will prev
 
 Restart your agent to load all the changes.
 
-```bash
+```bash Terminal
 elizaos start
 ```
 

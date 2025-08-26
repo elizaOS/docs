@@ -27,14 +27,8 @@ export const NodeIcon = (
 
 Before installing elizaOS, ensure you have the following:
 
-<CardGroup cols={2}>
-  <Card title="Node.js 23.3" icon={NodeIcon} href="https://nodejs.org/">
-    Install Node.js version 23.3 or higher
-  </Card>
-  <Card title="Bun" icon={BunIcon} href="https://bun.sh/">
-    Install the latest Bun runtime
-  </Card>
-</CardGroup>
+- **Node.js 23.3+**: Install Node.js version 23.3 or higher from [nodejs.org](https://nodejs.org/)
+- **Bun**: Install the latest Bun runtime from [bun.sh](https://bun.sh/)
 
 <Note>
   **Windows Users:** You have two options for installing elizaOS:
@@ -48,7 +42,7 @@ Before installing elizaOS, ensure you have the following:
 
 Once you have Node.js and Bun installed, you can install the elizaOS CLI globally:
 
-```bash
+```bash Terminal
 bun i -g @elizaos/cli
 ```
 
@@ -62,7 +56,7 @@ This installs the `elizaos` command globally on your system, allowing you to cre
 
 After installation, verify that elizaOS CLI is properly installed:
 
-```bash
+```bash Terminal
 elizaos --version
 ```
 
@@ -73,7 +67,7 @@ You should see the version number of the installed CLI.
 <AccordionGroup>
   <Accordion icon="triangle-exclamation" title="Node.js issues">
     **Check if Node.js is installed and what version:**
-    ```bash
+    ```bash Terminal
     node --version
     ```
     
@@ -82,7 +76,7 @@ You should see the version number of the installed CLI.
     
     **If you get a version lower than v23.3.0:**
     - You need to upgrade. Use a Node.js version manager for easy switching:
-    ```bash
+    ```bash Terminal
     # Install nvm (macOS/Linux)
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
     
@@ -100,13 +94,13 @@ You should see the version number of the installed CLI.
 
   <Accordion icon="gear" title="Bun issues">
     **Check if Bun is installed and what version:**
-    ```bash
+    ```bash Terminal
     bun --version
     ```
     
     **If you get "command not found":**
     - Bun is not installed. Install from [bun.sh](https://bun.sh/)
-    ```bash
+    ```bash Terminal
     # Install Bun (macOS/Linux)
     curl -fsSL https://bun.sh/install | bash
     
@@ -141,20 +135,20 @@ You should see the version number of the installed CLI.
     
     **Step 4: Verify Node installation**
     - In Git Bash, run:
-    ```bash
+    ```bash Git Bash
     node --version
     ```
     - You should see your Node.js version
     
     **Step 5: Install Bun**
     - In Git Bash, run:
-    ```bash
+    ```bash Git Bash
     powershell -c "irm bun.sh/install.ps1 | iex"
     ```
     
     **Step 6: Install elizaOS CLI**
     - In Git Bash, run:
-    ```bash
+    ```bash Git Bash
     bun install -g @elizaos/cli
     ```
     
@@ -171,7 +165,7 @@ You should see the version number of the installed CLI.
     
     **If "command not found" after installation:**
     - The CLI may not be in your PATH. Add Bun's global bin directory to PATH:
-    ```bash
+    ```bash Terminal
     # Add to ~/.bashrc or ~/.zshrc
     export PATH="$HOME/.bun/bin:$PATH"
     ```
