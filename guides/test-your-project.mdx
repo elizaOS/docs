@@ -1,343 +1,139 @@
 ---
 title: 'Test Your Project'
-description: 'Write comprehensive tests for your elizaOS agents using component and E2E testing'
+description: 'Write tests for your multi-agent elizaOS project'
 ---
 
 <Note>
-This guide continues from [Multi-Agent Projects](/guides/multi-agent-projects) where we created Shakespeare and Hemingway agents with Discord and voice capabilities.
+This guide builds on concepts from [Multi-Agent Projects](/guides/multi-agent-projects)
 </Note>
 
-## Introduction
+## Step 1: Test multi-agent configuration
 
-Let's first run our test suite to see what's currently passing:
+We added a bunch of new features to our project. In addition to the default tests that projects ship with, let's write some new tests to cover our new feature scope:
 
-```bash Terminal
-# Run all existing tests in your project
-elizaos test
+| Feature | Test Type | What We're Validating |
+|---------|-----------|-------------------|
+| **Multi-agent configuration** | Component | Two agents with unique Discord tokens, voice IDs, and plugins |
+| **Multi-agent runtime** | E2E | Both agents initialize and run simultaneously |
+
+<Note>
+ElizaOS projects ship with comprehensive built-in tests for core functionality (character config, plugin loading, runtime behavior). For details on the default test structure, see [Testing Projects](/projects/project-structure#testing-projects).
+</Note>
+
+### Create component tests
+
+Let's create a new component test file to test the specific multi-agent features we built:
+
+```typescript src/__tests__/multi-agent-features.test.ts
+import { describe, it, expect } from 'bun:test';
+import { character as shakespeare } from '../character';
+import hemingway from '../../hemingway.json';
+
+describe('multi-agent configuration', () => {
+  it('loads second agent (hemingway.json)', () => {
+    expect(hemingway).toBeDefined();
+    expect(hemingway.name).toBe('Hemingway');
+  });
+
+  it('agents have unique Discord credentials', () => {
+    expect(shakespeare.settings?.secrets?.DISCORD_API_TOKEN).toBeDefined();
+    expect(hemingway.settings?.secrets?.DISCORD_API_TOKEN).toBeDefined();
+    
+    // Each agent must have different bot token
+    expect(shakespeare.settings?.secrets?.DISCORD_API_TOKEN)
+      .not.toBe(hemingway.settings?.secrets?.DISCORD_API_TOKEN);
+  });
+
+  it('includes ElevenLabs plugin in both agents', () => {
+    expect(shakespeare.plugins).toContain('@elizaos/plugin-elevenlabs');
+    expect(hemingway.plugins).toContain('@elizaos/plugin-elevenlabs');
+  });
+
+  it('voice is enabled for Discord', () => {
+    expect(shakespeare.settings?.secrets?.DISCORD_VOICE_ENABLED).toBe('true');
+    expect(hemingway.settings?.secrets?.DISCORD_VOICE_ENABLED).toBe('true');
+  });
+
+  it('each agent has unique ElevenLabs voice ID', () => {
+    expect(shakespeare.settings?.secrets?.ELEVENLABS_VOICE_ID).toBe('pqHfZKP75CvOlQylNhV4');
+    expect(hemingway.settings?.secrets?.ELEVENLABS_VOICE_ID).toBe('Xb7hH8MSUJpSbSDYk0k2');
+  });
+});
 ```
 
-You'll see some default tests pass. Now let's write tests for our new features: Shakespeare's personality, Hemingway's distinct style, and their Discord/voice configurations.
+## Step 2: Test runtime functionality 
 
-## Test Structure
+### Create e2e tests
 
-Tests live in your project's `src/__tests__/` directory:
+The `project-starter.e2e.ts` file already contains default tests for core functionality (agent initialization, message processing, memory storage). Add these multi-agent specific tests to the existing `ProjectStarterTestSuite.tests` array:
 
-<CodeGroup>
-```text Project Structure
-src/
-├── __tests__/
-│   ├── shakespeare-config.test.ts    # Component tests (.test.ts)
-│   └── e2e/
-│       └── personality.e2e.ts        # E2E tests (.e2e.ts)
-├── character.ts                      # Shakespeare
-└── index.ts
-```
-</CodeGroup>
-
-## Step 1: Test character configurations
-
-We've carefully crafted Shakespeare's personality in `src/character.ts` and Hemingway's in `hemingway.json`. Let's write component tests to ensure these configurations remain distinct and correct.
-
-### Create configuration test
-
-Add a test file to validate our agents' unique configurations:
-
-```typescript src/__tests__/agent-config.test.ts (new)
-import { describe, it, expect } from 'bun:test';  // [!code ++]
-import { character as shakespeare } from '../character';  // [!code ++]
-import hemingway from '../../hemingway.json';  // [!code ++]
-  // [!code ++]
-describe('Agent Configurations', () => {  // [!code ++]
-  it('Shakespeare has Elizabethan identity', () => {  // [!code ++]
-    expect(shakespeare.name).toBe('Shakespeare');  // [!code ++]
-    expect(shakespeare.system).toContain('William Shakespeare');  // [!code ++]
-    expect(shakespeare.system).toContain('thou');  // [!code ++]
-    expect(shakespeare.system).toContain('thee');  // [!code ++]
-  });  // [!code ++]
-  // [!code ++]
-  it('Hemingway has minimalist identity', () => {  // [!code ++]
-    expect(hemingway.name).toBe('hemingway');  // [!code ++]
-    expect(hemingway.system).toContain('Ernest Hemingway');  // [!code ++]
-    expect(hemingway.system).toContain('simple');  // [!code ++]
-    expect(hemingway.system).toContain('short sentences');  // [!code ++]
-  });  // [!code ++]
-  // [!code ++]
-  it('Both have Discord and voice configured', () => {  // [!code ++]
-    // Shakespeare's plugins  // [!code ++]
-    expect(shakespeare.plugins).toContain('@elizaos/plugin-discord');  // [!code ++]
-    expect(shakespeare.plugins).toContain('@elizaos/plugin-elevenlabs');  // [!code ++]
-    // [!code ++]
-    // Hemingway's plugins  // [!code ++]
-    expect(hemingway.plugins).toContain('@elizaos/plugin-discord');  // [!code ++]
-    expect(hemingway.plugins).toContain('@elizaos/plugin-elevenlabs');  // [!code ++]
-  });  // [!code ++]
-  // [!code ++]
-  it('Each agent has unique Discord credentials', () => {  // [!code ++]
-    const shakespeareToken = shakespeare.settings?.secrets?.DISCORD_API_TOKEN;  // [!code ++]
-    const hemingwayToken = hemingway.settings?.secrets?.DISCORD_API_TOKEN;  // [!code ++]
-    // [!code ++]
-    // Both should exist  // [!code ++]
-    expect(shakespeareToken).toBeTruthy();  // [!code ++]
-    expect(hemingwayToken).toBeTruthy();  // [!code ++]
-    // [!code ++]
-    // But must be different  // [!code ++]
-    expect(shakespeareToken).not.toBe(hemingwayToken);  // [!code ++]
-  });  // [!code ++]
-  // [!code ++]
-  it('Each agent has unique ElevenLabs voice', () => {  // [!code ++]
-    const shakespeareVoice = shakespeare.settings?.secrets?.ELEVENLABS_VOICE_ID;  // [!code ++]
-    const hemingwayVoice = hemingway.settings?.secrets?.ELEVENLABS_VOICE_ID;  // [!code ++]
-    // [!code ++]
-    // Shakespeare should have theatrical British voice  // [!code ++]
-    expect(shakespeareVoice).toBe('21m00Tcm4TlvDq8ikWAM');  // [!code ++]
-    // [!code ++]
-    // Hemingway should have deep male voice  // [!code ++]
-    expect(hemingwayVoice).toBe('Xb7hH8MSUJpSbSDYk0k2');  // [!code ++]
-  });  // [!code ++]
-});  // [!code ++]
-```
-
-### Verify configuration tests
-
-Run your new test to ensure both agents have distinct configurations:
-
-```bash Terminal
-# Run just our new configuration test
-elizaos test --type component --name "Agent Configurations"
-```
-
-These component tests run instantly - they're just validating JavaScript objects. Next, we need to test that our agents actually behave according to these configurations.
-
-## Step 2: Test agent behaviors
-
-Now let's ensure Shakespeare actually speaks like Shakespeare and Hemingway maintains his terse style. E2E tests run the full agent runtime to validate actual responses.
-
-### Create personality test
-
-Test that our agents maintain distinct personalities:
-
-```typescript src/__tests__/e2e/personality.e2e.ts (new)
-import type { IAgentRuntime, TestSuite } from '@elizaos/core';  // [!code ++]
-  // [!code ++]
-export const personalityTests: TestSuite = {  // [!code ++]
-  name: 'personality-consistency',  // [!code ++]
-  tests: [  // [!code ++]
-    {  // [!code ++]
-      name: 'maintains unique writing style',  // [!code ++]
-      fn: async (runtime: IAgentRuntime) => {  // [!code ++]
-        if (!runtime) {  // [!code ++]
-          throw new Error('Runtime required');  // [!code ++]
-        }  // [!code ++]
-  // [!code ++]
-        const agentName = runtime.character.name.toLowerCase();  // [!code ++]
-        // [!code ++]
-        // Ask about writing philosophy  // [!code ++]
-        const response = await runtime.processMessage({  // [!code ++]
-          userId: 'test-user',  // [!code ++]
-          roomId: 'test-room',  // [!code ++]
-          content: { text: 'How should one write?' },  // [!code ++]
-        });  // [!code ++]
-  // [!code ++]
-        const text = response.content.text.toLowerCase();  // [!code ++]
-        // [!code ++]
-        if (agentName === 'shakespeare') {  // [!code ++]
-          // Shakespeare must use Elizabethan language  // [!code ++]
-          const hasShakespearean = ['thou', 'thee', 'thy', 'art', 'doth'].some(  // [!code ++]
-            word => text.includes(word)  // [!code ++]
-          );  // [!code ++]
-          // [!code ++]
-          if (!hasShakespearean) {  // [!code ++]
-            throw new Error('Shakespeare should use Elizabethan language');  // [!code ++]
-          }  // [!code ++]
-          // [!code ++]
-          // Should discuss elaborate writing  // [!code ++]
-          const mentionsPoetry = ['verse', 'poetry', 'sonnet', 'metaphor'].some(  // [!code ++]
-            term => text.includes(term)  // [!code ++]
-          );  // [!code ++]
-          // [!code ++]
-          if (!mentionsPoetry) {  // [!code ++]
-            throw new Error('Shakespeare should discuss poetic writing');  // [!code ++]
-          }  // [!code ++]
-          // [!code ++]
-        } else if (agentName === 'hemingway') {  // [!code ++]
-          // Hemingway must advocate simplicity  // [!code ++]
-          const mentionsSimplicity = ['simple', 'short', 'clear', 'truth'].some(  // [!code ++]
-            term => text.includes(term)  // [!code ++]
-          );  // [!code ++]
-          // [!code ++]
-          if (!mentionsSimplicity) {  // [!code ++]
-            throw new Error('Hemingway should advocate simple writing');  // [!code ++]
-          }  // [!code ++]
-          // [!code ++]
-          // Should NOT use Shakespearean language  // [!code ++]
-          if (text.includes('thou') || text.includes('thee')) {  // [!code ++]
-            throw new Error('Hemingway should not use Elizabethan language');  // [!code ++]
-          }  // [!code ++]
-        }  // [!code ++]
-        // [!code ++]
-        console.log(`✓ ${agentName} maintains unique writing philosophy`);  // [!code ++]
-      }  // [!code ++]
-    }  // [!code ++]
-  ]  // [!code ++]
-};  // [!code ++]
-  // [!code ++]
-// Export default for test runner to find  // [!code ++]
-export default personalityTests;  // [!code ++]
-```
-
-## Step 3: Test Discord and voice integration
-
-Let's validate that Discord and ElevenLabs configurations work correctly for each agent.
-
-### Add integration test
-
-Add another test to our E2E suite:
-
-```typescript src/__tests__/e2e/personality.e2e.ts
-import type { IAgentRuntime, TestSuite } from '@elizaos/core';
-
-export const personalityTests: TestSuite = {
-  name: 'personality-consistency',
+```typescript src/__tests__/e2e/project-starter.e2e.ts
+export const ProjectStarterTestSuite: TestSuite = {
+  name: 'project-starter-e2e',
   tests: [
     {
-      name: 'maintains unique writing style',
+      name: 'agent_should_respond_to_greeting',
       fn: async (runtime: IAgentRuntime) => {
-        // ... existing test code ...
+        // ... existing test code
       }
     },
+    // ... other existing tests
+
+    // Add the new multi-agent tests:
     {  // [!code ++]
-      name: 'has voice and Discord properly configured',  // [!code ++]
+      name: 'multi_agent_project_should_load_both_agents',  // [!code ++]
       fn: async (runtime: IAgentRuntime) => {  // [!code ++]
-        if (!runtime) {  // [!code ++]
-          throw new Error('Runtime required');  // [!code ++]
+        // This test validates that our multi-agent project setup works correctly  // [!code ++]
+        // It should run once for each agent in the project (Shakespeare and Hemingway)  // [!code ++]
+          // [!code ++]
+        const agentName = runtime.character.name;  // [!code ++]
+        const agentId = runtime.agentId;  // [!code ++]
+          // [!code ++]
+        // Verify agent has valid identity  // [!code ++]
+        if (!agentName) {  // [!code ++]
+          throw new Error('Agent name is not defined');  // [!code ++]
         }  // [!code ++]
-  // [!code ++]
-        // Check Discord plugin is loaded  // [!code ++]
-        const hasDiscord = runtime.plugins.some(  // [!code ++]
-          plugin => plugin.name === 'discord'  // [!code ++]
-        );  // [!code ++]
-        // [!code ++]
-        if (!hasDiscord) {  // [!code ++]
-          throw new Error('Discord plugin should be loaded');  // [!code ++]
+        if (!agentId) {  // [!code ++]
+          throw new Error('Agent ID is not defined');  // [!code ++]
         }  // [!code ++]
-  // [!code ++]
-        // Check voice is enabled  // [!code ++]
-        const voiceEnabled = runtime.getSetting('DISCORD_VOICE_ENABLED');  // [!code ++]
-        if (voiceEnabled !== 'true') {  // [!code ++]
-          throw new Error('Voice should be enabled');  // [!code ++]
+          // [!code ++]
+        // Check it's one of our expected agents from the multi-agent guide  // [!code ++]
+        const expectedAgents = ['Shakespeare', 'Hemingway'];  // [!code ++]
+        if (!expectedAgents.some(expected => agentName.toLowerCase().includes(expected.toLowerCase()))) {  // [!code ++]
+          throw new Error(`Unexpected agent name: ${agentName}. Expected one containing: ${expectedAgents.join(', ')}`);  // [!code ++]
         }  // [!code ++]
-  // [!code ++]
-        // Check ElevenLabs is configured  // [!code ++]
-        const voiceId = runtime.getSetting('ELEVENLABS_VOICE_ID');  // [!code ++]
-        if (!voiceId) {  // [!code ++]
-          throw new Error('ElevenLabs voice ID should be configured');  // [!code ++]
-        }  // [!code ++]
-  // [!code ++]
-        // Verify each agent has different voice  // [!code ++]
-        const agentName = runtime.character.name.toLowerCase();  // [!code ++]
-        if (agentName === 'shakespeare' && voiceId !== '21m00Tcm4TlvDq8ikWAM') {  // [!code ++]
-          throw new Error('Shakespeare should have theatrical British voice');  // [!code ++]
-        }  // [!code ++]
-        if (agentName === 'hemingway' && voiceId !== 'Xb7hH8MSUJpSbSDYk0k2') {  // [!code ++]
-          throw new Error('Hemingway should have deep male voice');  // [!code ++]
-        }  // [!code ++]
-  // [!code ++]
-        console.log(`✓ ${agentName} has correct voice and Discord config`);  // [!code ++]
+          // [!code ++]
+        logger.info(`✓ Multi-agent project: ${agentName} initialized successfully`);  // [!code ++]
       }  // [!code ++]
-    }  // [!code ++]
-  ]
-};
-
-export default personalityTests;
+    },  // [!code ++]
+      // [!code ++]
+    // Additional tests: agents_should_have_distinct_discord_configurations,  // [!code ++]
+    // agents_should_have_distinct_voice_configurations, etc.  // [!code ++]
 ```
 
-## Step 4: Run complete test suite
+## Step 3: Run and validate tests
 
-### Verify all features work together
-
-Now we've written tests for our new features. Let's run the complete suite:
+### Execute your test suite
 
 ```bash Terminal
-# Run all tests - default + our new tests
+# Run all tests
 elizaos test
-```
 
-You should see:
-1. Default tests from the project template ✓
-2. Our configuration tests validating unique settings ✓
-3. Our E2E tests confirming distinct personalities ✓
-
-### Development workflow
-
-During development, use these commands for faster iteration:
-
-```bash Terminal
-# Test only component tests (instant)
+# Run only component tests
 elizaos test --type component
 
-# Test only E2E tests (full runtime)
+# Run only E2E tests  
 elizaos test --type e2e
 
-# Target specific tests by name
-elizaos test --name "Shakespeare"
-
-# Skip rebuild for rapid testing
-elizaos test --skip-build --skip-type-check
+# Run specific test suite (case sensitive)
+elizaos test --name "multi-agent"
 ```
 
-## Best Practices
+### Verify test results
 
-### Component vs E2E Testing Strategy
-
-**Component tests** are your first line of defense:
-- Instant feedback on configuration errors
-- Validate plugin lists and credentials
-- Check that settings don't conflict
-- Perfect for CI/CD pipelines
-
-**E2E tests** validate the actual experience:
-- Ensure personality consistency
-- Test plugin integrations work
-- Validate multi-agent interactions
-- Critical for production readiness
-
-### Writing effective tests
-
-1. **Test what matters**: Don't test that `1+1=2`. Test that Shakespeare speaks like Shakespeare.
-2. **Use descriptive names**: `"maintains unique writing style"` not `"test1"`
-3. **Test the edges**: What happens when agents interact? Do they maintain character?
-4. **Keep tests focused**: One test, one concept
-
-### Common testing patterns
-
-**Testing memory persistence:**
-```typescript
-// First message establishes context
-await runtime.processMessage({
-  content: { text: 'Call me Ishmael' }
-});
-
-// Second message tests memory
-const response = await runtime.processMessage({
-  content: { text: 'What is my name?' }
-});
-
-if (!response.content.text.includes('Ishmael')) {
-  throw new Error('Agent should remember the name');
-}
-```
-
-**Testing action execution:**
-```typescript
-const action = runtime.actions.find(a => a.name === 'SPEAK_IN_VERSE');
-if (!action) {
-  throw new Error('Custom action should be registered');
-}
-```
+For complete test runner options, see the [CLI Test Reference](/cli-reference/test).
 
 ## What's Next?
-
-Your agents are tested and production-ready. Here's where to go from here:
 
 <CardGroup cols={2}>
   <Card title="Deploy Your Agent" icon="rocket" href="/guides/deploy-your-agent">
@@ -346,10 +142,10 @@ Your agents are tested and production-ready. Here's where to go from here:
   <Card title="Create Plugins" icon="puzzle-piece" href="/guides/create-and-publish-plugins">
     Build custom plugins with comprehensive test coverage
   </Card>
-  <Card title="Advanced Testing" icon="flask-vial" href="/runtime/testing">
-    Deep dive into mocking, fixtures, and advanced testing patterns
+  <Card title="Publish Your Plugin" icon="upload" href="/guides/plugin-publishing-guide">
+    Learn how to publish your plugins to the elizaOS registry
   </Card>
-  <Card title="CI/CD Integration" icon="infinity" href="/runtime/continuous-integration">
-    Automate testing in your deployment pipeline
+  <Card title="Contribute to Core" icon="heart" href="/contributing">
+    Help improve elizaOS by contributing to the core framework
   </Card>
 </CardGroup>
