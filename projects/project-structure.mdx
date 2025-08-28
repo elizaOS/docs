@@ -207,6 +207,60 @@ elizaos start --character character.json
 elizaos dev
 ```
 
+## Testing Projects
+
+Projects ship with comprehensive test suites to validate functionality:
+
+### Built-in Test Structure
+
+```
+my-project/
+├── src/
+│   └── __tests__/
+│       ├── character.test.ts           # Character configuration
+│       ├── character-plugin-ordering.test.ts  # Plugin loading
+│       └── e2e/
+│           └── project-starter.e2e.ts  # Runtime integration
+```
+
+### Test Types
+
+| Test Type | Purpose | What's Validated |
+|-----------|---------|-----------------|
+| **Component** | Unit tests | Character config, plugin loading, isolated logic |
+| **E2E** | Integration | Runtime behavior, memory, message processing |
+
+### Running Tests
+
+```bash
+# Run all tests
+elizaos test
+
+# Run specific test types
+elizaos test --type component
+elizaos test --type e2e
+
+# Filter by name (case sensitive)
+elizaos test --name "character"
+```
+
+### Default Test Coverage
+
+ElizaOS projects include these tests out of the box:
+
+**Component Tests:**
+- Character configuration validation
+- Plugin loading order and dependencies
+- Environment variable handling
+
+**E2E Tests:**
+- Agent initialization and runtime setup
+- Message processing and response generation
+- Memory storage and retrieval
+- Service registration and plugin integration
+
+For custom test development, see the [Test Your Project](/guides/test-your-project) guide.
+
 ## Project Templates
 
 ### Starter Project
