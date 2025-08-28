@@ -225,39 +225,61 @@ Now let's add the ElevenLabs secrets so each agent has their own distinct voice:
 Get your ElevenLabs API key from [elevenlabs.io](https://elevenlabs.io) and explore different voice IDs to find the perfect match for each agent's personality.
 </Note>
 
-## Step 3: Launch multi-agent project
+## Step 3: Configure multi-agent project
 
-### Start your multi-agent server
+### Add newly created agent to your project
 
-Now, start the server with your default agent, Shakespeare, from your project root:
+Update your `src/index.ts` to include both agents so they start automatically:
+
+```typescript src/index.ts
+import { logger, type IAgentRuntime, type Project, type ProjectAgent } from '@elizaos/core';
+import { character } from './character.ts';
+import hemingway from '../hemingway.json';  // [!code ++]
+
+const initCharacter = ({ runtime }: { runtime: IAgentRuntime }) => {
+  logger.info('Initializing character');
+  logger.info({ name: character.name }, 'Name:');
+};
+
+export const projectAgent: ProjectAgent = {
+  character,
+  init: async (runtime: IAgentRuntime) => await initCharacter({ runtime }),
+};
+
+// Add Hemingway agent  // [!code ++]
+const hemingwayAgent: ProjectAgent = {  // [!code ++]
+  character: hemingway,  // [!code ++]
+  init: async (runtime: IAgentRuntime) => {  // [!code ++]
+    logger.info('Initializing Hemingway');  // [!code ++]
+    logger.info({ name: hemingway.name }, 'Name:');  // [!code ++]
+  },  // [!code ++]
+};  // [!code ++]
+
+const project: Project = {
+  agents: [projectAgent],  // [!code --]
+  agents: [projectAgent, hemingwayAgent],  // [!code ++]
+};
+```
+
+### Launch both agents simultaneously
+
+Now when you start your project, both agents launch automatically:
 
 ```bash Terminal
 elizaos start
 ```
 
-### Check and manage your agents
-
-From a separate terminal tab, let's see which agents are running:
-
-```bash Terminal (Tab 2)
-elizaos agent list
+You'll see both agents initialize in the console output:
 ```
-
-You should see a table showing your available agents, with Shakespeare as "active" and Hemingway as "inactive".
+✓ Shakespeare initialized
+✓ Hemingway initialized
+```
 
 <Note>
-For a complete reference of all agent management commands, see the [CLI Agent Reference](/cli-reference/agent).
+**Alternative: CLI agent command**
+
+You can also manipulate agents via the CLI once a server is running. See the [CLI Agent Command Reference](/cli-reference/agent) for complete details.
 </Note>
-
-### Add Hemingway to the conversation
-
-We can see that Hemingway is inactive, so let's start him:
-
-```bash Terminal (Tab 2)
-elizaos agent start --path hemingway.json
-```
-
-You should see a success message confirming Hemingway has been started. Run `elizaos agent list` again to confirm both agents are now active.
 
 ### Join them in Discord voice chat
 
