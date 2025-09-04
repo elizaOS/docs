@@ -40,10 +40,10 @@
           {
             "group": "GUIDES",
             "pages": [
-              "guides/customize-your-agent",
+              "guides/customize-an-agent",
               "guides/add-multiple-agents",
-              "guides/test-your-project",
-              "guides/deploy-your-project",
+              "guides/test-a-project",
+              "guides/deploy-a-project",
               "guides/create-a-plugin",
               "guides/publish-a-plugin",
               "guides/contribute-to-core"

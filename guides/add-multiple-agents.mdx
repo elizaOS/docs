@@ -4,7 +4,7 @@ description: 'Build and coordinate multiple specialized agents working together 
 ---
 
 <Note>
-This guide builds on concepts from [Customize Your Agent](/guides/customize-your-agent)
+This guide builds on concepts from [Customize an Agent](/guides/customize-an-agent)
 </Note>
 
 ## Step 1: Add Hemingway
@@ -49,7 +49,7 @@ Open `hemingway.json` and update it to customize Hemingway's personality:
 }
 ```
 
-Just like in the [previous guide](/guides/customize-your-agent), continue editing the other fields (`topics`, `style`, `messageExamples`, etc.) to match Hemingway as you see fit.
+Just like in the [previous guide](/guides/customize-an-agent), continue editing the other fields (`topics`, `style`, `messageExamples`, etc.) to match Hemingway as you see fit.
 
 ## Step 2: Configure Discord and voice
 
@@ -103,7 +103,7 @@ export const character: Character = {
 ```
 
 <Warning>
-Each agent needs its own Discord application and bot token. Follow the Discord setup steps from the [previous guide](/guides/customize-your-agent#create-discord-application) for each agent you create.
+Each agent needs its own Discord application and bot token. Follow the Discord setup steps from the [previous guide](/guides/customize-an-agent#create-discord-application) for each agent you create.
 </Warning>
 
 ### Enable voice mode
@@ -292,16 +292,16 @@ It's working! Your agents are now conversing with their own unique personalities
 Now that you know how to add multiple agents to a single project, you can add as many as you like, all with completely custom sets of plugins and personalities. Here's what's next:
 
 <CardGroup cols={2}>
-  <Card title="Test Your Agents" icon="flask" href="/guides/test-your-project">
+  <Card title="Test the Agents" icon="flask" href="/guides/test-a-project">
     Ensure your literary duo maintains their unique voices consistently
   </Card>
-  <Card title="Deploy Your Project" icon="rocket" href="/guides/deploy-your-project">
+  <Card title="Deploy a Project" icon="rocket" href="/guides/deploy-a-project">
     Share your Shakespeare vs Hemingway debates with the world
   </Card>
   <Card title="Plugin Development" icon="wand-magic-sparkles" href="/guides/create-a-plugin">
     Build custom plugins to extend your agents' capabilities
   </Card>
-  <Card title="Plugin Publishing" icon="upload" href="/guides/publish-a-plugin">
+  <Card title="Publish a Plugin" icon="upload" href="/guides/publish-a-plugin">
     Learn how to publish your plugins to the elizaOS registry
   </Card>
 </CardGroup>
