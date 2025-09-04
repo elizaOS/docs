@@ -69,6 +69,7 @@
             "pages": [
               "plugins/plugin-overview",
               "plugins/plugin-internals",
+              "plugins/plugin-development-guide",
               "plugins/plugin-schema-guide",
               "plugins/actions",
               "plugins/providers",
