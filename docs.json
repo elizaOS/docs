@@ -41,11 +41,11 @@
             "group": "GUIDES",
             "pages": [
               "guides/customize-your-agent",
-              "guides/multi-agent-projects",
+              "guides/add-multiple-agents",
               "guides/test-your-project",
-              "guides/deploy-your-agent",
-              "guides/create-and-publish-plugins",
-              "guides/plugin-publishing-guide",
+              "guides/deploy-your-project",
+              "guides/create-a-plugin",
+              "guides/publish-a-plugin",
               "guides/contribute-to-core"
             ]
           },
