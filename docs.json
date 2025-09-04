@@ -45,10 +45,8 @@
               "guides/test-your-project",
               "guides/deploy-your-agent",
               "guides/create-and-publish-plugins",
-              "guides/contribute-to-core",
               "guides/plugin-publishing-guide",
-              "guides/plugin-schema-guide",
-              "guides/sessions-api-guide"
+              "guides/contribute-to-core"
             ]
           },
           {
@@ -71,6 +69,7 @@
             "pages": [
               "plugins/plugin-overview",
               "plugins/plugin-internals",
+              "plugins/plugin-schema-guide",
               "plugins/actions",
               "plugins/providers",
               "plugins/evaluators",
@@ -96,6 +95,7 @@
               "runtime/services",
               "runtime/state-management",
               "runtime/sessions-architecture",
+              "runtime/sessions-api-guide",
               "runtime/integration-apis",
               "runtime/socket-io-integration-guide",
               "runtime/mcp-setup-guide"
