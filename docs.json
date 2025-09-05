@@ -52,8 +52,7 @@
           {
             "group": "PROJECTS",
             "pages": [
-              "projects/project-structure",
-              "projects/runtime-configuration"
+              "projects/overview"
             ]
           },
           {
