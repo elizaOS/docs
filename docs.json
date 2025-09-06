@@ -341,11 +341,11 @@
               {
                 "group": "Farcaster",
                 "pages": [
-                  "plugins/platform/farcaster",
-                  "plugins/platform/farcaster/developer-guide",
-                  "plugins/platform/farcaster/cast-flow",
-                  "plugins/platform/farcaster/examples",
-                  "plugins/platform/farcaster/testing-guide"
+                  "plugin-registry/platform/farcaster",
+                  "plugin-registry/platform/farcaster/developer-guide",
+                  "plugin-registry/platform/farcaster/cast-flow",
+                  "plugin-registry/platform/farcaster/examples",
+                  "plugin-registry/platform/farcaster/testing-guide"
                 ]
               }
             ]
