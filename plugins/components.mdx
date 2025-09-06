@@ -5,7 +5,7 @@ description: "Actions, Providers, Evaluators, and Services - the building blocks
 
 ## Overview
 
-Plugin components are the building blocks that give agents their capabilities. Each component type serves a specific purpose in the agent's decision-making and interaction flow.
+Plugin components are the building blocks that give agents their capabilities. Each component type serves a specific purpose in the agent's decision-making and interaction flow. For system architecture, see [Plugin Architecture](/plugins/architecture).
 
 ## Component Types
 
@@ -35,7 +35,7 @@ The handler receives the runtime, message, state, options (for action chaining),
 
 **Important**: All action handlers must return an `ActionResult` with a `success` field indicating whether the action completed successfully.
 
-For complete interface definitions, see the [Action Interface in the Reference](/plugins/reference#action-interface).
+For complete interface definitions, see [Plugin Reference](/plugins/reference#action-interface).
 
 ### Core Actions (Bootstrap Plugin)
 
@@ -71,6 +71,8 @@ The bootstrap plugin provides 13 essential actions:
 | `CHOICE` | Present options | "Should I A or B?" |
 
 ### Creating Actions
+
+For advanced patterns, see [Plugin Patterns](/plugins/patterns).
 
 #### Minimal Action
 
@@ -611,6 +613,10 @@ export const myPlugin: Plugin = {
   }]
 };
 ```
+
+<Tip>
+  **Guide**: [Create a Plugin](/guides/create-a-plugin)
+</Tip>
 
 ## What's Next?
 

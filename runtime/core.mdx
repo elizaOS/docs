@@ -5,7 +5,7 @@ description: "Core runtime system, lifecycle, and architecture"
 
 ## System Architecture
 
-The elizaOS runtime follows a modular, plugin-based architecture that orchestrates all agent functionality:
+The elizaOS runtime follows a modular, plugin-based architecture that orchestrates all agent functionality. For lifecycle details, see [Runtime and Lifecycle](/agents/runtime-and-lifecycle). For extension architecture, see [Plugin Architecture](/plugins/architecture).
 
 ```mermaid
 flowchart TD
@@ -40,8 +40,10 @@ The runtime orchestrates these essential components:
 - **AgentRuntime**: Central orchestrator managing agent lifecycle
 - **Plugin System**: Extends functionality through modular components
 - **Memory System**: Hierarchical storage for conversations and knowledge
-- **State Management**: Aggregates context from multiple sources
+- **State Management**: Aggregates context from multiple sources 
 - **Service Layer**: Background processes and integrations
+
+For related documentation, see [Plugin Architecture](/plugins/architecture), [Memory](/runtime/memory), and [Services](/runtime/services).
 
 ## AgentRuntime Class
 

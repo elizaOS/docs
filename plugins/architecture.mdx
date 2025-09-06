@@ -15,6 +15,10 @@ The elizaOS plugin system is a comprehensive extension mechanism that allows dev
 - **Data Sources**: Connect to databases, APIs, or external services
 - **Custom Actions**: Define new agent behaviors and capabilities
 
+<Tip>
+  **Guide**: [Create a Plugin](/guides/create-a-plugin)
+</Tip>
+
 ## Plugin Interface
 
 Every plugin must implement the core `Plugin` interface, which defines the structure and capabilities of a plugin. The interface includes:
@@ -27,7 +31,7 @@ Every plugin must implement the core `Plugin` interface, which defines the struc
 - **Dependencies**: Other plugins this plugin requires
 - **Priority**: Loading order when multiple plugins are present
 
-For the complete TypeScript interface definition, see the [Plugin Interface in the Reference](/plugins/reference#plugin-interface).
+For the complete TypeScript interface definition, see [Plugin Reference](/plugins/reference#plugin-interface).
 
 ## Plugin Initialization Lifecycle
 
@@ -44,7 +48,7 @@ When a plugin is registered with the runtime:
 
 ### 2. Component Registration Order
 
-Components are registered in this specific sequence:
+Components are registered in this specific sequence. For component details, see [Plugin Components](/plugins/components).
 
 ```typescript
 // 1. Database adapter (if provided)
