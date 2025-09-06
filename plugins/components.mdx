@@ -302,7 +302,7 @@ For complete interface definitions, see the [Evaluator Interface in the Referenc
 ### Evaluator Flow
 
 ```mermaid
-graph LR
+flowchart TD
     Response[Agent Response] --> Validate[validate]
     Validate -->|true| Handler[handler]
     Validate -->|false| Skip[Skip]
@@ -310,6 +310,18 @@ graph LR
     Extract --> Store[Store in Memory]
     Store --> Continue[Continue]
     Skip --> Continue
+    
+    classDef input fill:#2196f3,color:#fff
+    classDef decision fill:#ff9800,color:#fff
+    classDef processing fill:#4caf50,color:#fff
+    classDef storage fill:#9c27b0,color:#fff
+    classDef result fill:#607d8b,color:#fff
+    
+    class Response input
+    class Validate decision
+    class Handler,Extract processing
+    class Store storage
+    class Skip,Continue result
 ```
 
 ### Common Use Cases

@@ -91,7 +91,7 @@ interface Session {
 ## Session Lifecycle
 
 ```mermaid
-graph TD
+flowchart TD
     Create[Creation] --> Active[Active]
     Active --> Warning[Near Expiration]
     Warning --> Renewed[Renewed]
@@ -99,6 +99,16 @@ graph TD
     Renewed --> Active
     Active --> Deleted[Deleted]
     Expired --> Cleanup[Cleanup]
+    
+    classDef active fill:#4caf50,color:#fff
+    classDef warning fill:#ff9800,color:#fff
+    classDef ended fill:#f44336,color:#fff
+    classDef transition fill:#2196f3,color:#fff
+    
+    class Create,Renewed transition
+    class Active active
+    class Warning warning
+    class Expired,Deleted,Cleanup ended
 ```
 
 ### Lifecycle Phases

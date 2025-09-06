@@ -65,13 +65,23 @@ interface State {
 ### State Composition Pipeline
 
 ```mermaid
-graph TD
+flowchart TD
     Message[Message Received] --> Store[Store in Memory]
     Store --> Select[Select Providers]
     Select --> Execute[Execute Providers]
     Execute --> Aggregate[Aggregate Results]
     Aggregate --> Cache[Cache State]
     Cache --> Return[Return State]
+    
+    classDef input fill:#2196f3,color:#fff
+    classDef storage fill:#4caf50,color:#fff
+    classDef processing fill:#9c27b0,color:#fff
+    classDef output fill:#ff9800,color:#fff
+    
+    class Message input
+    class Store,Cache storage
+    class Select,Execute,Aggregate processing
+    class Return output
 ```
 
 ## Memory Operations

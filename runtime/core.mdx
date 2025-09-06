@@ -8,7 +8,7 @@ description: "Core runtime system, lifecycle, and architecture"
 The elizaOS runtime follows a modular, plugin-based architecture that orchestrates all agent functionality:
 
 ```mermaid
-graph TB
+flowchart TD
     User[User Input] --> Runtime[AgentRuntime]
     Runtime --> State[State Composition]
     State --> Providers[Providers]
@@ -21,6 +21,16 @@ graph TB
     Runtime -.-> Services[Background Services]
     Runtime -.-> Events[Event System]
     Runtime -.-> Memory[(Memory Store)]
+    
+    classDef user fill:#2196f3,color:#fff
+    classDef runtime fill:#4caf50,color:#fff
+    classDef processing fill:#9c27b0,color:#fff
+    classDef support fill:#ff9800,color:#fff
+    
+    class User user
+    class Runtime runtime
+    class State,Providers,Actions,Handler,Response,Evaluators processing
+    class Services,Events,Memory support
 ```
 
 ### Core Components
@@ -132,7 +142,7 @@ async registerPlugin(plugin: Plugin) {
 ## Runtime Lifecycle
 
 ```mermaid
-graph TD
+flowchart TD
     Create[Create Runtime] --> Init[Initialize]
     Init --> LoadChar[Load Character]
     LoadChar --> LoadPlugins[Load Plugins]
@@ -142,6 +152,14 @@ graph TD
     Process --> Ready
     Ready --> Stop[Stop Services]
     Stop --> Cleanup[Cleanup]
+    
+    classDef setup fill:#2196f3,color:#fff
+    classDef active fill:#4caf50,color:#fff
+    classDef shutdown fill:#ff9800,color:#fff
+    
+    class Create,Init,LoadChar,LoadPlugins,StartServices setup
+    class Ready,Process active
+    class Stop,Cleanup shutdown
 ```
 
 ### Initialization Sequence
@@ -258,13 +276,23 @@ const memory = await runtime.getMemoryById(memoryId);
 The runtime processes messages through a defined pipeline:
 
 ```mermaid
-graph LR
+flowchart TD
     Message[Incoming Message] --> Memory[Store in Memory]
     Memory --> State[Compose State]
     State --> Actions[Select Actions]
     Actions --> Execute[Execute Actions]
     Execute --> Evaluate[Run Evaluators]
     Evaluate --> Response[Generate Response]
+    
+    classDef input fill:#2196f3,color:#fff
+    classDef storage fill:#4caf50,color:#fff
+    classDef processing fill:#9c27b0,color:#fff
+    classDef output fill:#ff9800,color:#fff
+    
+    class Message input
+    class Memory storage
+    class State,Actions,Execute,Evaluate processing
+    class Response output
 ```
 
 ### Processing Steps

@@ -363,7 +363,7 @@ setInterval(() => {
 ## Provider Execution Flow
 
 ```mermaid
-graph TD
+flowchart TD
     Start[composeState called] --> Select[Select Providers]
     Select --> Check{Check Cache}
     Check -->|Cache Hit| Return[Return Cached State]
@@ -372,6 +372,16 @@ graph TD
     Execute --> Aggregate[Aggregate Results]
     Aggregate --> Cache[Store in Cache]
     Cache --> Return
+    
+    classDef process fill:#2196f3,color:#fff
+    classDef decision fill:#ff9800,color:#fff
+    classDef execution fill:#4caf50,color:#fff
+    classDef result fill:#9c27b0,color:#fff
+    
+    class Start,Select,Sort process
+    class Check decision
+    class Execute,Aggregate execution
+    class Return,Cache result
 ```
 
 ## Performance Optimization

@@ -14,7 +14,7 @@ The messaging infrastructure provides real-time communication between clients an
 The project uses **Socket.IO** (not raw WebSockets) for real-time communication between clients and the Eliza server.
 
 ```mermaid
-graph TD
+flowchart TD
     subgraph "Extension"
         A[Extension Service Worker]
         B[Extension Socket.IO Client]
@@ -43,6 +43,14 @@ graph TD
     %% Internal app flow
     D -->|"6. Receive broadcast"| C
     C -->|"7. Filter by channelId"| C
+    
+    classDef extension fill:#2196f3,color:#fff
+    classDef server fill:#4caf50,color:#fff
+    classDef client fill:#9c27b0,color:#fff
+    
+    class A,B extension
+    class E,F server
+    class C,D client
 ```
 
 ### Key Components

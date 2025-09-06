@@ -73,13 +73,21 @@ declare module '@elizaos/core' {
 ## Service Lifecycle
 
 ```mermaid
-graph LR
+flowchart TD
     Register[Register Service] --> Queue[Queue Start]
     Queue --> Init[Runtime Init]
     Init --> Start[Start Service]
     Start --> Running[Running]
     Running --> Stop[Stop Service]
     Stop --> Cleanup[Cleanup]
+    
+    classDef setup fill:#2196f3,color:#fff
+    classDef active fill:#4caf50,color:#fff
+    classDef shutdown fill:#ff9800,color:#fff
+    
+    class Register,Queue,Init setup
+    class Start,Running active
+    class Stop,Cleanup shutdown
 ```
 
 ### Lifecycle Phases

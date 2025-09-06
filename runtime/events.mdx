@@ -10,7 +10,7 @@ The event system enables reactive programming patterns, allowing plugins and ser
 ## Event Architecture
 
 ```mermaid
-graph TD
+flowchart TD
     Source[Event Source] --> Emit[Runtime.emit]
     Emit --> Queue[Event Queue]
     Queue --> Handlers[Event Handlers]
@@ -20,6 +20,16 @@ graph TD
     H1 --> Process[Process Event]
     H2 --> Process
     H3 --> Process
+    
+    classDef source fill:#2196f3,color:#fff
+    classDef system fill:#9c27b0,color:#fff
+    classDef handlers fill:#4caf50,color:#fff
+    classDef processing fill:#ff9800,color:#fff
+    
+    class Source source
+    class Emit,Queue system
+    class Handlers,H1,H2,H3 handlers
+    class Process processing
 ```
 
 ## Event Types

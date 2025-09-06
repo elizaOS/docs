@@ -20,7 +20,7 @@ This plugin is essential for any elizaOS agent as it contains the core logic for
 ## Architecture Overview
 
 ```mermaid
-graph TD
+flowchart TD
     A[Incoming Message] --> B[Event Handler]
     B --> C{Should Respond?}
     C -->|Yes| D[Compose State]
@@ -34,6 +34,20 @@ graph TD
     K[Actions] --> G
     L[Services] --> B
     L --> G
+    
+    classDef input fill:#2196f3,color:#fff
+    classDef processing fill:#4caf50,color:#fff
+    classDef decision fill:#ff9800,color:#fff
+    classDef generation fill:#9c27b0,color:#fff
+    classDef storage fill:#607d8b,color:#fff
+    classDef components fill:#795548,color:#fff
+    
+    class A input
+    class B,D,F,G,H processing
+    class C decision
+    class I storage
+    class E storage
+    class J,K,L components
 ```
 
 ## Message Processing Flow

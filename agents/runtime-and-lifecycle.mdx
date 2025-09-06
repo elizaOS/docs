@@ -8,31 +8,26 @@ description: 'From Character configuration to live Agent execution in elizaOS'
 The journey from a static Character configuration to a live, interactive Agent involves several distinct phases, each managed by the `AgentRuntime`:
 
 ```mermaid
-graph LR
-    subgraph "Configuration Phase"
-        A[Character Definition] --> B[Validation]
-        B --> C[Plugin Resolution]
-    end
+flowchart TD
+    A[Character Definition] --> B[Validation & Plugin Resolution]
+    B --> C[Runtime Creation & DB Connection]
+    C --> D[Plugin Loading & Service Start]
+    D --> E[Message Processing Loop]
+    E --> F[Action Execution]
+    F --> G[State Management]
+    G --> E
+    E --> H[Graceful Shutdown]
+    H --> I[Service Cleanup & DB Close]
     
-    subgraph "Initialization Phase"
-        C --> D[Runtime Creation]
-        D --> E[Database Connection]
-        E --> F[Plugin Loading]
-        F --> G[Service Start]
-    end
+    classDef configPhase fill:#2196f3,color:#fff
+    classDef initPhase fill:#9c27b0,color:#fff
+    classDef runtimePhase fill:#4caf50,color:#fff
+    classDef shutdownPhase fill:#ff9800,color:#fff
     
-    subgraph "Runtime Phase"
-        G --> H[Message Processing]
-        H --> I[Action Execution]
-        I --> J[State Management]
-        J --> H
-    end
-    
-    subgraph "Shutdown Phase"
-        H --> K[Graceful Stop]
-        K --> L[Service Cleanup]
-        L --> M[Database Close]
-    end
+    class A,B configPhase
+    class C,D initPhase
+    class E,F,G runtimePhase
+    class H,I shutdownPhase
 ```
 
 ## Character to Agent Transformation
