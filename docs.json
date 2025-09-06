@@ -66,25 +66,13 @@
           {
             "group": "PLUGINS",
             "pages": [
-              "plugins/plugin-overview",
-              "plugins/plugin-internals",
-              "plugins/plugin-development-guide",
-              "plugins/plugin-schema-guide",
-              "plugins/actions",
-              "plugins/providers",
-              "plugins/evaluators",
-              {
-                "group": "PLUGIN MIGRATION (0.x to 1.x)",
-                "pages": [
-                  "plugins/plugin-migration/overview",
-                  "plugins/plugin-migration/migration-guide",
-                  "plugins/plugin-migration/state-and-providers-guide",
-                  "plugins/plugin-migration/prompt-and-generation-guide",
-                  "plugins/plugin-migration/advanced-migration-guide",
-                  "plugins/plugin-migration/testing-guide",
-                  "plugins/plugin-migration/completion-requirements"
-                ]
-              }
+              "plugins/architecture",
+              "plugins/components",
+              "plugins/development",
+              "plugins/patterns",
+              "plugins/schemas",
+              "plugins/migration",
+              "plugins/reference"
             ]
           },
           {
