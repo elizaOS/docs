@@ -1,15 +1,45 @@
 ---
 title: "Sessions"
-description: "Session management architecture and implementation"
+description: "Session management architecture, implementation, and usage"
 ---
 
-## Sessions Architecture
+## Overview
 
 The Sessions API provides a sophisticated abstraction layer over the traditional messaging infrastructure, enabling persistent, stateful conversations with automatic timeout management and renewal capabilities.
 
-## Core Design Principles
+### Why Use Sessions?
 
-### Abstraction Over Complexity
+The Sessions API **eliminates the complexity of channel management**. Traditional messaging approaches require you to:
+
+1. Create or find a server
+2. Create or find a channel within that server
+3. Add agents to the channel
+4. Manage channel participants
+5. Handle channel lifecycle (creation, deletion, cleanup)
+
+With Sessions API, you simply:
+1. Create a session with an agent
+2. Send messages
+3. (Optional) Configure timeout and renewal policies
+
+### Key Features
+
+- **Zero Channel Management**: No need to create servers, channels, or manage participants
+- **Instant Setup**: Start conversations immediately with just agent and user IDs
+- **Automatic Timeout Management**: Sessions automatically expire after periods of inactivity
+- **Session Renewal**: Support for both automatic and manual session renewal
+- **Expiration Warnings**: Get notified when sessions are about to expire
+- **Configurable Policies**: Customize timeout, renewal, and duration limits per session or agent
+- **Resource Optimization**: Automatic cleanup of expired sessions to prevent memory leaks
+- **Persistent Conversations**: Maintain chat history and context across multiple messages
+- **State Management**: Track conversation stage, renewal count, and expiration status
+- **Multi-Platform Support**: Works across different platforms with metadata support
+
+## Sessions Architecture
+
+### Core Design Principles
+
+#### Abstraction Over Complexity
 
 The Sessions API abstracts away channel and server management complexity:
 
@@ -26,7 +56,7 @@ const { sessionId } = await createSession({ agentId, userId });
 await sendSessionMessage(sessionId, { content: 'Hello' });
 ```
 
-### State Management
+#### State Management
 
 Sessions maintain state across multiple dimensions:
 
@@ -121,6 +151,76 @@ Global default configuration:
 - `SESSION_MAX_DURATION_MINUTES` (default: 720)
 - `SESSION_WARNING_THRESHOLD_MINUTES` (default: 5)
 
+## Quick Start
+
+### Complete Example: Chat Application
+
+```javascript
+// Initialize a chat with timeout management
+async function startChat(agentId, userId) {
+  const response = await fetch('/api/messaging/sessions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+      agentId, 
+      userId,
+      timeoutConfig: {
+        timeoutMinutes: 30,        // 30 minutes of inactivity
+        autoRenew: true,           // Auto-renew on each message
+        maxDurationMinutes: 180,   // 3 hour maximum session
+        warningThresholdMinutes: 5 // Warn 5 minutes before expiry
+      }
+    })
+  });
+  
+  const { sessionId, expiresAt, timeoutConfig } = await response.json();
+  
+  console.log(`Session expires at: ${expiresAt}`);
+  console.log(`Auto-renewal: ${timeoutConfig.autoRenew ? 'enabled' : 'disabled'}`);
+  
+  return sessionId;
+}
+
+// Send messages with session status tracking
+async function sendMessage(sessionId, message) {
+  const response = await fetch(
+    `/api/messaging/sessions/${sessionId}/messages`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: message })
+    }
+  );
+  
+  const data = await response.json();
+  
+  // Check session status
+  if (data.sessionStatus) {
+    console.log(`Session renewed: ${data.sessionStatus.wasRenewed}`);
+    console.log(`Expires at: ${data.sessionStatus.expiresAt}`);
+    
+    if (data.sessionStatus.isNearExpiration) {
+      console.warn('Session is about to expire!');
+    }
+  }
+  
+  return data;
+}
+
+// Keep session alive with heartbeat
+async function keepAlive(sessionId) {
+  const response = await fetch(
+    `/api/messaging/sessions/${sessionId}/heartbeat`,
+    { method: 'POST' }
+  );
+  
+  const { expiresAt, timeRemaining } = await response.json();
+  console.log(`Session renewed, ${Math.floor(timeRemaining / 60000)} minutes remaining`);
+  
+  return response.json();
+}
+```
+
 ## Session Creation
 
 ### Creation Process
@@ -166,6 +266,102 @@ async function createSession(request: CreateSessionRequest) {
   
   return session;
 }
+```
+
+## Session Operations
+
+### Send Messages
+
+```javascript
+const messageResponse = await fetch(
+  `http://localhost:3000/api/messaging/sessions/${sessionId}/messages`,
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      content: 'Hello, I need help with my account',
+      metadata: {
+        userTimezone: 'America/New_York'
+      }
+    })
+  }
+);
+
+const response = await messageResponse.json();
+console.log(response.content); // Agent's response
+console.log(response.metadata.thought); // Agent's internal reasoning
+```
+
+### Retrieve Message History
+
+```javascript
+// Initial fetch
+const messagesResponse = await fetch(
+  `http://localhost:3000/api/messaging/sessions/${sessionId}/messages?limit=20`,
+  {
+    method: 'GET',
+  }
+);
+
+const { messages, hasMore, cursors } = await messagesResponse.json();
+
+// Pagination - get older messages
+if (hasMore && cursors?.before) {
+  const olderMessages = await fetch(
+    `/api/messaging/sessions/${sessionId}/messages?before=${cursors.before}&limit=20`
+  );
+}
+
+// Get newer messages
+if (cursors?.after) {
+  const newerMessages = await fetch(
+    `/api/messaging/sessions/${sessionId}/messages?after=${cursors.after}&limit=20`
+  );
+}
+```
+
+### Manual Session Renewal
+
+```javascript
+// Useful when auto-renew is disabled or to extend before expiration
+const renewResponse = await fetch(
+  `http://localhost:3000/api/messaging/sessions/${sessionId}/renew`,
+  {
+    method: 'POST',
+  }
+);
+
+const { 
+  expiresAt, 
+  timeRemaining, 
+  renewalCount 
+} = await renewResponse.json();
+
+console.log(`Session renewed ${renewalCount} times`);
+console.log(`New expiration: ${expiresAt}`);
+console.log(`Time remaining: ${Math.floor(timeRemaining / 60000)} minutes`);
+```
+
+### Update Timeout Configuration
+
+```javascript
+// Dynamically update timeout settings for an active session
+const updateResponse = await fetch(
+  `http://localhost:3000/api/messaging/sessions/${sessionId}/timeout`,
+  {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      timeoutMinutes: 120,        // Extend to 2 hours
+      autoRenew: false,           // Disable auto-renewal
+      maxDurationMinutes: 480     // Increase max to 8 hours
+    })
+  }
+);
+
+const updatedSession = await updateResponse.json();
 ```
 
 ## Active Session Management
@@ -254,31 +450,55 @@ class SessionRenewalEngine {
 }
 ```
 
-### Manual Renewal
+### Heartbeat Strategy
 
-```typescript
-async function renewSession(sessionId: string): Promise<SessionStatus> {
-  const session = sessions.get(sessionId);
-  
-  if (!session) {
-    throw new SessionNotFoundError(sessionId);
+```javascript
+class SessionManager {
+  constructor(sessionId) {
+    this.sessionId = sessionId;
+    this.heartbeatInterval = null;
+    this.warningShown = false;
   }
   
-  if (session.isExpired()) {
-    throw new SessionExpiredError(sessionId, session.expiresAt);
+  startHeartbeat(intervalMs = 5 * 60 * 1000) {
+    this.heartbeatInterval = setInterval(async () => {
+      try {
+        const response = await this.sendHeartbeat();
+        
+        if (response.isNearExpiration && !this.warningShown) {
+          this.onExpirationWarning(response.timeRemaining);
+          this.warningShown = true;
+        }
+        
+        if (response.timeRemaining > response.timeoutConfig.warningThresholdMinutes * 60000) {
+          this.warningShown = false; // Reset warning flag
+        }
+      } catch (error) {
+        this.stopHeartbeat();
+        this.onSessionLost(error);
+      }
+    }, intervalMs);
   }
   
-  const renewed = session.attemptRenewal();
+  stopHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
+  }
   
-  if (!renewed) {
-    throw new SessionRenewalError(
-      sessionId,
-      'Maximum duration reached',
-      { maxDuration: session.timeoutConfig.maxDurationMinutes }
+  async sendHeartbeat() {
+    const response = await fetch(
+      `/api/messaging/sessions/${this.sessionId}/heartbeat`,
+      { method: 'POST' }
     );
+    
+    if (!response.ok) {
+      throw new Error(`Heartbeat failed: ${response.status}`);
+    }
+    
+    return response.json();
   }
-  
-  return session.getStatus();
 }
 ```
 
@@ -395,59 +615,285 @@ class SessionCleanupService {
 }
 ```
 
-## Memory Management
+## Integration Examples
 
-### Memory Leak Prevention
+### React Hook with Session Management
 
-```typescript
-class BoundedCache extends Map {
-  private maxSize: number;
-  
-  constructor(maxSize: number = 1000) {
-    super();
-    this.maxSize = maxSize;
-  }
-  
-  set(key: string, value: any) {
-    // Remove oldest entries if at capacity
-    if (this.size >= this.maxSize) {
-      const firstKey = this.keys().next().value;
-      this.delete(firstKey);
+```javascript
+import { useState, useCallback, useEffect, useRef } from 'react';
+
+function useElizaSession(agentId, userId) {
+  const [sessionId, setSessionId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState(null);
+  const [expirationWarning, setExpirationWarning] = useState(false);
+  const heartbeatInterval = useRef(null);
+
+  const startSession = useCallback(async () => {
+    const response = await fetch('/api/messaging/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        agentId, 
+        userId,
+        timeoutConfig: {
+          timeoutMinutes: 30,
+          autoRenew: true,
+          maxDurationMinutes: 120,
+          warningThresholdMinutes: 5
+        }
+      })
+    });
+    
+    const data = await response.json();
+    setSessionId(data.sessionId);
+    setSessionStatus({
+      expiresAt: data.expiresAt,
+      timeoutConfig: data.timeoutConfig
+    });
+    
+    // Start heartbeat
+    startHeartbeat(data.sessionId);
+    
+    return data.sessionId;
+  }, [agentId, userId]);
+
+  const startHeartbeat = useCallback((sid) => {
+    if (heartbeatInterval.current) {
+      clearInterval(heartbeatInterval.current);
     }
-    return super.set(key, value);
-  }
-}
+    
+    heartbeatInterval.current = setInterval(async () => {
+      try {
+        const response = await fetch(
+          `/api/messaging/sessions/${sid}/heartbeat`,
+          { method: 'POST' }
+        );
+        
+        const status = await response.json();
+        setSessionStatus(status);
+        setExpirationWarning(status.isNearExpiration);
+        
+      } catch (error) {
+        console.error('Heartbeat failed:', error);
+      }
+    }, 60000); // Every minute
+  }, []);
 
-// Process lifecycle hooks
-process.once('SIGTERM', clearAllIntervals);
-process.once('SIGINT', clearAllIntervals);
-process.once('beforeExit', clearAllIntervals);
+  const sendMessage = useCallback(async (content) => {
+    if (!sessionId) {
+      const newSessionId = await startSession();
+      setSessionId(newSessionId);
+    }
+    
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `/api/messaging/sessions/${sessionId}/messages`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        }
+      );
+      
+      if (!response.ok) {
+        if (response.status === 404 || response.status === 410) {
+          // Session expired, create new one
+          const newSessionId = await startSession();
+          setSessionId(newSessionId);
+          // Retry with new session
+          return sendMessage(content);
+        }
+        throw new Error(`Failed to send message: ${response.status}`);
+      }
+      
+      const message = await response.json();
+      setMessages(prev => [...prev, message]);
+      
+      // Update session status if provided
+      if (message.sessionStatus) {
+        setSessionStatus(message.sessionStatus);
+        setExpirationWarning(message.sessionStatus.isNearExpiration);
+      }
+      
+      return message;
+    } finally {
+      setLoading(false);
+    }
+  }, [sessionId, startSession]);
+  
+  const renewSession = useCallback(async () => {
+    if (!sessionId) return;
+    
+    const response = await fetch(
+      `/api/messaging/sessions/${sessionId}/renew`,
+      { method: 'POST' }
+    );
+    
+    const status = await response.json();
+    setSessionStatus(status);
+    setExpirationWarning(false);
+    
+    return status;
+  }, [sessionId]);
+
+  useEffect(() => {
+    // Cleanup heartbeat on unmount
+    return () => {
+      if (heartbeatInterval.current) {
+        clearInterval(heartbeatInterval.current);
+      }
+    };
+  }, []);
+
+  return { 
+    sessionId, 
+    messages, 
+    sendMessage, 
+    loading,
+    sessionStatus,
+    expirationWarning,
+    renewSession
+  };
+}
 ```
 
-### Cache with TTL
+### WebSocket Integration
 
-```typescript
-class CacheWithTTL extends Map {
-  private ttl: number;
-  private timestamps = new Map<string, number>();
-  
-  constructor(ttl: number = 5 * 60 * 1000) {
-    super();
-    this.ttl = ttl;
+```javascript
+import { io } from 'socket.io-client';
+
+class SessionWebSocketClient {
+  constructor(serverUrl) {
+    this.socket = io(serverUrl);
+    this.sessionId = null;
+    this.setupEventHandlers();
   }
   
-  set(key: string, value: any) {
-    this.timestamps.set(key, Date.now());
-    return super.set(key, value);
+  setupEventHandlers() {
+    // Session expiration warning via WebSocket
+    this.socket.on('sessionExpirationWarning', (data) => {
+      if (data.sessionId === this.sessionId) {
+        console.warn(`Session expires in ${data.minutesRemaining} minutes`);
+        this.onExpirationWarning?.(data);
+      }
+    });
+    
+    // Session expired notification
+    this.socket.on('sessionExpired', (data) => {
+      if (data.sessionId === this.sessionId) {
+        console.error('Session has expired');
+        this.onSessionExpired?.(data);
+        this.sessionId = null;
+      }
+    });
+    
+    // Session renewed notification
+    this.socket.on('sessionRenewed', (data) => {
+      if (data.sessionId === this.sessionId) {
+        console.log('Session renewed until:', data.expiresAt);
+        this.onSessionRenewed?.(data);
+      }
+    });
   }
   
-  get(key: string) {
-    const timestamp = this.timestamps.get(key);
-    if (timestamp && Date.now() - timestamp > this.ttl) {
-      this.delete(key);
-      return undefined;
+  joinSession(sessionId) {
+    this.sessionId = sessionId;
+    this.socket.emit('join', { 
+      roomId: sessionId,
+      type: 'session'
+    });
+  }
+  
+  leaveSession() {
+    if (this.sessionId) {
+      this.socket.emit('leave', { 
+        roomId: this.sessionId 
+      });
+      this.sessionId = null;
     }
-    return super.get(key);
+  }
+}
+```
+
+### Handling Session Expiration
+
+```javascript
+class ResilientSessionClient {
+  constructor(agentId, userId) {
+    this.agentId = agentId;
+    this.userId = userId;
+    this.sessionId = null;
+    this.sessionConfig = {
+      timeoutMinutes: 30,
+      autoRenew: true,
+      maxDurationMinutes: 180
+    };
+  }
+  
+  async ensureSession() {
+    if (!this.sessionId) {
+      await this.createSession();
+      return;
+    }
+    
+    // Check if session is still valid
+    try {
+      const response = await fetch(`/api/messaging/sessions/${this.sessionId}`);
+      
+      if (!response.ok) {
+        if (response.status === 404 || response.status === 410) {
+          // Session not found or expired
+          await this.createSession();
+        }
+      }
+    } catch (error) {
+      console.error('Session check failed:', error);
+      await this.createSession();
+    }
+  }
+  
+  async createSession() {
+    const response = await fetch('/api/messaging/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agentId: this.agentId,
+        userId: this.userId,
+        timeoutConfig: this.sessionConfig
+      })
+    });
+    
+    const data = await response.json();
+    this.sessionId = data.sessionId;
+    
+    // Start heartbeat for new session
+    this.startHeartbeat();
+    
+    return this.sessionId;
+  }
+  
+  async sendMessage(content) {
+    await this.ensureSession();
+    
+    const response = await fetch(
+      `/api/messaging/sessions/${this.sessionId}/messages`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      }
+    );
+    
+    if (!response.ok && (response.status === 404 || response.status === 410)) {
+      // Session was lost, recreate and retry
+      await this.createSession();
+      return this.sendMessage(content);
+    }
+    
+    return response.json();
   }
 }
 ```
@@ -503,34 +949,53 @@ class SessionRenewalError extends SessionError {
 }
 ```
 
-### Error Handler Middleware
+### Error Handling Examples
 
-```typescript
-function createErrorHandler() {
-  return (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    if (err instanceof SessionError) {
-      logger.error(`[Sessions API] ${err.code}:`, err.message, err.details);
-      
-      return res.status(err.statusCode).json({
-        error: err.message,
-        code: err.code,
-        details: process.env.NODE_ENV === 'development' ? err.details : undefined
-      });
+```javascript
+try {
+  const response = await fetch(`/api/messaging/sessions/${sessionId}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: message })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    
+    switch (response.status) {
+      case 404:
+        // Session not found
+        console.error('Session not found:', error.details);
+        // Create new session
+        break;
+        
+      case 410:
+        // Session expired
+        console.error('Session expired at:', error.details.expiresAt);
+        // Create new session or notify user
+        break;
+        
+      case 400:
+        // Validation error
+        if (error.error.includes('content')) {
+          console.error('Invalid message content');
+        } else if (error.error.includes('metadata')) {
+          console.error('Metadata too large');
+        }
+        break;
+        
+      case 422:
+        // Session cannot be renewed
+        console.error('Max duration reached:', error.details);
+        // Must create new session
+        break;
+        
+      default:
+        console.error('Error:', error.message);
     }
-    
-    // Handle unexpected errors
-    logger.error('[Sessions API] Unexpected error:', err);
-    
-    res.status(500).json({
-      error: 'Internal server error',
-      code: 'INTERNAL_ERROR'
-    });
-  };
+  }
+} catch (error) {
+  console.error('Network error:', error);
 }
 ```
 
@@ -599,6 +1064,138 @@ class AgentConfigCache {
   }
 }
 ```
+
+## Memory Management
+
+### Memory Leak Prevention
+
+```typescript
+class BoundedCache extends Map {
+  private maxSize: number;
+  
+  constructor(maxSize: number = 1000) {
+    super();
+    this.maxSize = maxSize;
+  }
+  
+  set(key: string, value: any) {
+    // Remove oldest entries if at capacity
+    if (this.size >= this.maxSize) {
+      const firstKey = this.keys().next().value;
+      this.delete(firstKey);
+    }
+    return super.set(key, value);
+  }
+}
+
+// Process lifecycle hooks
+process.once('SIGTERM', clearAllIntervals);
+process.once('SIGINT', clearAllIntervals);
+process.once('beforeExit', clearAllIntervals);
+```
+
+### Cache with TTL
+
+```typescript
+class CacheWithTTL extends Map {
+  private ttl: number;
+  private timestamps = new Map<string, number>();
+  
+  constructor(ttl: number = 5 * 60 * 1000) {
+    super();
+    this.ttl = ttl;
+  }
+  
+  set(key: string, value: any) {
+    this.timestamps.set(key, Date.now());
+    return super.set(key, value);
+  }
+  
+  get(key: string) {
+    const timestamp = this.timestamps.get(key);
+    if (timestamp && Date.now() - timestamp > this.ttl) {
+      this.delete(key);
+      return undefined;
+    }
+    return super.get(key);
+  }
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Session Not Found (404)**
+   - Session may have expired or been deleted
+   - Create a new session and retry
+   - Check session ID format
+
+2. **Session Expired (410)**
+   - Session exceeded its timeout period
+   - Check the `expiresAt` timestamp in error details
+   - Create a new session or adjust timeout configuration
+
+3. **Cannot Renew Session (422)**
+   - Session has reached maximum duration limit
+   - Check `maxDurationMinutes` configuration
+   - Must create a new session
+
+4. **Invalid Timeout Configuration (400)**
+   - Timeout values outside allowed range (5-1440 minutes)
+   - Check configuration values against limits
+   - Adjust to valid ranges
+
+5. **Agent Not Available**
+   - Ensure the agent is started and running
+   - Check agent logs for errors
+   - Verify agent ID is correct
+
+### Debugging
+
+Enable debug logging:
+
+```javascript
+const response = await fetch('/api/messaging/sessions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Debug': 'true'  // Enable debug info in response
+  },
+  body: JSON.stringify({ 
+    agentId, 
+    userId,
+    // Debug mode may include additional session state info
+  })
+});
+```
+
+Check session cleanup logs:
+```bash
+# Server logs will show cleanup activity
+[Sessions API] Cleanup cycle completed: 3 expired sessions removed, 2 warnings issued
+[Sessions API] Session renewed via heartbeat: session-123
+[Sessions API] Session abc-123 has reached maximum duration
+```
+
+## When to Use Sessions vs Traditional Messaging
+
+### Use Sessions When:
+- **Building chat interfaces**: Web apps, mobile apps, or any UI with a chat component
+- **Direct user-to-agent conversations**: One-on-one interactions between a user and an agent
+- **Simplified integration**: You want to get up and running quickly without infrastructure complexity
+- **Stateful conversations**: You need the agent to maintain context throughout the conversation
+- **Session management required**: You need timeout, renewal, and expiration handling
+- **Resource optimization**: You want automatic cleanup of inactive conversations
+- **Personal assistants**: Building AI assistants that remember user preferences and conversation history
+
+### Use Traditional Messaging When:
+- **Multi-agent coordination**: Multiple agents need to communicate in the same channel
+- **Group conversations**: Multiple users and agents interacting together
+- **Platform integrations**: Integrating with Discord, Slack, or other platforms that have their own channel concepts
+- **Broadcast scenarios**: One agent sending messages to multiple channels/users
+- **Complex routing**: Custom message routing logic between different channels and servers
+- **Permanent history**: You need conversations to persist indefinitely without timeout
 
 ## Scalability Considerations
 
@@ -727,3 +1324,65 @@ const sessionRateLimits = {
 - **Monitoring**: Track session metrics and health
 - **Testing**: Test timeout and renewal scenarios
 - **Documentation**: Document session behavior clearly
+
+### Agent Configuration
+
+Configure timeout defaults for specific agents via environment variables:
+
+```bash
+# Agent-specific settings (in agent's environment)
+SESSION_TIMEOUT_MINUTES=60
+SESSION_AUTO_RENEW=true
+SESSION_MAX_DURATION_MINUTES=240
+SESSION_WARNING_THRESHOLD_MINUTES=10
+```
+
+Or configure programmatically in the agent:
+
+```javascript
+// In agent configuration
+const agentConfig = {
+  name: 'CustomerServiceBot',
+  settings: {
+    SESSION_TIMEOUT_MINUTES: '45',
+    SESSION_AUTO_RENEW: 'true',
+    SESSION_MAX_DURATION_MINUTES: '180',
+    SESSION_WARNING_THRESHOLD_MINUTES: '5'
+  }
+};
+```
+
+## API Reference
+
+### Endpoints
+
+- **POST** `/api/messaging/sessions` - Create a new session
+- **GET** `/api/messaging/sessions/:sessionId` - Get session information
+- **POST** `/api/messaging/sessions/:sessionId/messages` - Send a message
+- **GET** `/api/messaging/sessions/:sessionId/messages` - Get message history
+- **POST** `/api/messaging/sessions/:sessionId/renew` - Manually renew session
+- **PATCH** `/api/messaging/sessions/:sessionId/timeout` - Update timeout configuration
+- **POST** `/api/messaging/sessions/:sessionId/heartbeat` - Send heartbeat to keep alive
+- **DELETE** `/api/messaging/sessions/:sessionId` - End session
+- **GET** `/api/messaging/sessions` - List all active sessions (admin)
+- **GET** `/api/messaging/sessions/health` - Health check endpoint
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="Memory & State" icon="brain" href="/runtime/memory">
+    Learn how sessions store conversation memory
+  </Card>
+  
+  <Card title="Events" icon="bolt" href="/runtime/events">
+    Handle session lifecycle events
+  </Card>
+  
+  <Card title="Runtime Core" icon="cpu" href="/runtime/core">
+    Understand session management in the runtime
+  </Card>
+  
+  <Card title="Services" icon="server" href="/runtime/services">
+    Build services that manage sessions
+  </Card>
+</CardGroup>

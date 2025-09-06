@@ -478,3 +478,67 @@ class BoundedCache extends Map {
   }
 }
 ```
+
+### Debugging State Composition
+
+```typescript
+// Debug helper to trace provider execution
+async function debugComposeState(runtime: IAgentRuntime, message: Memory, includeList?: string[]) {
+  console.log('=== State Composition Debug ===');
+  console.log('Message ID:', message.id);
+  console.log('Include List:', includeList || 'default');
+
+  // Monkey patch provider execution
+  const originalProviders = runtime.providers;
+  runtime.providers = runtime.providers.map((provider) => ({
+    ...provider,
+    get: async (...args) => {
+      const start = Date.now();
+      console.log(`[${provider.name}] Starting...`);
+
+      try {
+        const result = await provider.get(...args);
+        const duration = Date.now() - start;
+        console.log(`[${provider.name}] Completed in ${duration}ms`);
+        console.log(`[${provider.name}] Data size:`, JSON.stringify(result).length);
+        return result;
+      } catch (error) {
+        console.error(`[${provider.name}] Error:`, error);
+        throw error;
+      }
+    },
+  }));
+
+  const state = await runtime.composeState(message, includeList);
+
+  // Restore original providers
+  runtime.providers = originalProviders;
+
+  console.log('=== Final State Summary ===');
+  console.log('Total providers run:', Object.keys(state.data.providers || {}).length);
+  console.log('State text length:', state.text.length);
+  console.log('===============================');
+
+  return state;
+}
+```
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="Runtime Core" icon="cpu" href="/runtime/core">
+    Understand the core runtime architecture
+  </Card>
+  
+  <Card title="Memory & State" icon="brain" href="/runtime/memory">
+    Deep dive into memory management and state persistence
+  </Card>
+  
+  <Card title="Services" icon="server" href="/runtime/services">
+    Build services that use providers for context
+  </Card>
+  
+  <Card title="Models" icon="robot" href="/runtime/models">
+    Learn how models use provider context for decisions
+  </Card>
+</CardGroup>

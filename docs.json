@@ -80,11 +80,12 @@
             "group": "RUNTIME",
             "pages": [
               "runtime/core",
-              "runtime/providers",
-              "runtime/services",
               "runtime/memory",
               "runtime/events",
+              "runtime/providers",
               "runtime/models",
+              "runtime/services",
+              "runtime/messaging",
               "runtime/sessions"
             ]
           },

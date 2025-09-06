@@ -1,21 +1,15 @@
 ---
-title: Socket.IO Integration Guide
-description: Complete guide for integrating Socket.IO real-time communication with Eliza server
+title: "Messaging"
+description: "Real-time messaging infrastructure and Socket.IO integration"
 ---
 
 ## Overview
 
-This guide explains how Socket.IO works in the Eliza NextJS starter and provides solutions for integrating external clients (like browser extensions) with the Eliza server.
-
-## Reference Implementation
-
-<Card title="Eliza NextJS Starter" icon="github" href="https://github.com/elizaOS/eliza-nextjs-starter">
-  A complete working example demonstrating Socket.IO integration with Eliza, including real-time messaging, agent participation management, and comprehensive error handling.
-</Card>
+The messaging infrastructure provides real-time communication between clients and the ElizaOS server using Socket.IO. This enables instant message delivery, presence tracking, and bidirectional communication.
 
 ## Architecture
 
-### How WebSockets Work in This Project
+### How WebSockets Work in ElizaOS
 
 The project uses **Socket.IO** (not raw WebSockets) for real-time communication between clients and the Eliza server.
 
@@ -23,7 +17,7 @@ The project uses **Socket.IO** (not raw WebSockets) for real-time communication 
 graph TD
     subgraph "Extension"
         A[Extension Service Worker]
-        B[Extension Socket.IO v1.3.0]
+        B[Extension Socket.IO Client]
     end
     
     subgraph "Eliza NextJS App"
@@ -44,7 +38,7 @@ graph TD
     
     %% Server broadcasts to clients
     F -->|"5. emit('messageBroadcast')"| D
-    F -.->|"5. emit('messageBroadcast')<br/>(Not received)"| B
+    F -.->|"5. emit('messageBroadcast')<br/>(Optional)"| B
     
     %% Internal app flow
     D -->|"6. Receive broadcast"| C
@@ -60,6 +54,7 @@ graph TD
 ## Socket.IO Events and Message Types
 
 ### Message Types Enum
+
 ```javascript
 enum SOCKET_MESSAGE_TYPE {
   ROOM_JOINING = 1,      // Join a channel/room
@@ -72,35 +67,23 @@ enum SOCKET_MESSAGE_TYPE {
 ```
 
 ### Key Events
+
 - `messageBroadcast` - Incoming messages from agents/users
 - `messageComplete` - Message processing complete
 - `controlMessage` - UI control (enable/disable input)
 - `connection_established` - Connection confirmed
 
-## Common Issue: Extension Not Receiving Responses
+## Socket.IO Client Implementation
 
-### The Problem
-Your extension can send messages to Eliza (server receives them), but doesn't receive responses back.
+### Minimal Socket.IO Client
 
-### Root Causes
-1. **Not listening for the correct event** - Must listen for `messageBroadcast`, not `message`
-2. **Not joining the room/channel** - Must emit a `ROOM_JOINING` message first
-3. **Room/Channel ID mismatch** - IDs must match exactly
-4. **Incorrect message payload structure**
-
-## Solution: Minimal Socket.IO Client
-
-Here's a minimal Socket.IO client implementation for your extension:
+Here's a minimal Socket.IO client implementation:
 
 ```javascript
-// Socket.IO v1.3.0 is VERY old (2015). If possible, upgrade to v4.x
-// But here's code that should work with both old and new versions:
-
 const SOCKET_URL = 'http://localhost:3000';
 
 // 1. Connect to Socket.IO
 const socket = io(SOCKET_URL, {
-  // For v1.3.0 compatibility
   'force new connection': true,
   'reconnection': true,
   'reconnectionDelay': 1000,
@@ -110,7 +93,7 @@ const socket = io(SOCKET_URL, {
 });
 
 // Your IDs (make sure these match exactly)
-const entityId = 'your-extension-entity-id';
+const entityId = 'your-entity-id';
 const roomId = 'your-room-id'; // This should match the agent/channel ID
 
 // 2. CRITICAL: Join the room when connected
@@ -182,20 +165,6 @@ function generateUUID() {
   });
 }
 
-// 6. Debug: Log ALL events (remove in production)
-const originalEmit = socket.emit;
-socket.emit = function() {
-  console.log('[EMIT] Event:', arguments[0], arguments[1]);
-  return originalEmit.apply(socket, arguments);
-};
-
-// For Socket.IO v1.3.0, use this to catch all events:
-const onevent = socket.onevent;
-socket.onevent = function(packet) {
-  console.log('[RECEIVE] Event:', packet.data);
-  onevent.call(socket, packet);
-};
-
 // Connection error handling
 socket.on('connect_error', function(error) {
   console.error('[ERROR] Connection error:', error);
@@ -204,55 +173,6 @@ socket.on('connect_error', function(error) {
 socket.on('disconnect', function(reason) {
   console.log('[DISCONNECTED] Reason:', reason);
 });
-
-// Test the connection
-socket.on('connect', function() {
-  // Send a test message after 2 seconds
-  setTimeout(function() {
-    sendMessageToEliza('Hello from extension!');
-  }, 2000);
-});
-```
-
-## Key Points to Check
-
-### 1. Event Name
-```javascript
-// [WRONG]
-socket.on('message', handler)
-
-// [CORRECT]
-socket.on('messageBroadcast', handler)
-```
-
-### 2. Room Joining Required
-```javascript
-// You MUST join the room before receiving broadcasts
-socket.emit('message', {
-  type: 1, // ROOM_JOINING
-  payload: {
-    roomId: roomId,
-    entityId: entityId
-  }
-});
-```
-
-### 3. Exact Message Format
-```javascript
-// The structure must be exact
-{
-  type: 2, // SEND_MESSAGE type
-  payload: {
-    senderId: entityId,
-    senderName: 'Extension User',
-    message: text,
-    roomId: roomId,
-    messageId: generateUUID(),
-    source: 'extension',
-    attachments: [],
-    metadata: {}
-  }
-}
 ```
 
 ## Modern Implementation (Socket.IO v4.x)
@@ -324,7 +244,7 @@ class ElizaSocketClient {
 
   onMessageReceived(data) {
     console.log('Message received:', data);
-    // Handle the message in your extension
+    // Handle the message in your application
   }
 
   generateUUID() {
@@ -351,9 +271,62 @@ client.connect();
 client.sendMessage('Hello from extension!');
 ```
 
+## Key Points to Check
+
+### 1. Event Name
+
+```javascript
+// [WRONG]
+socket.on('message', handler)
+
+// [CORRECT]
+socket.on('messageBroadcast', handler)
+```
+
+### 2. Room Joining Required
+
+```javascript
+// You MUST join the room before receiving broadcasts
+socket.emit('message', {
+  type: 1, // ROOM_JOINING
+  payload: {
+    roomId: roomId,
+    entityId: entityId
+  }
+});
+```
+
+### 3. Exact Message Format
+
+```javascript
+// The structure must be exact
+{
+  type: 2, // SEND_MESSAGE type
+  payload: {
+    senderId: entityId,
+    senderName: 'Extension User',
+    message: text,
+    roomId: roomId,
+    messageId: generateUUID(),
+    source: 'extension',
+    attachments: [],
+    metadata: {}
+  }
+}
+```
+
+## Complete Message Flow
+
+1. **Client connects** → Server accepts connection
+2. **Client joins room** → Server adds client to room
+3. **Client sends message** → Server receives and processes
+4. **Server broadcasts response** → All clients in room receive
+5. **Clients filter by room ID** → Only relevant messages shown
+
 ## Debugging Steps
 
 ### 1. Verify Events
+
 ```javascript
 // For newer Socket.IO versions
 socket.onAny((eventName, ...args) => {
@@ -369,11 +342,14 @@ socket.onevent = function(packet) {
 ```
 
 ### 2. Check Room ID
+
 - Ensure the room ID matches exactly between your extension and the server
 - Even a single character difference will prevent message delivery
 
 ### 3. CORS Issues
+
 For browser extensions, ensure your manifest includes:
+
 ```json
 {
   "permissions": ["http://localhost:3000/*"],
@@ -382,7 +358,9 @@ For browser extensions, ensure your manifest includes:
 ```
 
 ### 4. Transport Issues
+
 If WebSocket fails, force polling:
+
 ```javascript
 const socket = io(SOCKET_URL, {
   transports: ['polling'] // Avoid WebSocket issues
@@ -392,10 +370,12 @@ const socket = io(SOCKET_URL, {
 ## Socket.IO Version Compatibility
 
 ### Version Issues
+
 - **v1.3.0** (2015) - Very old, may have compatibility issues
 - **v4.x** (Current) - Recommended for new implementations
 
 ### Upgrading
+
 ```json
 // package.json
 {
@@ -404,14 +384,6 @@ const socket = io(SOCKET_URL, {
   }
 }
 ```
-
-## Complete Message Flow
-
-1. **Client connects** → Server accepts connection
-2. **Client joins room** → Server adds client to room
-3. **Client sends message** → Server receives and processes
-4. **Server broadcasts response** → All clients in room receive
-5. **Clients filter by room ID** → Only relevant messages shown
 
 ## Common Mistakes
 
@@ -429,11 +401,169 @@ const socket = io(SOCKET_URL, {
 4. Send test message
 5. Check for broadcast reception
 
-## Support
+## Common Issue: Extension Not Receiving Responses
 
-If you're still having issues:
-1. Enable all debug logging
-2. Check exact room/channel IDs
-3. Verify Socket.IO versions match
-4. Test with the minimal client above
-5. Check browser/extension permissions
+### The Problem
+
+Your extension can send messages to Eliza (server receives them), but doesn't receive responses back.
+
+### Root Causes
+
+1. **Not listening for the correct event** - Must listen for `messageBroadcast`, not `message`
+2. **Not joining the room/channel** - Must emit a `ROOM_JOINING` message first
+3. **Room/Channel ID mismatch** - IDs must match exactly
+4. **Incorrect message payload structure**
+
+### Solution Checklist
+
+1. Verify you're listening to `messageBroadcast` event
+2. Ensure you join the room on connection
+3. Check room ID matches exactly
+4. Verify message payload structure
+5. Check browser console for errors
+6. Test with debug logging enabled
+
+## Advanced Features
+
+### Presence Tracking
+
+```javascript
+// Track user presence
+socket.on('userJoined', (data) => {
+  console.log(`User ${data.userId} joined room ${data.roomId}`);
+});
+
+socket.on('userLeft', (data) => {
+  console.log(`User ${data.userId} left room ${data.roomId}`);
+});
+```
+
+### Typing Indicators
+
+```javascript
+// Send typing indicator
+socket.emit('typing', {
+  roomId: roomId,
+  userId: userId,
+  isTyping: true
+});
+
+// Listen for typing indicators
+socket.on('userTyping', (data) => {
+  if (data.roomId === roomId) {
+    console.log(`${data.userId} is ${data.isTyping ? 'typing' : 'stopped typing'}`);
+  }
+});
+```
+
+### Message Acknowledgments
+
+```javascript
+// Send message with acknowledgment
+socket.emit('message', messagePayload, (ack) => {
+  console.log('Message acknowledged:', ack);
+});
+```
+
+## Server-Side Implementation
+
+The Socket.IO server handles message routing and broadcasting:
+
+```typescript
+class SocketIOService extends Service {
+  static serviceType = 'socketio' as const;
+  capabilityDescription = 'Real-time messaging via Socket.IO';
+  
+  private io: Server;
+  
+  async start(runtime: IAgentRuntime) {
+    this.io = new Server(server, {
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+      }
+    });
+    
+    this.io.on('connection', (socket) => {
+      console.log('Client connected:', socket.id);
+      
+      socket.on('message', async (data) => {
+        if (data.type === SOCKET_MESSAGE_TYPE.ROOM_JOINING) {
+          await this.handleRoomJoin(socket, data.payload);
+        } else if (data.type === SOCKET_MESSAGE_TYPE.SEND_MESSAGE) {
+          await this.handleMessage(socket, data.payload);
+        }
+      });
+      
+      socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+      });
+    });
+  }
+  
+  private async handleRoomJoin(socket: Socket, payload: any) {
+    const { roomId, entityId } = payload;
+    
+    // Join the room
+    socket.join(roomId);
+    
+    // Notify others in room
+    socket.to(roomId).emit('userJoined', {
+      userId: entityId,
+      roomId: roomId
+    });
+    
+    console.log(`User ${entityId} joined room ${roomId}`);
+  }
+  
+  private async handleMessage(socket: Socket, payload: any) {
+    const { roomId, message, senderId } = payload;
+    
+    // Process message through runtime
+    const response = await this.runtime.processMessage({
+      content: message,
+      roomId: roomId,
+      userId: senderId
+    });
+    
+    // Broadcast to all in room
+    this.io.to(roomId).emit('messageBroadcast', {
+      roomId: roomId,
+      channelId: roomId, // For backward compatibility
+      senderName: response.agentName,
+      text: response.text,
+      metadata: response.metadata
+    });
+  }
+  
+  async stop() {
+    this.io.close();
+  }
+}
+```
+
+## Reference Implementation
+
+<Card title="Eliza NextJS Starter" icon="github" href="https://github.com/elizaOS/eliza-nextjs-starter">
+  A complete working example demonstrating Socket.IO integration with Eliza, including real-time messaging, agent participation management, and comprehensive error handling.
+</Card>
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="Sessions" icon="comments" href="/runtime/sessions">
+    Learn about persistent session management
+  </Card>
+  
+  <Card title="Events" icon="bolt" href="/runtime/events">
+    Handle real-time messaging events
+  </Card>
+  
+  <Card title="Services" icon="server" href="/runtime/services">
+    Build messaging services
+  </Card>
+  
+  <Card title="Runtime Core" icon="cpu" href="/runtime/core">
+    Understand messaging in the runtime
+  </Card>
+</CardGroup>
