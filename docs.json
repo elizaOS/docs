@@ -1,7 +1,8 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "ElizaOS Documentation",
+  "name": "ElizaOS Documentation", 
+  "homepage": "index",
   "colors": {
     "primary": "#0B35F1",
     "light": "#0B35F1",
