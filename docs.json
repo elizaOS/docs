@@ -79,15 +79,13 @@
           {
             "group": "RUNTIME",
             "pages": [
-              "runtime/system-architecture",
-              "runtime/agent-runtime",
+              "runtime/core",
+              "runtime/providers",
               "runtime/services",
-              "runtime/state-management",
-              "runtime/sessions-architecture",
-              "runtime/sessions-api-guide",
-              "runtime/integration-apis",
-              "runtime/socket-io-integration-guide",
-              "runtime/mcp-setup-guide"
+              "runtime/memory",
+              "runtime/events",
+              "runtime/models",
+              "runtime/sessions"
             ]
           },
           {

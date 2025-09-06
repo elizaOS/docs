@@ -1,0 +1,284 @@
+---
+title: 'Service System'
+description: 'Background tasks and integrations'
+---
+
+## What are Services?
+
+Services are long-running background tasks that extend agent functionality beyond request-response patterns.
+
+## Service Interface
+
+```typescript
+abstract class Service {
+  static serviceType: ServiceType;
+  
+  constructor(runtime?: IAgentRuntime) {}
+  
+  abstract capabilityDescription: string;
+  config?: ServiceConfig;
+  
+  static async start(runtime: IAgentRuntime): Promise<Service> {
+    // Return new instance of service
+  }
+  
+  abstract stop(): Promise<void>;
+}
+```
+
+## Service Types
+
+```typescript
+// Core service types (from @elizaos/core)
+const ServiceType = {
+  // Define core service types
+} as const;
+
+// Plugins extend service types through module augmentation
+declare module '@elizaos/core' {
+  interface ServiceTypeRegistry {
+    DISCORD: 'discord';
+    TELEGRAM: 'telegram';
+    TWITTER: 'twitter';
+    // ... other plugin-specific types
+  }
+}
+```
+
+## Common Service Patterns
+
+### Platform Integration Service
+
+```typescript
+class DiscordService extends Service {
+  static serviceType = 'discord' as const;
+  capabilityDescription = 'Discord bot integration';
+  
+  private client: Discord.Client;
+  
+  constructor(private runtime: IAgentRuntime) {
+    super(runtime);
+  }
+  
+  static async start(runtime: IAgentRuntime): Promise<Service> {
+    const service = new DiscordService(runtime);
+    await service.initialize();
+    return service;
+  }
+  
+  private async initialize() {
+    this.client = new Discord.Client();
+    
+    this.client.on('messageCreate', async (message) => {
+      // Convert to Memory format
+      const memory = await this.convertMessage(message);
+      
+      // Process through runtime
+      await this.runtime.processActions(memory, []);
+    });
+    
+    await this.client.login(process.env.DISCORD_TOKEN);
+  }
+  
+  async stop() {
+    await this.client.destroy();
+  }
+}
+```
+
+### Background Task Service
+
+```typescript
+class TaskService extends Service {
+  name = ServiceType.TASK;
+  private interval: NodeJS.Timer;
+  
+  async start(runtime: IAgentRuntime) {
+    // Check for scheduled tasks every minute
+    this.interval = setInterval(async () => {
+      const tasks = await runtime.databaseAdapter.getTasks({
+        status: 'pending',
+        scheduledFor: { $lte: new Date() }
+      });
+      
+      for (const task of tasks) {
+        await this.executeTask(task, runtime);
+      }
+    }, 60000);
+  }
+  
+  async stop() {
+    clearInterval(this.interval);
+  }
+}
+```
+
+### Model Service Pattern
+
+```typescript
+// Model services typically implement model providers instead
+class OpenAIModelProvider implements ModelProvider {
+  async generateText(params: GenerateTextParams) {
+    const client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+    
+    const response = await client.chat.completions.create({
+      model: params.model || "gpt-4",
+      messages: params.messages
+    });
+    
+    return response.choices[0].message;
+  }
+  
+  async embed(params: EmbedParams) {
+    // Implementation for embeddings
+  }
+}
+```
+
+## Service Lifecycle
+
+```mermaid
+graph LR
+    Register[Register Service] --> Queue[Queue Start]
+    Queue --> Init[Runtime Init]
+    Init --> Start[Start Service]
+    Start --> Running[Running]
+    Running --> Stop[Stop Service]
+    Stop --> Cleanup[Cleanup]
+```
+
+## Service Registration
+
+```typescript
+// In a plugin
+export const discordPlugin: Plugin = {
+  name: 'discord',
+  services: [DiscordService],
+  
+  init: async (config, runtime) => {
+    // Services auto-registered and started
+  }
+};
+```
+
+## Service Communication
+
+Services can interact with the runtime and other services:
+
+```typescript
+class NotificationService extends Service {
+  static serviceType = 'notification' as const;
+  capabilityDescription = 'Cross-platform notifications';
+  
+  async notify(message: string) {
+    // Get service by type
+    const discord = this.runtime.getService('discord');
+    if (discord) {
+      await discord.sendMessage(channelId, message);
+    }
+    
+    // Check all registered services
+    const services = this.runtime.getAllServices();
+    // Coordinate across services
+  }
+}
+```
+
+## Real-World Service Patterns
+
+### Task Service Pattern
+
+Services run in the background and handle ongoing tasks:
+
+```typescript
+export class TaskService extends Service {
+  static serviceType = ServiceType.TASK;
+  capabilityDescription = 'The agent is able to schedule and execute tasks';
+  
+  static async start(runtime: IAgentRuntime): Promise<Service> {
+    const service = new TaskService(runtime);
+    await service.startTimer();
+    return service;
+  }
+  
+  static async stop(runtime: IAgentRuntime) {
+    const service = runtime.getService(ServiceType.TASK);
+    if (service) {
+      await service.stop();
+    }
+  }
+  
+  private async startTimer() {
+    this.timer = setInterval(async () => {
+      await this.checkTasks();
+    }, this.TICK_INTERVAL);
+  }
+}
+```
+
+### Platform Service Pattern (Discord Example)
+
+```typescript
+export class DiscordService extends Service implements IDiscordService {
+  static serviceType: string = DISCORD_SERVICE_NAME;
+  capabilityDescription = "The agent is able to send and receive messages on discord";
+  
+  constructor(runtime: IAgentRuntime) {
+    super(runtime);
+    
+    // Parse environment configuration
+    const token = runtime.getSetting("DISCORD_API_TOKEN");
+    if (!token) {
+      this.client = null;
+      return;
+    }
+    
+    // Initialize Discord client
+    this.client = new DiscordJsClient({
+      intents: [/* Discord intents */],
+      partials: [/* Discord partials */]
+    });
+    
+    // Set up event handlers
+    this.setupEventHandlers();
+  }
+  
+  private setupEventHandlers() {
+    this.client.on('messageCreate', async (message) => {
+      // Convert Discord message to Memory format
+      const memory = await this.convertToMemory(message);
+      // Process through runtime
+      await this.runtime.processActions(memory, []);
+    });
+  }
+}
+```
+
+## Best Practices
+
+- **Graceful Initialization**: Handle missing API tokens gracefully in service constructors
+- **Implement graceful shutdown**: Always implement proper cleanup in `stop()`
+- **Handle errors without crashing**: Services should log errors but continue running
+- **Use environment variables for config**: Check environment variables for service configuration
+- **Avoid blocking operations**: Use async operations and intervals
+- **Clean up resources properly**: Clear timers, close connections, free memory
+
+## Common Services
+
+| Service | Purpose | Example Plugin |
+|---------|---------|----------------|
+| Platform Services | Connect to chat platforms | Discord, Telegram |
+| Model Services | AI model providers | OpenAI, Anthropic |
+| Data Services | External data sources | Web search, SQL |
+| Media Services | Process media | TTS, image gen |
+| Background Services | Scheduled tasks | Task runner |
+
+## Next Steps
+
+<CardGroup cols={1}>
+  <Card title="Agent Configurations" icon="github" href="https://github.com/elizaOS/eliza/blob/main/packages/cli/tests/test-characters/">
+    Browse sample character configurations
+  </Card>
+</CardGroup>
