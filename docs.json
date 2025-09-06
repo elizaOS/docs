@@ -88,13 +88,6 @@
               "runtime/messaging",
               "runtime/sessions"
             ]
-          },
-          {
-            "group": "TUTORIALS",
-            "pages": [
-              "tutorials/building-a-twitter-bot",
-              "tutorials/using-spartan"
-            ]
           }
         ]
       },
