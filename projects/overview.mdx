@@ -53,6 +53,8 @@ my-project/
 ├── src/                 # Source code (you edit these)
 │   ├── index.ts         # Project entry point
 │   ├── character.ts     # Default Eliza character
+│   ├── __tests__/       # Test files (E2E and component)
+│   ├── frontend/        # Frontend components (if using web UI)
 │   └── plugins/         # Custom plugins (optional)
 ├── .env                 # Environment variables
 ├── package.json         # Dependencies
@@ -74,6 +76,8 @@ multi-agent-project/
 │   │   ├── spartan.ts   # Spartan agent config
 │   │   ├── billy.ts     # Billy agent config
 │   │   └── bobby.ts     # Bobby agent config
+│   ├── __tests__/       # Test files (E2E and component)
+│   ├── frontend/        # Frontend components (if using web UI)
 │   └── plugins/         # Shared custom plugins
 ├── .env                 # Shared environment
 ├── package.json
@@ -248,7 +252,7 @@ elizaos start --character ./custom-character.ts
 ```
 
 <Tip>
-  See the [CLI Reference](/cli-reference/start) for all available options and flags.
+  See the [CLI Reference](/cli-reference/overview) for all available options and flags.
 </Tip>
 
 ## Advanced Project Examples
