@@ -58,9 +58,10 @@
           {
             "group": "AGENTS",
             "pages": [
-              "agents/agent-interface",
-              "agents/memory-and-context",
-              "agents/personality-configuration"
+              "agents/character-interface",
+              "agents/personality-and-behavior",
+              "agents/memory-and-state",
+              "agents/runtime-and-lifecycle"
             ]
           },
           {
