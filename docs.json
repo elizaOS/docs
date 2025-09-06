@@ -8,6 +8,12 @@
     "dark": "#0B35F1"
   },
   "favicon": "/favicon.svg",
+  "topAnchor": {
+    "name": "Documentation"
+  },
+  "anchors": {
+    "style": "guide"
+  },
   "navigation": {
     "global": {
       "anchors": [
@@ -23,60 +29,64 @@
         "tab": "Docs",
         "groups": [
           {
-            "group": "Getting Started",
-            "pages": ["index", "quickstart", "development"]
-          },
-          {
-            "group": "Core Concepts",
+            "group": "GETTING STARTED",
             "pages": [
-              "core-concepts/index",
-              "core-concepts/agents",
-              {
-                "group": "Plugins",
-                "pages": [
-                  "core-concepts/plugins",
-                  "core-concepts/plugins/actions",
-                  "core-concepts/plugins/providers",
-                  "core-concepts/plugins/evaluators"
-                ]
-              },
-              "core-concepts/projects"
+              "index",
+              "installation",
+              "quickstart",
+              "what-you-can-build"
             ]
           },
           {
-            "group": "Deep Dive",
+            "group": "GUIDES",
             "pages": [
-              "deep-dive/architecture",
-              "deep-dive/runtime",
-              "deep-dive/services",
-              "deep-dive/plugin-internals",
-              "deep-dive/real-world-patterns",
-              "deep-dive/sessions-architecture"
+              "guides/customize-an-agent",
+              "guides/add-multiple-agents",
+              "guides/test-a-project",
+              "guides/deploy-a-project",
+              "guides/create-a-plugin",
+              "guides/publish-a-plugin",
+              "guides/contribute-to-core"
             ]
           },
           {
-            "group": "Guides",
+            "group": "PROJECTS",
             "pages": [
-              "guides/plugin-developer-guide",
-              "guides/plugin-publishing-guide",
-              "guides/plugin-schema-guide",
-              "guides/compose-state-guide",
-              "guides/sessions-api-guide",
-              "guides/socket-io-integration-guide",
-              "guides/mcp-setup-guide",
-              {
-                "group": "Plugin Migration (0.x to 1.x)",
-                "icon": "arrow-right-arrow-left",
-                "pages": [
-                  "guides/plugin-migration/overview",
-                  "guides/plugin-migration/migration-guide",
-                  "guides/plugin-migration/state-and-providers-guide",
-                  "guides/plugin-migration/prompt-and-generation-guide",
-                  "guides/plugin-migration/advanced-migration-guide",
-                  "guides/plugin-migration/testing-guide",
-                  "guides/plugin-migration/completion-requirements"
-                ]
-              }
+              "projects/overview"
+            ]
+          },
+          {
+            "group": "AGENTS",
+            "pages": [
+              "agents/character-interface",
+              "agents/personality-and-behavior",
+              "agents/memory-and-state",
+              "agents/runtime-and-lifecycle"
+            ]
+          },
+          {
+            "group": "PLUGINS",
+            "pages": [
+              "plugins/architecture",
+              "plugins/components",
+              "plugins/development",
+              "plugins/patterns",
+              "plugins/schemas",
+              "plugins/migration",
+              "plugins/reference"
+            ]
+          },
+          {
+            "group": "RUNTIME",
+            "pages": [
+              "runtime/core",
+              "runtime/memory",
+              "runtime/events",
+              "runtime/providers",
+              "runtime/models",
+              "runtime/services",
+              "runtime/messaging",
+              "runtime/sessions"
             ]
           }
         ]
@@ -86,7 +96,7 @@
         "pages": ["api-reference/index"],
         "groups": [
           {
-            "group": "Agents",
+            "group": "AGENTS",
             "pages": [
               "api-reference/agents/create-a-new-agent",
               "api-reference/agents/get-agent-details",
@@ -102,7 +112,7 @@
             ]
           },
           {
-            "group": "Audio",
+            "group": "AUDIO",
             "pages": [
               "api-reference/audio/generate-speech-from-text",
               "api-reference/audio/synthesize-speech-from-text",
@@ -242,11 +252,11 @@
         ]
       },
       {
-        "tab": "Plugins",
+        "tab": "Plugin Registry",
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["plugins/overview", "plugins/registry"]
+            "pages": ["plugin-registry/overview", "plugin-registry/registry"]
           },
           {
             "group": "Core Plugins",
@@ -254,32 +264,32 @@
               {
                 "group": "Bootstrap",
                 "pages": [
-                  "plugins/bootstrap",
-                  "plugins/bootstrap/complete-documentation",
-                  "plugins/bootstrap/message-flow",
-                  "plugins/bootstrap/examples",
-                  "plugins/bootstrap/testing-guide"
+                  "plugin-registry/bootstrap",
+                  "plugin-registry/bootstrap/complete-documentation",
+                  "plugin-registry/bootstrap/message-flow",
+                  "plugin-registry/bootstrap/examples",
+                  "plugin-registry/bootstrap/testing-guide"
                 ]
               },
               {
                 "group": "SQL",
                 "pages": [
-                  "plugins/sql",
-                  "plugins/sql/database-adapters",
-                  "plugins/sql/schema-management",
-                  "plugins/sql/plugin-tables",
-                  "plugins/sql/examples"
+                  "plugin-registry/sql",
+                  "plugin-registry/sql/database-adapters",
+                  "plugin-registry/sql/schema-management",
+                  "plugin-registry/sql/plugin-tables",
+                  "plugin-registry/sql/examples"
                 ]
               },
               {
                 "group": "Knowledge",
                 "pages": [
-                  "plugins/knowledge",
-                  "plugins/knowledge/quick-start",
-                  "plugins/knowledge/complete-documentation",
-                  "plugins/knowledge/architecture-flow",
-                  "plugins/knowledge/contextual-embeddings",
-                  "plugins/knowledge/examples"
+                  "plugin-registry/knowledge",
+                  "plugin-registry/knowledge/quick-start",
+                  "plugin-registry/knowledge/complete-documentation",
+                  "plugin-registry/knowledge/architecture-flow",
+                  "plugin-registry/knowledge/contextual-embeddings",
+                  "plugin-registry/knowledge/examples"
                 ]
               }
             ]
@@ -287,12 +297,12 @@
           {
             "group": "LLM Providers",
             "pages": [
-              "plugins/llm",
-              "plugins/llm/openai",
-              "plugins/llm/anthropic",
-              "plugins/llm/google-genai",
-              "plugins/llm/ollama",
-              "plugins/llm/openrouter"
+              "plugin-registry/llm",
+              "plugin-registry/llm/openai",
+              "plugin-registry/llm/anthropic",
+              "plugin-registry/llm/google-genai",
+              "plugin-registry/llm/ollama",
+              "plugin-registry/llm/openrouter"
             ]
           },
           {
@@ -301,41 +311,41 @@
               {
                 "group": "Discord",
                 "pages": [
-                  "plugins/platform/discord",
-                  "plugins/platform/discord/complete-documentation",
-                  "plugins/platform/discord/event-flow",
-                  "plugins/platform/discord/examples",
-                  "plugins/platform/discord/testing-guide"
+                  "plugin-registry/platform/discord",
+                  "plugin-registry/platform/discord/complete-documentation",
+                  "plugin-registry/platform/discord/event-flow",
+                  "plugin-registry/platform/discord/examples",
+                  "plugin-registry/platform/discord/testing-guide"
                 ]
               },
               {
                 "group": "Telegram",
                 "pages": [
-                  "plugins/platform/telegram",
-                  "plugins/platform/telegram/complete-documentation",
-                  "plugins/platform/telegram/message-flow",
-                  "plugins/platform/telegram/examples",
-                  "plugins/platform/telegram/testing-guide"
+                  "plugin-registry/platform/telegram",
+                  "plugin-registry/platform/telegram/complete-documentation",
+                  "plugin-registry/platform/telegram/message-flow",
+                  "plugin-registry/platform/telegram/examples",
+                  "plugin-registry/platform/telegram/testing-guide"
                 ]
               },
               {
                 "group": "Twitter",
                 "pages": [
-                  "plugins/platform/twitter",
-                  "plugins/platform/twitter/complete-documentation",
-                  "plugins/platform/twitter/timeline-flow",
-                  "plugins/platform/twitter/examples",
-                  "plugins/platform/twitter/testing-guide"
+                  "plugin-registry/platform/twitter",
+                  "plugin-registry/platform/twitter/complete-documentation",
+                  "plugin-registry/platform/twitter/timeline-flow",
+                  "plugin-registry/platform/twitter/examples",
+                  "plugin-registry/platform/twitter/testing-guide"
                 ]
               },
               {
                 "group": "Farcaster",
                 "pages": [
-                  "plugins/platform/farcaster",
-                  "plugins/platform/farcaster/developer-guide",
-                  "plugins/platform/farcaster/cast-flow",
-                  "plugins/platform/farcaster/examples",
-                  "plugins/platform/farcaster/testing-guide"
+                  "plugin-registry/platform/farcaster",
+                  "plugin-registry/platform/farcaster/developer-guide",
+                  "plugin-registry/platform/farcaster/cast-flow",
+                  "plugin-registry/platform/farcaster/examples",
+                  "plugin-registry/platform/farcaster/testing-guide"
                 ]
               }
             ]
@@ -346,21 +356,21 @@
               {
                 "group": "EVM",
                 "pages": [
-                  "plugins/defi/evm",
-                  "plugins/defi/evm/complete-documentation",
-                  "plugins/defi/evm/defi-operations-flow",
-                  "plugins/defi/evm/examples",
-                  "plugins/defi/evm/testing-guide"
+                  "plugin-registry/defi/evm",
+                  "plugin-registry/defi/evm/complete-documentation",
+                  "plugin-registry/defi/evm/defi-operations-flow",
+                  "plugin-registry/defi/evm/examples",
+                  "plugin-registry/defi/evm/testing-guide"
                 ]
               },
               {
                 "group": "Solana",
                 "pages": [
-                  "plugins/defi/solana",
-                  "plugins/defi/solana/complete-documentation",
-                  "plugins/defi/solana/defi-operations-flow",
-                  "plugins/defi/solana/examples",
-                  "plugins/defi/solana/testing-guide"
+                  "plugin-registry/defi/solana",
+                  "plugin-registry/defi/solana/complete-documentation",
+                  "plugin-registry/defi/solana/defi-operations-flow",
+                  "plugin-registry/defi/solana/examples",
+                  "plugin-registry/defi/solana/testing-guide"
                 ]
               }
             ]
@@ -408,7 +418,6 @@
       {
         "title": "Ask Perplexity",
         "description": "Ask Perplexity about the current page",
-        "icon": "search",
         "href": {
           "base": "https://www.perplexity.ai/search",
           "query": [

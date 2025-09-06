@@ -24,7 +24,7 @@ icon: flask
     | ------ | ----------- |
     | `-t, --type <type>` | Type of test to run (choices: "component", "e2e", "all", default: "all") |
     | `--port <port>` | Server port for e2e tests |
-    | `--name <n>` | Filter tests by name (matches file names or test suite names) |
+    | `--name <n>` | Filter tests by name (matches file names or test suite names). **Case sensitive.** |
     | `--skip-build` | Skip building before running tests |
     | `--skip-type-check` | Skip TypeScript type checking for faster test runs |
   </Tab>
@@ -57,10 +57,10 @@ icon: flask
     # Filter component tests by name
     elizaos test --type component --name auth
 
-    # Filter e2e tests by name
+    # Filter e2e tests by name  
     elizaos test --type e2e --name database
 
-    # Filter all tests by name
+    # Filter all tests by name (case sensitive)
     elizaos test --name plugin
     ```
 
@@ -318,11 +318,14 @@ icon: flask
     ### Running Specific Tests
 
     ```bash
-    # Run a single test file
+    # Run a single test file (case sensitive)
     elizaos test component --name specific-test
 
-    # Run tests matching a pattern
+    # Run tests matching a pattern (case sensitive)
     elizaos test --name "auth|user"
+
+    # Important: Test name matching is case sensitive
+    # Use exact casing from your test file names
     ```
 
     ### Debugging in VS Code
