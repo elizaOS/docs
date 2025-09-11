@@ -123,7 +123,7 @@
             ]
           },
           {
-            "group": "Messaging",
+            "group": "MESSAGING",
             "pages": [
               "api-reference/messaging/create-server",
               "api-reference/messaging/create-channel",
@@ -140,22 +140,6 @@
               "api-reference/messaging/delete-channel-message",
               "api-reference/messaging/delete-all-channel-messages",
               "api-reference/messaging/delete-all-channel-messages-by-user",
-              {
-                "group": "Sessions API",
-                "pages": [
-                  "api-reference/messaging/sessions-api-reference",
-                  "api-reference/messaging/create-session",
-                  "api-reference/messaging/get-session",
-                  "api-reference/messaging/send-session-message",
-                  "api-reference/messaging/get-session-messages",
-                  "api-reference/messaging/renew-session",
-                  "api-reference/messaging/update-session-timeout",
-                  "api-reference/messaging/session-heartbeat",
-                  "api-reference/messaging/end-session",
-                  "api-reference/messaging/list-sessions",
-                  "api-reference/messaging/sessions-health-check"
-                ]
-              },
               "api-reference/messaging/add-agent-to-server",
               "api-reference/messaging/add-agent-to-channel",
               "api-reference/messaging/remove-agent-from-server",
@@ -170,7 +154,23 @@
             ]
           },
           {
-            "group": "Memory",
+            "group": "SESSIONS API",
+            "pages": [
+              "api-reference/messaging/sessions-api-reference",
+              "api-reference/messaging/create-session",
+              "api-reference/messaging/get-session",
+              "api-reference/messaging/send-session-message",
+              "api-reference/messaging/get-session-messages",
+              "api-reference/messaging/renew-session",
+              "api-reference/messaging/update-session-timeout",
+              "api-reference/messaging/session-heartbeat",
+              "api-reference/messaging/end-session",
+              "api-reference/messaging/list-sessions",
+              "api-reference/messaging/sessions-health-check"
+            ]
+          },
+          {
+            "group": "MEMORY",
             "pages": [
               "api-reference/memory/get-agent-memories",
               "api-reference/memory/get-room-memories",
@@ -181,7 +181,7 @@
             ]
           },
           {
-            "group": "Rooms",
+            "group": "ROOMS",
             "pages": [
               "api-reference/rooms/create-a-room",
               "api-reference/rooms/get-room-details",
@@ -191,14 +191,14 @@
             ]
           },
           {
-            "group": "Media",
+            "group": "MEDIA",
             "pages": [
               "api-reference/media/upload-media-for-agent",
               "api-reference/media/upload-media-to-channel"
             ]
           },
           {
-            "group": "Logs",
+            "group": "LOGS",
             "pages": [
               "api-reference/logs/get-agent-logs",
               "api-reference/logs/get-system-logs",
@@ -208,7 +208,7 @@
             ]
           },
           {
-            "group": "System",
+            "group": "SYSTEM",
             "pages": [
               "api-reference/system/basic-health-check",
               "api-reference/system/health-check-endpoint",
@@ -222,7 +222,7 @@
             ]
           },
           {
-            "group": "WebSocket",
+            "group": "WEBSOCKET",
             "pages": ["api-reference/websocket/socketio-real-time-connection"]
           }
         ]
