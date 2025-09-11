@@ -21,7 +21,7 @@
         {
           "anchor": "Docs for LLMs",
           "icon": "robot",
-          "href": "https://eliza.how/llms-full.txt"
+          "href": "https://docs.elizaos.ai/llms-full.txt"
         }
       ]
     },
@@ -415,19 +415,7 @@
       "view",
       "chatgpt",
       "claude",
-      {
-        "title": "Ask Perplexity",
-        "description": "Ask Perplexity about the current page",
-        "href": {
-          "base": "https://www.perplexity.ai/search",
-          "query": [
-            {
-              "key": "q",
-              "value": "Ask question about https://eliza.how$path.md"
-            }
-          ]
-        }
-      }
+      "perplexity"
     ]
   }
 }
