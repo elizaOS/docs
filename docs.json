@@ -87,7 +87,7 @@
               "runtime/models",
               "runtime/services",
               "runtime/messaging",
-              "runtime/sessions"
+              "runtime/sessions-api"
             ]
           }
         ]
@@ -156,7 +156,6 @@
           {
             "group": "SESSIONS API",
             "pages": [
-              "api-reference/messaging/sessions-api-reference",
               "api-reference/messaging/create-session",
               "api-reference/messaging/get-session",
               "api-reference/messaging/send-session-message",
