@@ -222,7 +222,7 @@ Now we know exactly what to build and how to call it, so let's start developing 
           }); // [!code ++]
           
           const videoUrl = result.data.video.url; // [!code ++]
-          if (callback) await callback({ text: `✅ Video ready! ${videoUrl}` }); // [!code ++]
+          if (callback) await callback({ text: `Video ready! ${videoUrl}` }); // [!code ++]
           return { success: true, text: 'Video generated', data: { videoUrl, prompt } }; // [!code ++]
         } catch (error) { // [!code ++]
           return { success: false, text: `Failed: ${error.message}` }; // [!code ++]

@@ -54,7 +54,7 @@ await sendMessage(channel.id, { content: 'Hello' });
 // Sessions approach (simple)
 const { sessionId } = await createSession({ agentId, userId });
 await sendSessionMessage(sessionId, { content: 'Hello' });
-```
+```typescripttypescript
 
 #### State Management
 
@@ -86,7 +86,7 @@ interface Session {
   // Application State
   metadata: Record<string, any>;
 }
-```
+```typescript
 
 ## Session Lifecycle
 
@@ -149,7 +149,7 @@ const finalConfig = {
   ...agentConfig,
   ...sessionConfig
 };
-```
+```typescript
 
 ### Environment Variables
 
@@ -276,7 +276,7 @@ async function createSession(request: CreateSessionRequest) {
   
   return session;
 }
-```
+```typescript
 
 ## Session Operations
 
@@ -302,7 +302,7 @@ const messageResponse = await fetch(
 const response = await messageResponse.json();
 console.log(response.content); // Agent's response
 console.log(response.metadata.thought); // Agent's internal reasoning
-```
+```javascript
 
 ### Retrieve Message History
 
@@ -330,7 +330,7 @@ if (cursors?.after) {
     `/api/messaging/sessions/${sessionId}/messages?after=${cursors.after}&limit=20`
   );
 }
-```
+```javascript
 
 ### Manual Session Renewal
 
@@ -352,7 +352,7 @@ const {
 console.log(`Session renewed ${renewalCount} times`);
 console.log(`New expiration: ${expiresAt}`);
 console.log(`Time remaining: ${Math.floor(timeRemaining / 60000)} minutes`);
-```
+```javascript
 
 ### Update Timeout Configuration
 
@@ -372,7 +372,7 @@ const updateResponse = await fetch(
 );
 
 const updatedSession = await updateResponse.json();
-```
+```javascript
 
 ## Active Session Management
 
@@ -421,7 +421,7 @@ async function handleMessage(sessionId: string, message: SendMessageRequest) {
     sessionStatus: session.getStatus()
   };
 }
-```
+```typescripttypescript
 
 ## Renewal Mechanism
 
@@ -458,7 +458,7 @@ class SessionRenewalEngine {
     return true;
   }
 }
-```
+```typescript
 
 ### Heartbeat Strategy
 
@@ -510,7 +510,7 @@ class SessionManager {
     return response.json();
   }
 }
-```
+```javascript
 
 ## Session Store
 
@@ -560,7 +560,7 @@ class SessionStore {
     }
   }
 }
-```
+```typescript
 
 ## Cleanup Service
 
@@ -623,7 +623,7 @@ class SessionCleanupService {
     }
   }
 }
-```
+```typescript
 
 ## Integration Examples
 
@@ -768,7 +768,7 @@ function useElizaSession(agentId, userId) {
     renewSession
   };
 }
-```
+```typescript
 
 ### WebSocket Integration
 
@@ -1178,7 +1178,7 @@ const response = await fetch('/api/messaging/sessions', {
     // Debug mode may include additional session state info
   })
 });
-```
+```typescript
 
 Check session cleanup logs:
 ```bash
@@ -1251,7 +1251,7 @@ interface SessionMetrics {
   expirationErrors: Counter;
   renewalFailures: Counter;
 }
-```
+```typescript
 
 ## Security Considerations
 
@@ -1315,7 +1315,7 @@ const sessionRateLimits = {
     keyGenerator: (req) => `${req.params.sessionId}:${req.ip}`
   }
 };
-```
+```typescript
 
 ## Best Practices
 
@@ -1345,7 +1345,7 @@ SESSION_TIMEOUT_MINUTES=60
 SESSION_AUTO_RENEW=true
 SESSION_MAX_DURATION_MINUTES=240
 SESSION_WARNING_THRESHOLD_MINUTES=10
-```
+```bash
 
 Or configure programmatically in the agent:
 
@@ -1360,7 +1360,7 @@ const agentConfig = {
     SESSION_WARNING_THRESHOLD_MINUTES: '5'
   }
 };
-```
+```javascript
 
 ## Complete API Reference
 
@@ -1368,7 +1368,7 @@ The Sessions API provides a comprehensive set of endpoints for managing stateful
 
 ### Base URL
 
-```
+```url
 http://localhost:3000/api/messaging/sessions
 ```
 
@@ -1402,7 +1402,7 @@ interface CreateSessionRequest {
     warningThresholdMinutes?: number;  // When to warn about expiration
   };
 }
-```
+```typescript
 
 **Response (201 Created):**
 
@@ -1503,7 +1503,7 @@ interface MessageResponse {
     isNearExpiration: boolean;
   };
 }
-```
+```typescript
 
 **Errors:**
 - `400 Bad Request` - Invalid content or metadata
@@ -1554,7 +1554,7 @@ interface SimplifiedMessage {
     [key: string]: any;
   };
 }
-```
+```typescript
 
 ---
 
@@ -1607,7 +1607,7 @@ interface SessionTimeoutConfig {
   maxDurationMinutes?: number;
   warningThresholdMinutes?: number;
 }
-```
+```typescript
 
 **Response (200 OK):**
 
@@ -1653,7 +1653,7 @@ Explicitly ends and removes a session.
   success: true,
   message: "Session {sessionId} deleted successfully"
 }
-```
+```json
 
 **Errors:**
 - `404 Not Found` - Session not found
@@ -1680,7 +1680,7 @@ interface ListSessionsResponse {
     expiredSessions: number;
   };
 }
-```
+```typescripttypescript
 
 ---
 
@@ -1703,7 +1703,7 @@ interface HealthCheckResponse {
   invalidSessions?: number;    // Corrupted sessions detected
   uptime?: number;            // Service uptime in seconds
 }
-```
+```typescript
 
 ### Error Responses
 
@@ -1716,7 +1716,7 @@ interface ErrorResponse {
     [key: string]: any;
   };
 }
-```
+```typescript
 
 #### Common Error Codes
 
@@ -1776,7 +1776,7 @@ socket.on('sessionExpired', (data) => {
 socket.on('sessionRenewed', (data) => {
   // data.sessionId, data.expiresAt, data.renewalCount
 });
-```
+```typescript
 
 ### Environment Variables
 
@@ -1948,7 +1948,7 @@ class SessionsAPIClient:
         )
         response.raise_for_status()
         return response.json()
-```
+```python
 
 ## Next Steps
 

@@ -214,28 +214,28 @@ export const deployContractAction: Action = {
     try {
       // Step 1: Compile
       await callback?.({
-        text: '📝 Compiling contract...',
+        text: 'Compiling contract...',
         actions: ['DEPLOY_CONTRACT']
       });
       const compiled = await compileContract(state.contractCode);
 
       // Step 2: Estimate gas
       await callback?.({
-        text: '⛽ Estimating gas costs...',
+        text: 'Estimating gas costs...',
         actions: ['DEPLOY_CONTRACT']
       });
       const gasEstimate = await estimateGas(compiled);
 
       // Step 3: Deploy
       await callback?.({
-        text: `🚀 Deploying with gas: ${gasEstimate}...`,
+        text: `Deploying with gas: ${gasEstimate}...`,
         actions: ['DEPLOY_CONTRACT']
       });
       const deployed = await deploy(compiled, gasEstimate);
 
       // Step 4: Verify
       await callback?.({
-        text: '✅ Verifying deployment...',
+        text: 'Verifying deployment...',
         actions: ['DEPLOY_CONTRACT']
       });
       await verifyContract(deployed.address);
