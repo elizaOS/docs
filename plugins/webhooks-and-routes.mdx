@@ -459,8 +459,7 @@ ElizaOS provides two types of tests for validating webhook functionality: compon
 
 Component tests verify route handler logic in isolation:
 
-```typescript
-// src/__tests__/webhook-routes.test.ts
+```typescript src/__tests__/webhook-routes.test.ts
 import { describe, it, expect, beforeEach } from 'bun:test';
 import { webhookPlugin } from '../index';
 
@@ -553,8 +552,7 @@ describe('Webhook Plugin Routes', () => {
 
 E2E tests validate the complete webhook flow with a live agent runtime:
 
-```typescript
-// src/__tests__/webhook-e2e.test.ts  
+```typescript src/__tests__/webhook-e2e.test.ts
 import { TestSuite } from '@elizaos/core';
 
 export const webhookE2ETests: TestSuite = {
@@ -656,8 +654,7 @@ export default webhookE2ETests;
 
 Include tests in your plugin definition:
 
-```typescript
-// src/index.ts
+```typescript src/index.ts
 import { webhookE2ETests } from './__tests__/webhook-e2e.test';
 
 export const webhookPlugin: Plugin = {
@@ -686,33 +683,6 @@ elizaos test
 elizaos test --name "Webhook Integration"
 ```
 
-## Troubleshooting
-
-### Common Issues
-
-1. **Route not found**: Ensure your plugin is loaded and the path is correct
-2. **Authentication errors**: Check API keys and headers
-3. **Message not appearing**: Verify channel ID and agent permissions
-4. **Timeout errors**: Increase timeout or process asynchronously
-5. **CORS issues**: Configure CORS headers in your route handler
-
-### Debug Logging
-
-Enable debug logging in your route handlers:
-
-```typescript
-handler: async (req, res, runtime) => {
-  console.log('[Webhook] Received:', {
-    method: req.method,
-    path: req.path,
-    headers: req.headers,
-    body: req.body
-  });
-  
-  // ... handler logic ...
-}
-```
-
 ## See Also
 
 <CardGroup cols={2}>
@@ -724,11 +694,11 @@ handler: async (req, res, runtime) => {
     Creating plugins
   </Card>
   
-  <Card title="API Reference: Messaging" icon="message-square" href="/api-reference/messaging">
-    Messaging API endpoints
+  <Card title="Sessions API" icon="messages" href="/runtime/sessions-api">
+    Build persistent conversations on messaging
   </Card>
   
-  <Card title="Runtime Messaging" icon="zap" href="/runtime/messaging">
+  <Card title="Runtime Messaging" icon="wifi" href="/runtime/messaging">
     Real-time messaging infrastructure
   </Card>
 </CardGroup>
