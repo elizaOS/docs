@@ -53,7 +53,8 @@
           {
             "group": "PROJECTS",
             "pages": [
-              "projects/overview"
+              "projects/overview",
+              "projects/environment-variables"
             ]
           },
           {
