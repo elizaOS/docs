@@ -73,6 +73,7 @@
               "plugins/components",
               "plugins/development",
               "plugins/patterns",
+              "plugins/webhooks-and-routes",
               "plugins/schemas",
               "plugins/migration",
               "plugins/reference"
