@@ -1,6 +1,6 @@
 ---
-title: "Migration"
-description: "Complete guide for migrating elizaOS plugins from version 0.x to 1.x"
+title: 'Migration'
+description: 'Complete guide for migrating elizaOS plugins from version 0.x to 1.x'
 ---
 
 > **Important**: This comprehensive guide will walk you through migrating your elizaOS plugins from version 0.x to 1.x. The migration process involves several key changes to architecture, APIs, and best practices.
@@ -8,6 +8,7 @@ description: "Complete guide for migrating elizaOS plugins from version 0.x to 1
 ## Migration Overview
 
 The 1.x architecture brings:
+
 - **Better modularity** - Cleaner separation of concerns
 - **Improved testing** - Easier to test individual components
 - **Enhanced flexibility** - More customization options
@@ -17,6 +18,7 @@ The 1.x architecture brings:
 ## Pre-Migration Checklist
 
 Before starting your migration:
+
 - [ ] Backup your existing plugin code
 - [ ] Review all breaking changes
 - [ ] Identify custom components that need migration
@@ -38,6 +40,7 @@ git checkout -b 1.x
 Clean up deprecated tooling and configuration files:
 
 ### Files to Remove:
+
 - **`biome.json`** - Deprecated linter configuration
 - **`vitest.config.ts`** - Replaced by Bun test runner
 - **Lock files** - Any `lock.json` or `yml.lock` files
@@ -51,6 +54,7 @@ rm -f *.lock.json *.yml.lock
 ```
 
 > **Why?** The elizaOS ecosystem has standardized on:
+>
 > - **Bun's built-in test runner** (replacing Vitest)
 > - **Prettier** for code formatting (replacing Biome)
 
@@ -61,7 +65,7 @@ rm -f *.lock.json *.yml.lock
 ```json
 {
   "version": "1.0.0",
-  "name": "@elizaos/plugin-yourname"  // Note: @elizaos, not @elizaos-plugins
+  "name": "@elizaos/plugin-yourname" // Note: @elizaos, not @elizaos-plugins
 }
 ```
 
@@ -75,8 +79,8 @@ rm -f *.lock.json *.yml.lock
   "devDependencies": {
     "tsup": "8.3.5",
     "prettier": "^3.0.0",
-    "bun": "^1.2.15",          // REQUIRED
-    "@types/bun": "latest",     // REQUIRED
+    "bun": "^1.2.15", // REQUIRED
+    "@types/bun": "latest", // REQUIRED
     "typescript": "^5.0.0"
   }
 }
@@ -140,24 +144,28 @@ Actions in 1.x must return `ActionResult` and include callbacks:
 // OLD (0.x)
 const myAction = {
   handler: async (runtime, message, state) => {
-    return { text: "Response" };
-  }
+    return { text: 'Response' };
+  },
 };
 
 // NEW (1.x)
 const myAction = {
   handler: async (runtime, message, state, options, callback) => {
     // Use callback for intermediate responses
-    await callback?.({ text: "Processing..." });
-    
+    await callback?.({ text: 'Processing...' });
+
     // Must return ActionResult
     return {
-      success: true,  // REQUIRED field
-      text: "Response completed",
-      values: { /* state updates */ },
-      data: { /* raw data */ }
+      success: true, // REQUIRED field
+      text: 'Response completed',
+      values: {
+        /* state updates */
+      },
+      data: {
+        /* raw data */
+      },
     };
-  }
+  },
 };
 ```
 
@@ -171,32 +179,32 @@ handler: async (runtime, message, state, options, callback) => {
     return {
       success: true,
       text: `Action completed: ${result}`,
-      data: result
+      data: result,
     };
   } catch (error) {
     return {
       success: false,
-      text: "Action failed",
-      error: error instanceof Error ? error : new Error(String(error))
+      text: 'Action failed',
+      error: error instanceof Error ? error : new Error(String(error)),
     };
   }
-}
+};
 
 // Using previous results (action chaining)
 handler: async (runtime, message, state, options, callback) => {
   const context = options?.context;
   const previousResult = context?.getPreviousResult?.('PREVIOUS_ACTION');
-  
+
   if (previousResult?.data) {
     // Use data from previous action
     const continuedResult = await continueWork(previousResult.data);
     return {
       success: true,
-      text: "Continued from previous action",
-      data: continuedResult
+      text: 'Continued from previous action',
+      data: continuedResult,
     };
   }
-}
+};
 ```
 
 ## Step 7: State Management
@@ -226,6 +234,7 @@ const updatedState = await runtime.composeState(
 ### Available State Keys
 
 Core state keys you can filter:
+
 - Agent info: `agentId`, `agentName`, `bio`, `lore`, `adjective`
 - Conversation: `recentMessages`, `recentMessagesData`
 - Providers: Any registered provider name (e.g., `TIME`, `FACTS`)
@@ -243,15 +252,15 @@ const provider: Provider = {
   name: 'MY_DATA',
   description: 'Provides custom data',
   dynamic: true, // Re-fetch on each use
-  
+
   get: async (runtime, message, state) => {
     const data = await runtime.databaseAdapter.getData();
     return {
       text: formatDataForPrompt(data),
       values: data,
-      data: { raw: data }
+      data: { raw: data },
     };
-  }
+  },
 };
 ```
 
@@ -261,9 +270,9 @@ const provider: Provider = {
 interface Provider {
   name: string;
   description?: string;
-  dynamic?: boolean;     // Default: false
-  position?: number;     // Execution order (-100 to 100)
-  private?: boolean;     // Hidden from provider list
+  dynamic?: boolean; // Default: false
+  position?: number; // Execution order (-100 to 100)
+  private?: boolean; // Hidden from provider list
   get: (runtime, message, state) => Promise<ProviderResult>;
 }
 ```
@@ -277,14 +286,14 @@ interface Provider {
 import { describe, it, expect, vi } from 'vitest';
 
 const mockRuntime = {
-  getSetting: vi.fn(() => 'test-value')
+  getSetting: vi.fn(() => 'test-value'),
 };
 
 // NEW (Bun)
 import { describe, it, expect, mock } from 'bun:test';
 
 const mockRuntime = {
-  getSetting: mock(() => 'test-value')
+  getSetting: mock(() => 'test-value'),
 };
 ```
 
@@ -296,26 +305,26 @@ import { myAction } from '../src/actions/myAction';
 
 describe('MyAction', () => {
   let mockRuntime: any;
-  
+
   beforeEach(() => {
     mockRuntime = {
       agentId: 'test-agent',
       getSetting: mock((key: string) => 'test-value'),
       useModel: mock(async () => ({ content: 'response' })),
-      composeState: mock(async () => ({ values: {}, text: '' }))
+      composeState: mock(async () => ({ values: {}, text: '' })),
     };
   });
-  
+
   it('should validate correctly', async () => {
     const message = { content: { text: 'test' } };
     const isValid = await myAction.validate(mockRuntime, message);
     expect(isValid).toBe(true);
   });
-  
+
   it('should return ActionResult', async () => {
     const message = { content: { text: 'test' } };
     const result = await myAction.handler(mockRuntime, message);
-    
+
     expect(result).toHaveProperty('success');
     expect(result.success).toBe(true);
   });
@@ -349,13 +358,13 @@ const prompt = composePromptFromState({
   state,
   template: myTemplate,
   additionalContext: {
-    customField: 'value'
-  }
+    customField: 'value',
+  },
 });
 
 const response = await runtime.useModel(ModelType.TEXT_LARGE, {
   prompt,
-  runtime
+  runtime,
 });
 ```
 
@@ -368,13 +377,13 @@ const response = await runtime.useModel(ModelType.TEXT_LARGE, {
 export class MyService extends Service {
   static serviceType = 'my-service';
   capabilityDescription = 'My service capabilities';
-  
+
   static async start(runtime: IAgentRuntime): Promise<MyService> {
     const service = new MyService(runtime);
     await service.initialize();
     return service;
   }
-  
+
   async stop(): Promise<void> {
     // Cleanup
   }
@@ -391,14 +400,14 @@ export const myPlugin: Plugin = {
     MESSAGE_RECEIVED: [
       async (params) => {
         // Handle message received event
-      }
+      },
     ],
     RUN_COMPLETED: [
       async (params) => {
         // Handle run completed event
-      }
-    ]
-  }
+      },
+    ],
+  },
 };
 ```
 
@@ -431,6 +440,7 @@ Create a `LICENSE` file with MIT license text.
 ### Verify package.json Fields
 
 Ensure all required fields are present:
+
 - [ ] `name`, `version`, `description`
 - [ ] `main`, `types`, `module`
 - [ ] `author`, `license`, `repository`
@@ -446,10 +456,10 @@ Ensure all required fields are present:
 
 ```typescript
 return {
-  success: true,  // REQUIRED
-  text: "Response",
+  success: true, // REQUIRED
+  text: 'Response',
   values: {},
-  data: {}
+  data: {},
 };
 ```
 
@@ -469,7 +479,7 @@ import { describe, it, expect, mock } from 'bun:test';
 const state = await runtime.composeState(
   message,
   ['RECENT_MESSAGES', 'CHARACTER'],
-  true  // onlyInclude
+  true // onlyInclude
 );
 ```
 
@@ -480,9 +490,11 @@ const state = await runtime.composeState(
 ```typescript
 const provider = {
   name: 'MY_PROVIDER',
-  private: false,  // Make sure it's not private
-  dynamic: false,  // Static providers are included by default
-  get: async () => { /* ... */ }
+  private: false, // Make sure it's not private
+  dynamic: false, // Static providers are included by default
+  get: async () => {
+    /* ... */
+  },
 };
 ```
 
@@ -509,7 +521,7 @@ import { myPlugin } from './dist/index.js';
 
 const agent = {
   name: 'TestAgent',
-  plugins: [myPlugin]
+  plugins: [myPlugin],
 };
 
 // Test your plugin functionality
@@ -768,7 +780,7 @@ bun run start
 // 1. Define schema in your plugin
 export const plugin = {
   name: '@your-org/plugin-name',
-  schema: myDrizzleSchema,  // Just export your schema
+  schema: myDrizzleSchema, // Just export your schema
   // ... other plugin config
 };
 
@@ -780,6 +792,7 @@ export const plugin = {
 #### 1. Schema Detection
 
 When the agent starts, the runtime migration system:
+
 - Scans all loaded plugins for `schema` exports
 - Generates snapshots of current database state
 - Compares schemas to detect changes
@@ -847,7 +860,7 @@ export const myDataTable = pgTable('my_data', {
   description: text('description'),
   embedding: vector('embedding', { dimensions: 1536 }),
   createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow()
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 // Export all tables as a schema object
@@ -868,10 +881,10 @@ export const myPlugin: Plugin = {
   name: '@my-org/my-plugin',
   description: 'My plugin with database tables',
   schema: schema,  // Attach schema here
-  
+
   actions: [...],
   providers: [...],
-  
+
   init: async (runtime) => {
     // Schema migrations run automatically before init
     // Your tables are ready to use here!
@@ -929,10 +942,10 @@ export POSTGRES_URL=postgresql://user:pass@host:5432/db
 ```typescript
 // In your database adapter or initialization code
 await databaseAdapter.runPluginMigrations(plugins, {
-  verbose: true,       // Log SQL statements
-  force: true,         // Allow destructive changes
-  dryRun: true,        // Preview without applying
-  allowDataLoss: true  // Alternative to force flag
+  verbose: true, // Log SQL statements
+  force: true, // Allow destructive changes
+  dryRun: true, // Preview without applying
+  allowDataLoss: true, // Alternative to force flag
 });
 ```
 
@@ -944,14 +957,14 @@ await databaseAdapter.runPluginMigrations(plugins, {
 // Before: Table without 'metadata' column
 export const dataTable = pgTable('data', {
   id: uuid('id').primaryKey(),
-  content: text('content')
+  content: text('content'),
 });
 
 // After: Add 'metadata' column
 export const dataTable = pgTable('data', {
   id: uuid('id').primaryKey(),
   content: text('content'),
-  metadata: jsonb('metadata').default('{}')  // Safe addition with default
+  metadata: jsonb('metadata').default('{}'), // Safe addition with default
 });
 
 // Migration runs automatically on restart!
@@ -964,7 +977,7 @@ export const dataTable = pgTable('data', {
 export const dataTable = pgTable('data', {
   id: uuid('id').primaryKey(),
   // OLD: content: text('content')
-  content: jsonb('content')  // Type change: text → jsonb
+  content: jsonb('content'), // Type change: text → jsonb
 });
 
 // Runtime will warn:
@@ -987,9 +1000,7 @@ process.env.ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS = 'true';
 // ... update schema definition ...
 
 // 4. Restore/transform data after migration
-await db.insert(newTable).values(
-  backupData.map(transformData)
-);
+await db.insert(newTable).values(backupData.map(transformData));
 ```
 
 ### Migration Debugging
@@ -1032,13 +1043,13 @@ const migrator = migrationService.getMigrator();
 const check = await migrator.checkMigration('@my-org/my-plugin', schema);
 if (check?.hasDataLoss) {
   console.warn('Destructive changes detected:');
-  check.warnings.forEach(w => console.warn(`  - ${w}`));
+  check.warnings.forEach((w) => console.warn(`  - ${w}`));
 }
 
 // Dry run to see SQL statements
 await migrator.migrate('@my-org/my-plugin', schema, {
   dryRun: true,
-  verbose: true
+  verbose: true,
 });
 // Output:
 // [RuntimeMigrator] DRY RUN mode - not executing statements
@@ -1060,7 +1071,7 @@ If you have existing Drizzle migrations:
 // 2. Add schema export to your plugin
 export const plugin = {
   name: '@your-org/plugin',
-  schema: existingSchema,  // Add this
+  schema: existingSchema, // Add this
   // ... rest of plugin
 };
 
@@ -1078,23 +1089,27 @@ export const plugin = {
 export const userTable = pgTable('users', {
   id: uuid('id').primaryKey(),
   email: text('email'),
-  createdAt: timestamp('created_at'),  // NEW: Added field
+  createdAt: timestamp('created_at'), // NEW: Added field
 });
 
 // Example 2: Rename column (destructive)
 // Requires ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true
 export const userTable = pgTable('users', {
   id: uuid('id').primaryKey(),
-  emailAddress: text('email_address'),  // Renamed from 'email'
+  emailAddress: text('email_address'), // Renamed from 'email'
 });
 
 // Example 3: Add index (non-destructive)
-export const userTable = pgTable('users', {
-  id: uuid('id').primaryKey(),
-  email: text('email'),
-}, (table) => ({
-  emailIdx: index('idx_users_email').on(table.email)  // NEW: Added index
-}));
+export const userTable = pgTable(
+  'users',
+  {
+    id: uuid('id').primaryKey(),
+    email: text('email'),
+  },
+  (table) => ({
+    emailIdx: index('idx_users_email').on(table.email), // NEW: Added index
+  })
+);
 ```
 
 ### Production Best Practices
@@ -1284,7 +1299,7 @@ export const dataTable = pgTable('data', {
 // 3. Batch large data migrations
 // Use raw SQL for bulk operations after schema migration
 await db.execute(sql`
-  UPDATE large_table 
+  UPDATE large_table
   SET new_column = transform_function(old_column)
   WHERE new_column IS NULL
   LIMIT 10000
@@ -1294,6 +1309,7 @@ await db.execute(sql`
 ## Summary
 
 The migration from 0.x to 1.x involves:
+
 1. Updating package structure and dependencies
 2. Migrating action signatures to return `ActionResult`
 3. Implementing callbacks for user feedback
@@ -1310,15 +1326,15 @@ Take your time, test thoroughly, and don't hesitate to ask for help in the commu
   <Card title="Plugin Architecture" icon="sitemap" href="/plugins/architecture">
     Understand the new plugin system architecture
   </Card>
-  
-  <Card title="Development Guide" icon="code" href="/plugins/development">
-    Build new plugins with modern patterns
-  </Card>
-  
-  <Card title="Plugin Components" icon="cube" href="/plugins/components">
-    Learn about Actions, Providers, Evaluators, and Services
-  </Card>
-  
+
+<Card title="Development Guide" icon="code" href="/plugins/development">
+  Build new plugins with modern patterns
+</Card>
+
+<Card title="Plugin Components" icon="cube" href="/plugins/components">
+  Learn about Actions, Providers, Evaluators, and Services
+</Card>
+
   <Card title="Common Patterns" icon="lightbulb" href="/plugins/patterns">
     Master proven plugin development patterns
   </Card>
