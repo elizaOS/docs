@@ -739,6 +739,558 @@ class MyClient extends Service {
 - [ ] Replace `import { settings }` with `runtime.getSetting()` calls
 - [ ] Update functions to accept `runtime` parameter where settings are needed
 
+## Database Migration System (v1.0.0)
+
+The most significant infrastructure change in v1.0.0 is the introduction of **dynamic runtime migrations**. This completely eliminates manual database migration management.
+
+### Overview: From Manual to Automatic
+
+#### Before (v0.x): Manual Migration Workflow
+
+```bash
+# 1. Edit schema files
+# 2. Generate migration SQL
+bunx drizzle-kit generate
+
+# 3. Review generated SQL
+cat drizzle/migrations/0001_*.sql
+
+# 4. Apply migrations
+bunx drizzle-kit push
+
+# 5. Restart application
+bun run start
+```
+
+#### After (v1.0.0): Automatic Runtime Migrations
+
+```typescript
+// 1. Define schema in your plugin
+export const plugin = {
+  name: '@your-org/plugin-name',
+  schema: myDrizzleSchema,  // Just export your schema
+  // ... other plugin config
+};
+
+// 2. Start your agent - migrations run automatically!
+```
+
+### How Runtime Migrations Work
+
+#### 1. Schema Detection
+
+When the agent starts, the runtime migration system:
+- Scans all loaded plugins for `schema` exports
+- Generates snapshots of current database state
+- Compares schemas to detect changes
+- Plans and executes migrations automatically
+
+#### 2. Migration Process
+
+```mermaid
+graph TD
+    A[Agent Starts] --> B[Load Plugins]
+    B --> C[Detect Plugin Schemas]
+    C --> D[Generate Current Snapshot]
+    D --> E{Schema Changed?}
+    E -->|No| F[Skip Migration]
+    E -->|Yes| G[Calculate Diff]
+    G --> H{Destructive Changes?}
+    H -->|Yes| I[Check Safety Settings]
+    H -->|No| J[Execute Migration]
+    I -->|Allowed| J
+    I -->|Blocked| K[Log Error & Stop]
+    J --> L[Update Migration Journal]
+    L --> M[Agent Ready]
+    F --> M
+```
+
+#### 3. Safety Mechanisms
+
+Runtime migrations include multiple safety layers:
+
+```typescript
+// Production safety checks
+if (NODE_ENV === 'production') {
+  // Destructive changes blocked by default
+  // Must explicitly allow with environment variable
+  if (hasDestructiveChanges && !process.env.ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS) {
+    throw new Error('Destructive migration blocked in production');
+  }
+}
+
+// Concurrent migration protection
+// Uses PostgreSQL advisory locks to prevent race conditions
+await db.execute(sql`SELECT pg_try_advisory_lock(${lockId})`);
+
+// Transaction rollback on failure
+try {
+  await db.execute(sql`BEGIN`);
+  // Execute migrations
+  await db.execute(sql`COMMIT`);
+} catch (error) {
+  await db.execute(sql`ROLLBACK`);
+}
+```
+
+### Implementing Plugin Schemas
+
+#### Basic Schema Definition
+
+```typescript
+// myPlugin/schema.ts
+import { pgTable, text, uuid, timestamp, vector } from 'drizzle-orm/pg-core';
+
+export const myDataTable = pgTable('my_data', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  description: text('description'),
+  embedding: vector('embedding', { dimensions: 1536 }),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Export all tables as a schema object
+export const schema = {
+  myDataTable,
+  // ... other tables
+};
+```
+
+#### Plugin Integration
+
+```typescript
+// myPlugin/index.ts
+import { Plugin } from '@elizaos/core';
+import * as schema from './schema';
+
+export const myPlugin: Plugin = {
+  name: '@my-org/my-plugin',
+  description: 'My plugin with database tables',
+  schema: schema,  // Attach schema here
+  
+  actions: [...],
+  providers: [...],
+  
+  init: async (runtime) => {
+    // Schema migrations run automatically before init
+    // Your tables are ready to use here!
+    console.log('Plugin initialized with migrated schema');
+  }
+};
+```
+
+### Schema Namespacing
+
+v1.0.0 introduces automatic schema namespacing to prevent conflicts:
+
+```typescript
+// Plugin name determines schema namespace
+'@elizaos/plugin-sql' → 'public' schema (core tables)
+'@my-org/plugin-foo' → 'my_org_plugin_foo' schema
+'@company/feature' → 'company_feature' schema
+```
+
+#### Custom Schema Names
+
+```typescript
+import { pgSchema } from 'drizzle-orm/pg-core';
+
+// Define custom schema
+const mySchema = pgSchema('my_custom_schema');
+
+// Define tables in custom schema
+export const myTable = mySchema.table('my_table', {
+  id: uuid('id').primaryKey(),
+  // ... columns
+});
+
+// Tables automatically created in 'my_custom_schema.my_table'
+```
+
+### Migration Controls
+
+#### Environment Variables
+
+```bash
+# Allow destructive migrations (drops, renames, type changes)
+export ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true
+
+# Control verbosity
+export NODE_ENV=development  # Verbose logs
+export NODE_ENV=production   # Minimal logs
+
+# PostgreSQL connection (required for production)
+export POSTGRES_URL=postgresql://user:pass@host:5432/db
+```
+
+#### Programmatic Control
+
+```typescript
+// In your database adapter or initialization code
+await databaseAdapter.runPluginMigrations(plugins, {
+  verbose: true,       // Log SQL statements
+  force: true,         // Allow destructive changes
+  dryRun: true,        // Preview without applying
+  allowDataLoss: true  // Alternative to force flag
+});
+```
+
+### Handling Schema Updates
+
+#### Adding New Columns
+
+```typescript
+// Before: Table without 'metadata' column
+export const dataTable = pgTable('data', {
+  id: uuid('id').primaryKey(),
+  content: text('content')
+});
+
+// After: Add 'metadata' column
+export const dataTable = pgTable('data', {
+  id: uuid('id').primaryKey(),
+  content: text('content'),
+  metadata: jsonb('metadata').default('{}')  // Safe addition with default
+});
+
+// Migration runs automatically on restart!
+```
+
+#### Modifying Columns (Destructive)
+
+```typescript
+// Changing column type requires ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true
+export const dataTable = pgTable('data', {
+  id: uuid('id').primaryKey(),
+  // OLD: content: text('content')
+  content: jsonb('content')  // Type change: text → jsonb
+});
+
+// Runtime will warn:
+// [RuntimeMigrator] Destructive operations detected:
+// [RuntimeMigrator]   - Column type change in 'data.content': text → jsonb
+```
+
+#### Complex Migrations
+
+For complex migrations that can't be handled automatically:
+
+```typescript
+// 1. Export data before migration
+const backupData = await db.select().from(oldTable);
+
+// 2. Allow destructive migration
+process.env.ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS = 'true';
+
+// 3. Apply schema changes
+// ... update schema definition ...
+
+// 4. Restore/transform data after migration
+await db.insert(newTable).values(
+  backupData.map(transformData)
+);
+```
+
+### Migration Debugging
+
+#### Check Migration Status
+
+```typescript
+import { DatabaseMigrationService } from '@elizaos/plugin-sql';
+
+// Get migration service instance
+const migrationService = new DatabaseMigrationService();
+const migrator = migrationService.getMigrator();
+
+// Check status for a plugin
+const status = await migrator.getStatus('@my-org/my-plugin');
+console.log(status);
+// Output:
+// {
+//   hasRun: true,
+//   lastMigration: {
+//     hash: 'abc123...',
+//     timestamp: 1234567890,
+//     pluginName: '@my-org/my-plugin'
+//   },
+//   journal: [
+//     { idx: 0, tag: '0000_initial_setup', timestamp: ... },
+//     { idx: 1, tag: '0001_add_metadata', timestamp: ... }
+//   ],
+//   snapshots: 2
+// }
+```
+
+#### Preview Changes (Dry Run)
+
+```typescript
+// Check what would happen without applying changes
+const migrator = migrationService.getMigrator();
+
+// Check for potential data loss
+const check = await migrator.checkMigration('@my-org/my-plugin', schema);
+if (check?.hasDataLoss) {
+  console.warn('Destructive changes detected:');
+  check.warnings.forEach(w => console.warn(`  - ${w}`));
+}
+
+// Dry run to see SQL statements
+await migrator.migrate('@my-org/my-plugin', schema, {
+  dryRun: true,
+  verbose: true
+});
+// Output:
+// [RuntimeMigrator] DRY RUN mode - not executing statements
+// [RuntimeMigrator] Would execute:
+//   1. ALTER TABLE "my_data" ADD COLUMN "metadata" jsonb DEFAULT '{}';
+//   2. CREATE INDEX "idx_my_data_name" ON "my_data" ("name");
+```
+
+### Transitioning Existing Projects
+
+#### From Manual Migrations
+
+If you have existing Drizzle migrations:
+
+```typescript
+// 1. Keep your existing migration files
+// drizzle/migrations/*.sql remain valid
+
+// 2. Add schema export to your plugin
+export const plugin = {
+  name: '@your-org/plugin',
+  schema: existingSchema,  // Add this
+  // ... rest of plugin
+};
+
+// 3. On first run with runtime migrator:
+// - Detects current database state
+// - Creates baseline snapshot
+// - Future changes handled automatically
+```
+
+#### Migration Path Examples
+
+```typescript
+// Example 1: Simple addition (non-destructive)
+// Just add to schema and restart - automatic migration
+export const userTable = pgTable('users', {
+  id: uuid('id').primaryKey(),
+  email: text('email'),
+  createdAt: timestamp('created_at'),  // NEW: Added field
+});
+
+// Example 2: Rename column (destructive)
+// Requires ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true
+export const userTable = pgTable('users', {
+  id: uuid('id').primaryKey(),
+  emailAddress: text('email_address'),  // Renamed from 'email'
+});
+
+// Example 3: Add index (non-destructive)
+export const userTable = pgTable('users', {
+  id: uuid('id').primaryKey(),
+  email: text('email'),
+}, (table) => ({
+  emailIdx: index('idx_users_email').on(table.email)  // NEW: Added index
+}));
+```
+
+### Production Best Practices
+
+#### 1. Test Migrations in Development
+
+```bash
+# Development workflow
+NODE_ENV=development bun run start
+# Review migration logs
+# Test functionality
+# Commit schema changes
+```
+
+#### 2. Stage Destructive Changes
+
+```bash
+# Staging environment
+ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true NODE_ENV=staging bun run start
+# Verify data integrity
+# Run integration tests
+```
+
+#### 3. Production Deployment
+
+```bash
+# For non-destructive changes
+NODE_ENV=production bun run start
+
+# For destructive changes (with caution!)
+# 1. Backup database
+# 2. Set environment variable
+ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true NODE_ENV=production bun run start
+# 3. Monitor closely
+# 4. Remove environment variable after migration
+```
+
+#### 4. Rollback Strategy
+
+```typescript
+// Keep previous schema versions
+// schemas/v1.ts - Previous version
+// schemas/v2.ts - Current version
+
+// If rollback needed:
+// 1. Restore database backup
+// 2. Revert to previous schema file
+// 3. Deploy previous version
+```
+
+### Troubleshooting Migration Issues
+
+#### "Destructive migration blocked"
+
+```bash
+# Issue: Schema change would lose data
+[RuntimeMigrator] Destructive migration blocked
+[RuntimeMigrator] Destructive operations detected:
+[RuntimeMigrator]   - Column "old_field" will be dropped
+
+# Solution for development:
+export ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true
+
+# Solution for production:
+# 1. Export affected data
+# 2. Allow migration with environment variable
+# 3. Restore/transform data after migration
+```
+
+#### "Migration already in progress"
+
+```bash
+# Issue: Another process is migrating
+[RuntimeMigrator] Migration already in progress for @my-org/plugin
+
+# Solution: System automatically waits for lock
+# If stuck, check for:
+# - Crashed processes holding locks
+# - Long-running migrations
+# - Database connection issues
+```
+
+#### "Cannot change embedding dimension"
+
+```bash
+# Issue: Vector dimension change not allowed
+Error: Cannot change embedding dimension for agent
+
+# Solution: Vector dimensions are immutable
+# Create new column with different dimension:
+export const dataTable = pgTable('data', {
+  embeddingOld: vector('embedding_old', { dimensions: 384 }),
+  embeddingNew: vector('embedding_new', { dimensions: 1536 })
+});
+# Migrate data, then drop old column
+```
+
+#### Manual Migration Escape Hatch
+
+For complex scenarios requiring manual control:
+
+```bash
+# 1. Disable auto-migration temporarily
+export DISABLE_AUTO_MIGRATION=true
+
+# 2. Use Drizzle Kit manually
+bunx drizzle-kit generate
+bunx drizzle-kit migrate
+
+# 3. Re-enable auto-migration
+unset DISABLE_AUTO_MIGRATION
+```
+
+### Migration Architecture Deep Dive
+
+#### Components
+
+1. **RuntimeMigrator**: Core migration orchestrator
+2. **MigrationTracker**: Tracks applied migrations
+3. **SnapshotStorage**: Stores schema snapshots
+4. **JournalStorage**: Migration history journal
+5. **SchemaTransformer**: Handles schema namespacing
+6. **ExtensionManager**: PostgreSQL extension management
+
+#### Migration Tables
+
+The system creates these tables in the `migrations` schema:
+
+```sql
+-- Migration tracking
+CREATE TABLE migrations._migrations (
+  id UUID PRIMARY KEY,
+  plugin_name TEXT NOT NULL,
+  hash TEXT NOT NULL,
+  applied_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Migration journal (history)
+CREATE TABLE migrations._journal (
+  id SERIAL PRIMARY KEY,
+  plugin_name TEXT NOT NULL,
+  idx INTEGER NOT NULL,
+  tag TEXT NOT NULL,
+  when TIMESTAMP DEFAULT NOW()
+);
+
+-- Schema snapshots
+CREATE TABLE migrations._snapshots (
+  id UUID PRIMARY KEY,
+  plugin_name TEXT NOT NULL,
+  idx INTEGER NOT NULL,
+  snapshot JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Performance Considerations
+
+#### Migration Performance
+
+- **Snapshot generation**: ~10-50ms per schema
+- **Diff calculation**: ~5-20ms per schema
+- **SQL execution**: Varies by complexity
+- **Advisory locks**: Minimal overhead (~1ms)
+
+#### Optimization Tips
+
+```typescript
+// 1. Group related changes
+// Instead of multiple restarts:
+export const schema = {
+  table1: pgTable(...),  // Change 1
+  table2: pgTable(...),  // Change 2
+  table3: pgTable(...),  // Change 3
+  // Apply all at once
+};
+
+// 2. Use appropriate indexes
+export const dataTable = pgTable('data', {
+  // ... columns
+}, (table) => ({
+  // Add indexes for frequent queries
+  searchIdx: index().on(table.searchField),
+  compositeIdx: index().on(table.field1, table.field2)
+}));
+
+// 3. Batch large data migrations
+// Use raw SQL for bulk operations after schema migration
+await db.execute(sql`
+  UPDATE large_table 
+  SET new_column = transform_function(old_column)
+  WHERE new_column IS NULL
+  LIMIT 10000
+`);
+```
+
 ## Summary
 
 The migration from 0.x to 1.x involves:
