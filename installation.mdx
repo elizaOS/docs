@@ -175,4 +175,41 @@ You should see the version number of the installed CLI.
     - macOS/Linux: Use `sudo bun i -g @elizaos/cli`
     - Windows: Run Git Bash as Administrator
   </Accordion>
+
+  <Accordion icon="gear" title="CLI Version Conflicts/Mismatches">
+    **If `elizaos --version` shows an older version despite installing a newer one:**
+    
+    This usually happens when elizaOS CLI was installed with different package managers (npm, pnpm, bun), creating version conflicts.
+    
+    **Solution - Clean install with bun only:**
+    ```bash Terminal
+    # Remove from all package managers
+    bun remove -g @elizaos/cli
+    npm uninstall -g @elizaos/cli
+    pnpm remove -g @elizaos/cli
+    
+    # Verify removal
+    which elizaos
+    # Should return nothing or "not found"
+    
+    # Fresh install with bun only
+    bun i -g @elizaos/cli
+    
+    # Verify correct version
+    elizaos --version
+    ```
+    
+    **If you get a PATH warning:**
+    ```bash Terminal
+    # Add bun's global bin to your PATH
+    echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
+    # or for zsh
+    echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.zshrc
+    
+    # Reload your shell configuration
+    source ~/.bashrc  # or source ~/.zshrc
+    ```
+    
+    **Important:** Always use bun for elizaOS CLI installation to avoid conflicts. Don't mix package managers.
+  </Accordion>
 </AccordionGroup>
