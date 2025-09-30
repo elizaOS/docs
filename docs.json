@@ -314,7 +314,7 @@
                 "group": "Discord",
                 "pages": [
                   "plugin-registry/platform/discord",
-                  "plugin-registry/platform/discord/complete-documentation",
+                  "plugin-registry/platform/discord/developer-guide",
                   "plugin-registry/platform/discord/event-flow",
                   "plugin-registry/platform/discord/examples",
                   "plugin-registry/platform/discord/testing-guide"
@@ -324,7 +324,7 @@
                 "group": "Telegram",
                 "pages": [
                   "plugin-registry/platform/telegram",
-                  "plugin-registry/platform/telegram/complete-documentation",
+                  "plugin-registry/platform/telegram/developer-guide",
                   "plugin-registry/platform/telegram/message-flow",
                   "plugin-registry/platform/telegram/examples",
                   "plugin-registry/platform/telegram/testing-guide"
@@ -334,7 +334,7 @@
                 "group": "Twitter",
                 "pages": [
                   "plugin-registry/platform/twitter",
-                  "plugin-registry/platform/twitter/complete-documentation",
+                  "plugin-registry/platform/twitter/developer-guide",
                   "plugin-registry/platform/twitter/timeline-flow",
                   "plugin-registry/platform/twitter/examples",
                   "plugin-registry/platform/twitter/testing-guide"
