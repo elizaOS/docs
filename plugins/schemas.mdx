@@ -1,51 +1,81 @@
 ---
-title: "Database Schema"
-description: "Learn how to add custom database schemas to elizaOS plugins for shared data access"
+title: 'Database Schema'
+description: 'Learn how to add custom database schemas to elizaOS plugins with automatic migrations'
 ---
 
 ## Overview
 
-elizaOS uses Drizzle ORM with PostgreSQL and automatically handles migrations from your schema definitions. This guide demonstrates how to add custom tables that can be shared across all agents (no `agentId` field), along with actions to write data and providers to read it.
+elizaOS uses Drizzle ORM with PostgreSQL/PGLite and features a powerful **dynamic migration system** that automatically manages database schema changes at runtime. This guide demonstrates how to add custom tables to your plugins, create repositories for data access, and build actions and providers to interact with your data.
 
-## Database Adapter Interface
+### Key Features
 
-Plugins can provide database adapters for custom storage backends. The IDatabaseAdapter interface is extensive, including methods for:
+- **Automatic Migrations**: Schema changes are detected and applied automatically
+- **PGLite & PostgreSQL Support**: Works with both databases seamlessly
+- **Schema Isolation**: Each plugin gets its own namespace to avoid conflicts
+- **Safety First**: Destructive changes are blocked in production by default
+- **Zero Configuration**: No manual migration files needed
 
-- Agents, Entities, Components
-- Memories (with embeddings)
-- Rooms, Participants
-- Relationships
-- Tasks
-- Caching
-- Logs
+> **Important**: Drizzle ORM version in your plugin must match the monorepo version. Check `packages/core/package.json` for the exact version required.
 
-Example database adapter plugin:
+## Dynamic Migration System
 
-```typescript
-export const plugin: Plugin = {
-  name: '@elizaos/plugin-sql',
-  description: 'A plugin for SQL database access with dynamic schema migrations',
-  priority: 0,
-  schema,
-  init: async (_, runtime: IAgentRuntime) => {
-    const dbAdapter = createDatabaseAdapter(config, runtime.agentId);
-    runtime.registerDatabaseAdapter(dbAdapter);
+Since ElizaOS 1.0, plugins can define schemas that are automatically migrated without any manual intervention. The system:
+
+1. **Detects Changes**: Compares your schema with the database state
+2. **Generates SQL**: Creates migration statements automatically
+3. **Applies Safely**: Runs migrations in transactions with rollback capability
+4. **Tracks History**: Maintains complete audit trail of all schema changes
+
+### Database Compatibility
+
+| Database | Development | Production | Features |
+|------------|-------------|------------|-----------------------------------||
+| **PGLite** | ✅ Recommended | ⚠️ Limited | Fast, in-memory, no setup needed |
+| **PostgreSQL** | ✅ Supported | ✅ Recommended | Full features, vector search, scaling |
+
+### Version Requirements
+
+**Critical**: Your plugin's Drizzle version must match the monorepo version:
+
+```json
+// In your plugin's package.json
+{
+  "dependencies": {
+    "drizzle-orm": "^0.44.2" // Must match packages/core version
   }
-};
+}
+```
+
+```bash
+# Check the monorepo's Drizzle version
+cat packages/core/package.json | grep drizzle-orm
+
+# Update your plugin to match
+bun add drizzle-orm@^0.44.2
 ```
 
 ## Step 1: Define Your Custom Schema
 
+### Schema Namespacing
+
+**Important**: Plugins should use namespaced schemas to avoid conflicts:
+
+- **Core Plugin** (`@elizaos/plugin-sql`): Uses the `public` schema
+- **All Other Plugins**: Must use `plugin_<name>` schema namespace
+
 ### Creating a Shared Table
 
-To create a table that's accessible by all agents, define it without an `agentId` field. Here's an example of a user preferences table:
+To create a table accessible by all agents (no `agentId` field):
 
 ```typescript
-// In your plugin's schema.ts file
+// src/schema.ts
+import { pgSchema, pgTable, uuid, text, timestamp, jsonb, index } from 'drizzle-orm/pg-core';
 
-import { pgTable, uuid, varchar, text, timestamp, jsonb, index } from 'drizzle-orm/pg-core';
+// Create a namespaced schema for your plugin
+const pluginSchema = pgSchema('plugin_myplugin');
 
-export const userPreferencesTable = pgTable(
+// Define tables within your schema namespace
+export const userPreferencesTable = pluginSchema.table(
   'user_preferences',
   {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -54,28 +84,31 @@ export const userPreferencesTable = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('idx_user_preferences_user_id').on(table.userId),
-  ]
+  (table) => [index('idx_user_preferences_user_id').on(table.userId)]
 );
 
-// Export your schema
-export const customSchema = {
+// Export your schema for the plugin
+export const schema = {
   userPreferencesTable,
 };
 ```
 
 **Key Points:**
-- No `agentId` field means data is shared across all agents
-- elizaOS will automatically create migrations from this schema
-- Use appropriate indexes for query performance
+
+- Use `pgSchema('plugin_yourname')` for namespace isolation
+- Tables without `agentId` are shared across all agents
+- Migrations are generated and applied automatically at runtime
+- Indexes are created automatically with the table
 
 ### Creating Agent-Specific Tables
 
 For data that should be scoped to individual agents:
 
 ```typescript
-export const agentDataTable = pgTable(
+// Still use the same schema namespace
+const pluginSchema = pgSchema('plugin_myplugin');
+
+export const agentDataTable = pluginSchema.table(
   'agent_data',
   {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -84,10 +117,28 @@ export const agentDataTable = pgTable(
     value: jsonb('value').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('idx_agent_data_agent_key').on(table.agentId, table.key),
-  ]
+  (table) => [index('idx_agent_data_agent_key').on(table.agentId, table.key)]
 );
+```
+
+### PGLite Compatibility Notes
+
+```typescript
+// Some features may need adjustments for PGLite
+import { pgTable, uuid, text, vector } from 'drizzle-orm/pg-core';
+
+// For PGLite compatibility, avoid:
+// - Complex PostgreSQL-specific functions
+// - Some extension types (check PGLite docs)
+// - Large vector dimensions (keep under 2000)
+
+// Safe for both PGLite and PostgreSQL:
+export const compatibleTable = pluginSchema.table('compatible', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  content: text('content'),
+  // Vector works but check dimension limits
+  embedding: vector('embedding', { dimensions: 1536 }),
+});
 ```
 
 ## Step 2: Create a Repository for Database Access
@@ -121,7 +172,7 @@ export class UserPreferencesRepository {
   async upsert(userId: UUID, preferences: Record<string, any>): Promise<UserPreferences> {
     // Check if preferences exist
     const existing = await this.findByUserId(userId);
-    
+
     if (existing) {
       // Update existing
       const [updated] = await this.db
@@ -132,7 +183,7 @@ export class UserPreferencesRepository {
         })
         .where(eq(userPreferencesTable.userId, userId))
         .returning();
-      
+
       return this.mapToUserPreferences(updated);
     } else {
       // Create new
@@ -145,7 +196,7 @@ export class UserPreferencesRepository {
           updatedAt: new Date(),
         })
         .returning();
-      
+
       return this.mapToUserPreferences(created);
     }
   }
@@ -179,11 +230,7 @@ export class UserPreferencesRepository {
    * Find all preferences (with pagination)
    */
   async findAll(offset = 0, limit = 100): Promise<UserPreferences[]> {
-    const results = await this.db
-      .select()
-      .from(userPreferencesTable)
-      .offset(offset)
-      .limit(limit);
+    const results = await this.db.select().from(userPreferencesTable).offset(offset).limit(limit);
 
     return results.map(this.mapToUserPreferences);
   }
@@ -208,24 +255,42 @@ export class UserPreferencesRepository {
 #### Transactions
 
 ```typescript
+import { pgSchema, uuid, integer, timestamp, sql, eq } from 'drizzle-orm/pg-core';
+import { UUID } from '@elizaos/core';
+
+// Define tables with namespace
+const pluginSchema = pgSchema('plugin_myplugin');
+const userPointsTable = pluginSchema.table('user_points', {
+  userId: uuid('user_id').primaryKey(),
+  points: integer('points').default(0),
+  updatedAt: timestamp('updated_at'),
+});
+const transactionLogTable = pluginSchema.table('transaction_log', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  fromUserId: uuid('from_user_id'),
+  toUserId: uuid('to_user_id'),
+  amount: integer('amount'),
+  createdAt: timestamp('created_at'),
+});
+
 export class TransactionalRepository {
   async transferPoints(fromUserId: UUID, toUserId: UUID, points: number): Promise<void> {
     await this.db.transaction(async (tx) => {
       // Deduct from sender
       await tx
         .update(userPointsTable)
-        .set({ 
+        .set({
           points: sql`${userPointsTable.points} - ${points}`,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userPointsTable.userId, fromUserId));
 
       // Add to receiver
       await tx
         .update(userPointsTable)
-        .set({ 
+        .set({
           points: sql`${userPointsTable.points} + ${points}`,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userPointsTable.userId, toUserId));
 
@@ -234,7 +299,7 @@ export class TransactionalRepository {
         fromUserId,
         toUserId,
         amount: points,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
     });
   }
@@ -244,6 +309,29 @@ export class TransactionalRepository {
 #### Complex Queries
 
 ```typescript
+import {
+  pgSchema,
+  uuid,
+  varchar,
+  timestamp,
+  count,
+  countDistinct,
+  sql,
+  and,
+  eq,
+  gte,
+} from 'drizzle-orm/pg-core';
+import { UUID } from '@elizaos/core';
+
+// Define tables with namespace
+const pluginSchema = pgSchema('plugin_myplugin');
+const userActionsTable = pluginSchema.table('user_actions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull(),
+  actionType: varchar('action_type', { length: 100 }),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 export class AnalyticsRepository {
   async getUserActivityStats(userId: UUID, days = 30): Promise<ActivityStats> {
     const startDate = new Date();
@@ -252,20 +340,13 @@ export class AnalyticsRepository {
     const stats = await this.db
       .select({
         totalActions: count(userActionsTable.id),
-        uniqueDays: countDistinct(
-          sql`DATE(${userActionsTable.createdAt})`
-        ),
+        uniqueDays: countDistinct(sql`DATE(${userActionsTable.createdAt})`),
         mostCommonAction: sql`
           MODE() WITHIN GROUP (ORDER BY ${userActionsTable.actionType})
         `,
       })
       .from(userActionsTable)
-      .where(
-        and(
-          eq(userActionsTable.userId, userId),
-          gte(userActionsTable.createdAt, startDate)
-        )
-      )
+      .where(and(eq(userActionsTable.userId, userId), gte(userActionsTable.createdAt, startDate)))
       .groupBy(userActionsTable.userId);
 
     return stats[0] || { totalActions: 0, uniqueDays: 0, mostCommonAction: null };
@@ -287,7 +368,7 @@ import { UserPreferencesRepository } from '../repositories/user-preferences-repo
 export const storeUserPreferencesAction: Action = {
   name: 'STORE_USER_PREFERENCES',
   description: 'Extract and store user preferences from messages',
-  
+
   validate: async (runtime: IAgentRuntime, message: Memory) => {
     const text = message.content.text?.toLowerCase() || '';
     return text.includes('preference') || text.includes('prefer') || text.includes('like');
@@ -311,7 +392,7 @@ export const storeUserPreferencesAction: Action = {
 
     // 2. Use runtime's LLM
     const llmResponse = await runtime.completion({
-      messages: [{ role: 'system', content: extractionPrompt }]
+      messages: [{ role: 'system', content: extractionPrompt }],
     });
 
     // 3. Parse the response
@@ -320,7 +401,7 @@ export const storeUserPreferencesAction: Action = {
     // 4. Get database and repository
     const db = runtime.databaseAdapter.db;
     const repository = new UserPreferencesRepository(db);
-    
+
     // 5. Store preferences
     const userId = message.userId || message.entityId;
     const stored = await repository.upsert(userId, extractedPreferences);
@@ -328,9 +409,9 @@ export const storeUserPreferencesAction: Action = {
     return {
       success: true,
       data: stored,
-      text: 'Your preferences have been saved successfully.'
+      text: 'Your preferences have been saved successfully.',
     };
-  }
+  },
 };
 ```
 
@@ -340,30 +421,32 @@ export const storeUserPreferencesAction: Action = {
 export const batchImportAction: Action = {
   name: 'BATCH_IMPORT',
   description: 'Import multiple records at once',
-  
+
   handler: async (runtime, message) => {
     const db = runtime.databaseAdapter.db;
     const repository = new DataRepository(db);
-    
+
     // Parse batch data from message
     const records = JSON.parse(message.content.text);
-    
+
     // Use batch insert for performance
     const results = await db
       .insert(dataTable)
-      .values(records.map(r => ({
-        ...r,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })))
+      .values(
+        records.map((r) => ({
+          ...r,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }))
+      )
       .returning();
-    
+
     return {
       success: true,
       text: `Imported ${results.length} records successfully`,
-      data: { importedCount: results.length }
+      data: { importedCount: results.length },
     };
-  }
+  },
 };
 ```
 
@@ -381,40 +464,40 @@ export const userPreferencesProvider: Provider = {
   name: 'USER_PREFERENCES',
   description: 'Provides user preferences to customize agent behavior',
   dynamic: true, // Fetches fresh data on each request
-  
+
   get: async (runtime: IAgentRuntime, message: Memory) => {
     // 1. Get user ID from message
     const userId = message.userId || message.entityId;
-    
+
     // 2. Get database and repository
     const db = runtime.databaseAdapter.db;
     const repository = new UserPreferencesRepository(db);
-    
+
     // 3. Fetch preferences
     const userPrefs = await repository.findByUserId(userId);
-    
+
     if (!userPrefs) {
       return {
         data: { preferences: {} },
         values: { preferences: 'No preferences found' },
-        text: ''
+        text: '',
       };
     }
-    
+
     // 4. Format data for agent context
     const preferencesText = `
 # User Preferences
-${Object.entries(userPrefs.preferences).map(([key, value]) => 
-  `- ${key}: ${value}`
-).join('\n')}
+${Object.entries(userPrefs.preferences)
+  .map(([key, value]) => `- ${key}: ${value}`)
+  .join('\n')}
     `.trim();
-    
+
     return {
       data: { preferences: userPrefs.preferences },
       values: userPrefs.preferences,
-      text: preferencesText // This text is added to agent context
+      text: preferencesText, // This text is added to agent context
     };
-  }
+  },
 };
 ```
 
@@ -424,34 +507,35 @@ ${Object.entries(userPrefs.preferences).map(([key, value]) =>
 export const cachedDataProvider: Provider = {
   name: 'CACHED_DATA',
   private: true,
-  
+
   get: async (runtime, message) => {
     const cacheKey = `data_${message.roomId}`;
     const cached = runtime.cacheManager.get(cacheKey);
-    
-    if (cached && Date.now() - cached.timestamp < 60000) { // 1 minute cache
+
+    if (cached && Date.now() - cached.timestamp < 60000) {
+      // 1 minute cache
       return cached.data;
     }
-    
+
     // Fetch fresh data
     const db = runtime.databaseAdapter.db;
     const repository = new DataRepository(db);
     const freshData = await repository.getRoomData(message.roomId);
-    
+
     const result = {
       text: formatData(freshData),
       data: freshData,
-      values: { roomData: freshData }
+      values: { roomData: freshData },
     };
-    
+
     // Cache the result
     runtime.cacheManager.set(cacheKey, {
       data: result,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
-    
+
     return result;
-  }
+  },
 };
 ```
 
@@ -459,40 +543,101 @@ export const cachedDataProvider: Provider = {
 
 ### Plugin Configuration
 
-Register your schema, actions, and providers in your plugin:
+Register your schema with your plugin - migrations run automatically:
 
 ```typescript
 import type { Plugin } from '@elizaos/core';
+import { schema } from './schema';
 
 export const myPlugin: Plugin = {
-  name: 'my-plugin',
-  description: 'My custom plugin',
+  name: '@your-org/plugin-myplugin',
+  description: 'My custom plugin with database tables',
+
+  // Register schema - migrations run automatically on plugin load
+  schema: schema,
+
   actions: [storeUserPreferencesAction],
   providers: [userPreferencesProvider],
-  schema: customSchema, // Your schema export
+
+  async init(runtime) {
+    // Migrations have already run by the time init is called
+    // Your tables are ready to use
+    console.log('Plugin initialized with migrated schema');
+  },
 };
+
+export default myPlugin;
+```
+
+### How Migrations Run
+
+When your plugin loads:
+
+1. **Schema Discovery**: System finds your schema definition
+2. **Diff Generation**: Compares with current database state
+3. **Safety Check**: Blocks destructive changes in production
+4. **Migration**: Applies changes in a transaction
+5. **Recording**: Stores migration history in `migrations` schema
+
+```bash
+# Development - migrations run automatically with verbose output
+bun run dev
+
+# Production - destructive migrations blocked by default
+NODE_ENV=production bun run start
+
+# Allow destructive migrations when needed
+ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true bun run start
 ```
 
 ## Important Considerations
 
-### 1. Database Access Pattern
+### 1. Drizzle Version Matching
 
-- Always access the database through `runtime.databaseAdapter.db`
-- Use repository classes to encapsulate database operations
-- The database type is already properly typed from the runtime adapter
+**Critical**: Your plugin must use the same Drizzle ORM version as the monorepo:
 
-### 2. Shared Data Pattern
+```bash
+# Check monorepo version (from plugin directory)
+grep "drizzle-orm" ../../packages/core/package.json
+
+# Install matching version in your plugin
+bun add drizzle-orm@^0.36.0  # Use the exact version from core
+```
+
+Mismatched versions can cause:
+
+- Migration generation failures
+- Type incompatibilities
+- Runtime errors
+- Schema sync issues
+
+### 2. Schema Namespacing & Data Patterns
+
+```typescript
+// ✅ CORRECT: Namespaced schema for plugins
+const mySchema = pgSchema('plugin_myplugin');
+export const myTable = mySchema.table('my_table', {...});
+
+// ❌ WRONG: Using public schema in plugins
+export const myTable = pgTable('my_table', {...}); // Goes to public
+```
 
 Without `agentId` in your tables:
+
 - All agents can read and write the same data
 - Use `userId` or other identifiers to scope data appropriately
 - Consider data consistency across multiple agents
 
-### 3. Type Safety
+### 3. Database Compatibility
 
-- Define interfaces for your domain types
-- Map database rows to domain types in repository methods
-- Handle both camelCase and snake_case field names
+| Feature        | PGLite | PostgreSQL | Notes                       |
+| -------------- | ------ | ---------- | --------------------------- |
+| Basic Tables   | ✅     | ✅         | Full support                |
+| Indexes        | ✅     | ✅         | Full support                |
+| JSON/JSONB     | ✅     | ✅         | Full support                |
+| Vectors        | ⚠️     | ✅         | PGLite has dimension limits |
+| Extensions     | ❌     | ✅         | PGLite doesn't support all  |
+| Advisory Locks | ❌     | ✅         | PGLite skips locking        |
 
 ### 4. Error Handling
 
@@ -502,53 +647,106 @@ try {
   return { success: true, data: result };
 } catch (error) {
   console.error('Failed to store preferences:', error);
-  return { 
-    success: false, 
-    error: error instanceof Error ? error.message : 'Unknown error' 
+  return {
+    success: false,
+    error: error instanceof Error ? error.message : 'Unknown error',
   };
 }
 ```
 
-### 5. Migration Strategy
+### 5. Migration Behavior
 
 ```typescript
-// Schema versioning
-export const schemaVersion = 2;
+// Development environment (default)
+// - Verbose logging
+// - More permissive with warnings
+// - Advisory locks skipped for PGLite
 
-export const migrations = {
-  1: async (db) => {
-    // Initial schema
-  },
-  2: async (db) => {
-    // Add new column
-    await db.schema.alterTable('user_preferences', (table) => {
-      table.addColumn('version', 'integer').defaultTo(1);
-    });
-  }
+// Production environment
+// - Minimal logging
+// - Destructive changes blocked
+// - Full concurrency protection
+
+// Override destructive change protection
+process.env.ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS = 'true';
+```
+
+**Safe Changes** (always allowed):
+
+- Adding new tables
+- Adding nullable columns
+- Adding indexes
+- Extending varchar length
+
+**Destructive Changes** (require permission):
+
+- Dropping tables or columns
+- Changing column types
+- Adding NOT NULL to existing columns
+
+## Complete Example Workflow
+
+### 1. Initial Setup
+
+```bash
+# Create your plugin
+elizaos create plugin
+# Choose: TypeScript, Database support
+
+# Install matching Drizzle version
+cd packages/plugin-myplugin
+bun add drizzle-orm@^0.36.0  # Match monorepo version
+```
+
+### 2. Define Your Schema
+
+```typescript
+// src/schema.ts
+import { pgSchema, pgTable, uuid, text } from 'drizzle-orm/pg-core';
+
+const pluginSchema = pgSchema('plugin_myplugin');
+
+export const preferences = pluginSchema.table('preferences', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull(),
+  theme: text('theme').default('light'),
+});
+
+export default { preferences };
+```
+
+### 3. Register with Plugin
+
+```typescript
+// src/index.ts
+export const plugin: Plugin = {
+  name: '@your-org/plugin-myplugin',
+  schema: schema, // Migrations run automatically!
+  // ... actions, providers, etc
 };
 ```
 
-## Example Flow
+### 4. Runtime Flow
 
-1. **User sends message**: "I prefer dark theme and Spanish language"
-2. **Action triggered**: 
-   - LLM extracts: `{ theme: 'dark', language: 'es' }`
-   - Repository stores in database
-3. **Provider supplies data**: 
-   - On next interaction, provider fetches preferences
-   - Agent context includes: "User Preferences: theme: dark, language: es"
-4. **Multiple agents**: Any agent can access this user's preferences
+1. **Plugin Loads**: Schema detected, migrations run automatically
+2. **User Message**: "I prefer dark theme and Spanish language"
+3. **Action Executes**: Stores preferences in database
+4. **Provider Reads**: Supplies preferences to agent context
+5. **Multiple Agents**: All agents access the same schema namespace
 
 ## Advanced Patterns
 
 ### Embeddings and Vector Search
 
 ```typescript
-export const documentTable = pgTable('documents', {
+// Use namespaced schema
+const pluginSchema = pgSchema('plugin_myplugin');
+
+export const documentTable = pluginSchema.table('documents', {
   id: uuid('id').primaryKey().defaultRandom(),
   content: text('content').notNull(),
   embedding: vector('embedding', { dimensions: 1536 }),
-  metadata: jsonb('metadata').default({})
+  metadata: jsonb('metadata').default({}),
 });
 
 export class DocumentRepository {
@@ -556,9 +754,7 @@ export class DocumentRepository {
     return await this.db
       .select()
       .from(documentTable)
-      .orderBy(
-        sql`${documentTable.embedding} <-> ${embedding}`
-      )
+      .orderBy(sql`${documentTable.embedding} <-> ${embedding}`)
       .limit(limit);
   }
 }
@@ -567,65 +763,102 @@ export class DocumentRepository {
 ### Time-Series Data
 
 ```typescript
-export const metricsTable = pgTable('metrics', {
+// Use namespaced schema
+const pluginSchema = pgSchema('plugin_myplugin');
+
+export const metricsTable = pluginSchema.table('metrics', {
   id: uuid('id').primaryKey().defaultRandom(),
   metric: varchar('metric', { length: 255 }).notNull(),
   value: real('value').notNull(),
   timestamp: timestamp('timestamp').defaultNow().notNull(),
-  tags: jsonb('tags').default({})
+  tags: jsonb('tags').default({}),
 });
 
 export class MetricsRepository {
   async getTimeSeries(metric: string, hours = 24): Promise<TimeSeries> {
     const since = new Date(Date.now() - hours * 60 * 60 * 1000);
-    
+
     return await this.db
       .select({
         time: metricsTable.timestamp,
         value: avg(metricsTable.value),
       })
       .from(metricsTable)
-      .where(
-        and(
-          eq(metricsTable.metric, metric),
-          gte(metricsTable.timestamp, since)
-        )
-      )
-      .groupBy(
-        sql`DATE_TRUNC('hour', ${metricsTable.timestamp})`
-      )
+      .where(and(eq(metricsTable.metric, metric), gte(metricsTable.timestamp, since)))
+      .groupBy(sql`DATE_TRUNC('hour', ${metricsTable.timestamp})`)
       .orderBy(metricsTable.timestamp);
   }
 }
 ```
 
+## Troubleshooting Common Issues
+
+### "Drizzle version mismatch" Error
+
+```bash
+# Solution: Match the monorepo version exactly
+bun add drizzle-orm@$(grep '"drizzle-orm"' ../../packages/core/package.json | cut -d'"' -f4)
+```
+
+### "Schema already exists" in PGLite
+
+```typescript
+// PGLite may cache schemas - restart or use:
+const schema = pgSchema('plugin_myplugin_v2'); // Version your schema name
+```
+
+### "Destructive migration blocked" in Production
+
+```bash
+# For intentional schema changes:
+ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true NODE_ENV=production bun run start
+```
+
+### "Cannot find module 'drizzle-orm/pg-core'"
+
+```bash
+# Ensure drizzle-orm is in dependencies, not devDependencies
+bun add drizzle-orm  # Not bun add -d
+```
+
+### Migration Not Running
+
+```typescript
+// Ensure schema is exported and registered:
+export const plugin: Plugin = {
+  name: '@your-org/plugin',
+  schema: schema, // Must be defined!
+};
+```
+
 ## Summary
 
-To add custom schema to an elizaOS plugin:
+To add custom schema to an elizaOS plugin with automatic migrations:
 
-1. **Define schema** without `agentId` for shared data
-2. **Create repository** classes following elizaOS's pattern
-3. **Create actions** to write data using `parseKeyValueXml` for structure
-4. **Create providers** to read data and supply to agent context
-5. **Register everything** in your plugin configuration
+1. **Match Drizzle Version**: Use the same version as the monorepo (`bun add drizzle-orm@^0.36.0`)
+2. **Use Schema Namespacing**: Always use `pgSchema('plugin_yourname')` for isolation
+3. **Define Your Tables**: Create tables with or without `agentId` for scoping
+4. **Register Schema**: Add schema to plugin definition for automatic migrations
+5. **Build Components**: Create repositories, actions, and providers
+6. **Let Migrations Run**: System handles everything automatically on startup
 
-elizaOS handles the rest - migrations, database connections, and making your data available across all agents in the system.
+**No manual migration files needed!** The dynamic migration system detects changes and applies them safely, with full rollback support and production safeguards.
 
 ## See Also
 
 <CardGroup cols={2}>
+  <Card title="Dynamic Migrations" icon="database" href="/guides/dynamic-migrations">
+    Deep dive into the automatic migration system
+  </Card>
+  
   <Card title="Plugin Components" icon="cube" href="/plugins/components">
     Learn about Actions, Providers, Evaluators, and Services
   </Card>
-  
-  <Card title="Development Guide" icon="code" href="/plugins/development">
-    Build your first plugin step by step
-  </Card>
-  
-  <Card title="Common Patterns" icon="lightbulb" href="/plugins/patterns">
-    Learn proven plugin development patterns
-  </Card>
-  
+
+<Card title="Development Guide" icon="code" href="/plugins/development">
+  Build your first plugin step by step
+</Card>
+
   <Card title="Plugin Reference" icon="book" href="/plugins/reference">
     Complete API reference for all interfaces
   </Card>
