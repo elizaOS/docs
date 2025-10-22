@@ -378,6 +378,15 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Launch Resources",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["launch-resources/index"]
+          }
+        ]
       }
     ]
   },
