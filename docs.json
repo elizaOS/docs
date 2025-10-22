@@ -95,136 +95,136 @@
         ]
       },
       {
-        "tab": "API Reference",
-        "pages": ["api-reference/index"],
+        "tab": "REST Reference",
+        "pages": ["rest-reference/index"],
         "groups": [
           {
             "group": "AGENTS",
             "pages": [
-              "api-reference/agents/create-a-new-agent",
-              "api-reference/agents/get-agent-details",
-              "api-reference/agents/list-all-agents",
-              "api-reference/agents/update-agent",
-              "api-reference/agents/delete-an-agent",
-              "api-reference/agents/start-an-agent",
-              "api-reference/agents/stop-an-agent",
-              "api-reference/agents/get-agent-panels",
-              "api-reference/agents/create-a-world-for-an-agent",
-              "api-reference/agents/get-all-worlds",
-              "api-reference/agents/update-a-world"
+              "rest-reference/agents/create-a-new-agent",
+              "rest-reference/agents/get-agent-details",
+              "rest-reference/agents/list-all-agents",
+              "rest-reference/agents/update-agent",
+              "rest-reference/agents/delete-an-agent",
+              "rest-reference/agents/start-an-agent",
+              "rest-reference/agents/stop-an-agent",
+              "rest-reference/agents/get-agent-panels",
+              "rest-reference/agents/create-a-world-for-an-agent",
+              "rest-reference/agents/get-all-worlds",
+              "rest-reference/agents/update-a-world"
             ]
           },
           {
             "group": "AUDIO",
             "pages": [
-              "api-reference/audio/generate-speech-from-text",
-              "api-reference/audio/synthesize-speech-from-text",
-              "api-reference/audio/transcribe-audio",
-              "api-reference/audio/process-audio-message",
-              "api-reference/audio/convert-conversation-to-speech"
+              "rest-reference/audio/generate-speech-from-text",
+              "rest-reference/audio/synthesize-speech-from-text",
+              "rest-reference/audio/transcribe-audio",
+              "rest-reference/audio/process-audio-message",
+              "rest-reference/audio/convert-conversation-to-speech"
             ]
           },
           {
             "group": "MESSAGING",
             "pages": [
-              "api-reference/messaging/create-server",
-              "api-reference/messaging/create-channel",
-              "api-reference/messaging/create-central-channel",
-              "api-reference/messaging/create-group-channel",
-              "api-reference/messaging/get-or-create-dm-channel",
-              "api-reference/messaging/send-message-to-channel",
-              "api-reference/messaging/get-channel-messages",
-              "api-reference/messaging/get-channel-details",
-              "api-reference/messaging/get-channel-info",
-              "api-reference/messaging/get-channel-participants",
-              "api-reference/messaging/update-channel",
-              "api-reference/messaging/delete-channel",
-              "api-reference/messaging/delete-channel-message",
-              "api-reference/messaging/delete-all-channel-messages",
-              "api-reference/messaging/delete-all-channel-messages-by-user",
-              "api-reference/messaging/add-agent-to-server",
-              "api-reference/messaging/add-agent-to-channel",
-              "api-reference/messaging/remove-agent-from-server",
-              "api-reference/messaging/get-server-agents",
-              "api-reference/messaging/get-server-channels",
-              "api-reference/messaging/get-central-servers",
-              "api-reference/messaging/get-central-server-channels",
-              "api-reference/messaging/process-external-message",
-              "api-reference/messaging/ingest-messages-from-external-platforms",
-              "api-reference/messaging/submit-a-message-to-the-central-messaging-system",
-              "api-reference/messaging/mark-message-processing-as-complete"
+              "rest-reference/messaging/create-server",
+              "rest-reference/messaging/create-channel",
+              "rest-reference/messaging/create-central-channel",
+              "rest-reference/messaging/create-group-channel",
+              "rest-reference/messaging/get-or-create-dm-channel",
+              "rest-reference/messaging/send-message-to-channel",
+              "rest-reference/messaging/get-channel-messages",
+              "rest-reference/messaging/get-channel-details",
+              "rest-reference/messaging/get-channel-info",
+              "rest-reference/messaging/get-channel-participants",
+              "rest-reference/messaging/update-channel",
+              "rest-reference/messaging/delete-channel",
+              "rest-reference/messaging/delete-channel-message",
+              "rest-reference/messaging/delete-all-channel-messages",
+              "rest-reference/messaging/delete-all-channel-messages-by-user",
+              "rest-reference/messaging/add-agent-to-server",
+              "rest-reference/messaging/add-agent-to-channel",
+              "rest-reference/messaging/remove-agent-from-server",
+              "rest-reference/messaging/get-server-agents",
+              "rest-reference/messaging/get-server-channels",
+              "rest-reference/messaging/get-central-servers",
+              "rest-reference/messaging/get-central-server-channels",
+              "rest-reference/messaging/process-external-message",
+              "rest-reference/messaging/ingest-messages-from-external-platforms",
+              "rest-reference/messaging/submit-a-message-to-the-central-messaging-system",
+              "rest-reference/messaging/mark-message-processing-as-complete"
             ]
           },
           {
             "group": "SESSIONS API",
             "pages": [
-              "api-reference/messaging/create-session",
-              "api-reference/messaging/get-session",
-              "api-reference/messaging/send-session-message",
-              "api-reference/messaging/get-session-messages",
-              "api-reference/messaging/renew-session",
-              "api-reference/messaging/update-session-timeout",
-              "api-reference/messaging/session-heartbeat",
-              "api-reference/messaging/end-session",
-              "api-reference/messaging/list-sessions",
-              "api-reference/messaging/sessions-health-check"
+              "rest-reference/messaging/create-session",
+              "rest-reference/messaging/get-session",
+              "rest-reference/messaging/send-session-message",
+              "rest-reference/messaging/get-session-messages",
+              "rest-reference/messaging/renew-session",
+              "rest-reference/messaging/update-session-timeout",
+              "rest-reference/messaging/session-heartbeat",
+              "rest-reference/messaging/end-session",
+              "rest-reference/messaging/list-sessions",
+              "rest-reference/messaging/sessions-health-check"
             ]
           },
           {
             "group": "MEMORY",
             "pages": [
-              "api-reference/memory/get-agent-memories",
-              "api-reference/memory/get-room-memories",
-              "api-reference/memory/create-a-room",
-              "api-reference/memory/update-a-memory",
-              "api-reference/memory/delete-all-agent-memories",
-              "api-reference/memory/delete-all-memories-for-a-room"
+              "rest-reference/memory/get-agent-memories",
+              "rest-reference/memory/get-room-memories",
+              "rest-reference/memory/create-a-room",
+              "rest-reference/memory/update-a-memory",
+              "rest-reference/memory/delete-all-agent-memories",
+              "rest-reference/memory/delete-all-memories-for-a-room"
             ]
           },
           {
             "group": "ROOMS",
             "pages": [
-              "api-reference/rooms/create-a-room",
-              "api-reference/rooms/get-room-details",
-              "api-reference/rooms/get-agent-rooms",
-              "api-reference/rooms/update-a-room",
-              "api-reference/rooms/delete-a-room"
+              "rest-reference/rooms/create-a-room",
+              "rest-reference/rooms/get-room-details",
+              "rest-reference/rooms/get-agent-rooms",
+              "rest-reference/rooms/update-a-room",
+              "rest-reference/rooms/delete-a-room"
             ]
           },
           {
             "group": "MEDIA",
             "pages": [
-              "api-reference/media/upload-media-for-agent",
-              "api-reference/media/upload-media-to-channel"
+              "rest-reference/media/upload-media-for-agent",
+              "rest-reference/media/upload-media-to-channel"
             ]
           },
           {
             "group": "LOGS",
             "pages": [
-              "api-reference/logs/get-agent-logs",
-              "api-reference/logs/get-system-logs",
-              "api-reference/logs/get-system-logs-post",
-              "api-reference/logs/delete-a-specific-log-entry",
-              "api-reference/logs/clear-system-logs"
+              "rest-reference/logs/get-agent-logs",
+              "rest-reference/logs/get-system-logs",
+              "rest-reference/logs/get-system-logs-post",
+              "rest-reference/logs/delete-a-specific-log-entry",
+              "rest-reference/logs/clear-system-logs"
             ]
           },
           {
             "group": "SYSTEM",
             "pages": [
-              "api-reference/system/basic-health-check",
-              "api-reference/system/health-check-endpoint",
-              "api-reference/system/ping-health-check",
-              "api-reference/system/get-system-status",
-              "api-reference/system/get-server-debug-info",
-              "api-reference/system/get-server-debug-info-1",
-              "api-reference/system/get-local-environment-variables",
-              "api-reference/system/update-local-environment-variables",
-              "api-reference/system/stop-the-server"
+              "rest-reference/system/basic-health-check",
+              "rest-reference/system/health-check-endpoint",
+              "rest-reference/system/ping-health-check",
+              "rest-reference/system/get-system-status",
+              "rest-reference/system/get-server-debug-info",
+              "rest-reference/system/get-server-debug-info-1",
+              "rest-reference/system/get-local-environment-variables",
+              "rest-reference/system/update-local-environment-variables",
+              "rest-reference/system/stop-the-server"
             ]
           },
           {
             "group": "WEBSOCKET",
-            "pages": ["api-reference/websocket/socketio-real-time-connection"]
+            "pages": ["rest-reference/websocket/socketio-real-time-connection"]
           }
         ]
       },

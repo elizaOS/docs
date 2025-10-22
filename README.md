@@ -41,7 +41,7 @@ This will start a local development server at `http://localhost:3000` where you 
 
 ```
 docs/
-├── api-reference/      # API documentation
+├── rest-reference/      # REST API documentation
 ├── core-concepts/      # Core concepts and architecture
 ├── deep-dive/         # Advanced topics
 ├── images/            # Documentation images
