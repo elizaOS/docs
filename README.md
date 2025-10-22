@@ -9,7 +9,7 @@ This repository contains the comprehensive documentation for ElizaOS, including:
 - **Getting Started** - Quick setup guides and tutorials
 - **Core Concepts** - Understanding agents, plugins, and the architecture
 - **Deep Dive** - Advanced topics like memory systems, services, and event handling
-- **API Reference** - Complete API documentation for all modules
+- **REST Reference** - Complete REST API documentation for all modules
 - **Examples** - Real-world implementations and patterns
 
 ## Development
