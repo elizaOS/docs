@@ -1,0 +1,530 @@
+---
+title: 'Dynamic Migrations'
+description: 'Complete guide for understanding and implementing database schema migrations in ElizaOS'
+---
+
+> **Important**: ElizaOS 1.0 introduces a powerful dynamic migration system that automatically manages database schema changes for plugins. This guide will help you understand how it works and how to use it effectively.
+
+## What are Dynamic Migrations?
+
+Dynamic migrations in ElizaOS are an automated system for managing database schema changes without manual intervention. Unlike traditional migration systems that require pre-generated SQL files, ElizaOS generates and executes migrations at runtime based on your plugin's Drizzle schema definitions.
+
+### Key Features
+
+- **Automatic Schema Detection**: Detects changes between your code and database
+- **Safe by Default**: Blocks destructive migrations unless explicitly allowed
+- **Plugin Isolation**: Each plugin's tables are isolated in their own schema
+- **Concurrent Safety**: Uses advisory locks to prevent race conditions
+- **Full Audit Trail**: Tracks all migrations with snapshots and journal entries
+
+## How Dynamic Migrations Work
+
+### Architecture Overview
+
+```mermaid
+graph TD
+    A[Plugin Schema Definition] --> B[RuntimeMigrator]
+    B --> C[Schema Snapshot Generation]
+    C --> D[Diff Calculation]
+    D --> E{Has Changes?}
+    E -->|No| F[Skip Migration]
+    E -->|Yes| G{Data Loss Check}
+    G -->|Safe| H[Execute Migration]
+    G -->|Destructive| I{Allowed?}
+    I -->|Yes| H
+    I -->|No| J[Block & Error]
+    H --> K[Update Migration Tables]
+    K --> L[Store Snapshot]
+```
+
+### Migration Process
+
+1. **Schema Discovery**: When your plugin loads, the system discovers schema definitions
+2. **Snapshot Generation**: Creates a snapshot of your current schema structure
+3. **Comparison**: Compares with the last known database state
+4. **Diff Calculation**: Determines what SQL operations are needed
+5. **Safety Check**: Analyzes for potential data loss (dropped tables/columns)
+6. **Execution**: Applies changes in a transaction with full rollback capability
+7. **Recording**: Stores migration history, snapshots, and journal entries
+
+### Database Tables
+
+The migration system creates these tables to track state:
+
+```sql
+-- Migration history
+migrations._migrations (plugin_name, hash, executed_at)
+
+-- Journal of all migrations
+migrations._journal (plugin_name, idx, version, tag, when, breakpoints)
+
+-- Schema snapshots for each migration
+migrations._snapshots (plugin_name, idx, created_at, snapshot)
+```
+
+## Adding Dynamic Migrations to Your Plugin
+
+### Step 1: Define Your Schema
+
+Create your Drizzle schema definition in your plugin:
+
+```typescript
+// src/schema.ts
+import { pgTable, pgSchema, serial, text, timestamp, boolean, vector } from 'drizzle-orm/pg-core';
+
+// For non-core plugins, use a namespaced schema
+const myPluginSchema = pgSchema('plugin_myplugin');
+
+export const users = myPluginSchema.table('users', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow(),
+  isActive: boolean('is_active').default(true),
+});
+
+export const documents = myPluginSchema.table('documents', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  content: text('content').notNull(),
+  embedding: vector('embedding', { dimensions: 1536 }),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Export the complete schema
+export const schema = {
+  users,
+  documents,
+};
+```
+
+### Step 2: Register Schema with Plugin
+
+Include the schema in your plugin definition:
+
+```typescript
+// src/index.ts
+import { Plugin } from '@elizaos/core';
+import { schema } from './schema';
+
+export const myPlugin: Plugin = {
+  name: '@your-org/plugin-myplugin',
+  description: 'My custom plugin with database tables',
+
+  // Register the schema for automatic migrations
+  schema: schema,
+
+  actions: [...],
+  providers: [...],
+  services: [...],
+
+  async init(runtime) {
+    // Plugin initialization
+    // Migrations will run automatically before this
+  }
+};
+
+export default myPlugin;
+```
+
+### Step 3: Schema Isolation
+
+For better isolation and to avoid conflicts:
+
+- **Core Plugin** (`@elizaos/plugin-sql`): Uses the `public` schema
+- **All Other Plugins**: Should use namespaced schemas like `plugin_<name>`
+
+```typescript
+// Recommended pattern for plugin schemas
+const schemaName = pgSchema('plugin_myplugin');
+
+// All tables should be created within this schema
+export const myTable = schemaName.table('my_table', {
+  // ... columns
+});
+```
+
+## Development vs Production Behavior
+
+The migration system behaves differently based on your environment:
+
+### Development Environment
+
+In development (`NODE_ENV !== 'production'`):
+
+- **Verbose Logging**: Detailed migration output by default
+- **Destructive Operations**: More permissive (with warnings)
+- **Advisory Locks**: Skipped for PGLite/memory databases
+- **Quick Iteration**: Optimized for rapid schema changes
+
+```bash
+# Development - migrations run automatically
+bun run dev
+
+# See verbose output
+[RuntimeMigrator] Starting migration for plugin: @your-org/plugin-myplugin
+[RuntimeMigrator] Statement 1: CREATE TABLE "plugin_myplugin"."users" ...
+[RuntimeMigrator] Migration completed successfully
+```
+
+### Production Environment
+
+In production (`NODE_ENV === 'production'`):
+
+- **Minimal Logging**: Only essential information logged
+- **Destructive Operations**: Blocked by default for safety
+- **Advisory Locks**: Full concurrency protection
+- **Safety First**: Requires explicit confirmation for risky operations
+
+```bash
+# Production - destructive migrations blocked by default
+NODE_ENV=production bun run start
+
+# Error if destructive changes detected:
+[RuntimeMigrator] Destructive migration blocked
+[RuntimeMigrator] Environment: PRODUCTION
+[RuntimeMigrator] Destructive operations detected:
+[RuntimeMigrator]   - Column "email" will be dropped from table "users"
+[RuntimeMigrator] To proceed with destructive migrations:
+[RuntimeMigrator]   1. Set environment variable: export ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true
+[RuntimeMigrator]   2. Or use option: migrate(plugin, schema, { force: true })
+```
+
+## Configuration and Overrides
+
+### Environment Variables
+
+Control migration behavior through environment variables:
+
+```bash
+# Allow destructive migrations globally
+export ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true
+
+# Set environment
+export NODE_ENV=production  # or development
+
+# Database connection (affects locking behavior)
+export DATABASE_URL=postgres://user:pass@localhost/db
+```
+
+### Programmatic Options
+
+When calling migrations programmatically:
+
+```typescript
+// In your plugin or service
+const migrationService = new DatabaseMigrationService();
+
+// Initialize with database
+await migrationService.initializeWithDatabase(db);
+
+// Register schemas
+migrationService.registerSchema('@your-org/plugin', schema);
+
+// Run with options
+await migrationService.runAllPluginMigrations({
+  // Log detailed output
+  verbose: true,
+
+  // Allow destructive changes
+  force: true,
+
+  // Preview without applying
+  dryRun: false,
+
+  // Alternative to 'force'
+  allowDataLoss: true,
+});
+```
+
+### Migration Options Reference
+
+| Option          | Type    | Default                        | Description                      |
+| --------------- | ------- | ------------------------------ | -------------------------------- |
+| `verbose`       | boolean | `true` in dev, `false` in prod | Show detailed SQL statements     |
+| `force`         | boolean | `false`                        | Allow destructive migrations     |
+| `dryRun`        | boolean | `false`                        | Preview changes without applying |
+| `allowDataLoss` | boolean | `false`                        | Alternative to `force`           |
+
+## Handling Schema Changes
+
+### Safe Changes (Always Allowed)
+
+These changes are always safe and will execute automatically:
+
+```typescript
+// Adding new tables
+export const newTable = schema.table('new_table', {
+  id: serial('id').primaryKey(),
+});
+
+// Adding nullable columns
+alter table => add column nullable_field text;
+
+// Adding indexes
+create index => on table(column);
+
+// Extending varchar length
+alter column => type varchar(255) from varchar(100);
+```
+
+### Destructive Changes (Require Confirmation)
+
+These changes will be blocked unless explicitly allowed:
+
+```typescript
+// Dropping tables
+// Before: export const oldTable = schema.table('old_table', {...})
+// After: (removed)
+
+// Dropping columns
+// Before: email: text('email').notNull()
+// After: (removed)
+
+// Changing column types (potential data loss)
+// Before: age: text('age')
+// After: age: integer('age')
+
+// Making columns NOT NULL (fails if nulls exist)
+// Before: optional: text('optional')
+// After: optional: text('optional').notNull()
+```
+
+### Handling Destructive Changes
+
+When you need to make destructive changes:
+
+#### Option 1: Environment Variable (Recommended for CI/CD)
+
+```bash
+# In your deployment script
+export ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true
+bun run start
+```
+
+#### Option 2: Migration Options (Recommended for Scripts)
+
+```typescript
+// In a migration script
+await migrationService.runAllPluginMigrations({
+  force: true, // Allow destructive changes
+  verbose: true, // See what's happening
+});
+```
+
+#### Option 3: Manual Migration (Recommended for Production)
+
+For complex production migrations, consider using Drizzle Kit:
+
+```bash
+# Generate migration SQL
+bunx drizzle-kit generate:pg --schema=./src/schema.ts
+
+# Review the generated SQL
+cat migrations/0001_*.sql
+
+# Apply manually with verification
+psql -U user -d database < migrations/0001_*.sql
+```
+
+## Advanced Usage
+
+### Checking Migrations Without Executing
+
+Preview what changes would be made:
+
+```typescript
+const migrator = migrationService.getMigrator();
+
+// Check for potential data loss
+const check = await migrator.checkMigration('@your-org/plugin', schema);
+
+if (check?.hasDataLoss) {
+  console.log('Warning: Migration would cause data loss:');
+  check.warnings.forEach((warning) => console.log(`  - ${warning}`));
+}
+```
+
+### Migration Status and History
+
+Query migration status for debugging:
+
+```typescript
+const migrator = migrationService.getMigrator();
+
+// Get migration status
+const status = await migrator.getStatus('@your-org/plugin');
+
+console.log({
+  hasRun: status.hasRun,
+  lastMigration: status.lastMigration,
+  totalSnapshots: status.snapshots,
+  journal: status.journal,
+});
+```
+
+### Resetting Migrations (Development Only)
+
+For development environments, you can reset migration history:
+
+```typescript
+// WARNING: Only use in development!
+if (process.env.NODE_ENV !== 'production') {
+  const migrator = migrationService.getMigrator();
+  await migrator.reset('@your-org/plugin');
+}
+```
+
+## Best Practices
+
+### 1. Schema Naming Conventions
+
+```typescript
+// ✅ Good: Namespaced schema for plugins
+const pluginSchema = pgSchema('plugin_myplugin');
+
+// ❌ Bad: Using public schema for plugins
+const myTable = pgTable('my_table', {...}); // Goes to public schema
+```
+
+### 2. Version Control
+
+```typescript
+// ✅ Good: Schema defined in version control
+// src/schema.ts - tracked in git
+export const schema = {...};
+
+// ❌ Bad: Dynamic schema generation
+const schema = generateSchemaAtRuntime(); // Not reproducible
+```
+
+### 3. Testing Migrations
+
+```typescript
+// ✅ Good: Test migrations in CI/CD
+// .github/workflows/test.yml
+- name: Test Migrations
+  run: |
+    export ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true
+    bun test:migrations
+```
+
+### 4. Production Safety
+
+```typescript
+// ✅ Good: Explicit production handling
+if (process.env.NODE_ENV === 'production') {
+  // Use dry-run first
+  await migrate({ dryRun: true });
+
+  // Then migrate with careful options
+  await migrate({
+    force: false,
+    verbose: false,
+  });
+}
+```
+
+### 5. Gradual Migration Strategy
+
+For complex schema changes:
+
+```typescript
+// Step 1: Add new column (safe)
+export const users = table('users', {
+  email: text('email'),
+  emailNew: text('email_new'), // Add new
+});
+
+// Step 2: Migrate data (in application)
+await db.update(users).set({ emailNew: sql`email` });
+
+// Step 3: Remove old column (next release)
+export const users = table('users', {
+  emailNew: text('email_new'), // Now primary
+});
+```
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### Issue: "Destructive migration blocked"
+
+**Solution**: Set `ELIZA_ALLOW_DESTRUCTIVE_MIGRATIONS=true` or use `force: true`
+
+#### Issue: "Migration already in progress"
+
+**Solution**: The system uses advisory locks. Wait for the other migration to complete.
+
+#### Issue: "No changes detected" but schema is different
+
+**Solution**: Check if migrations were already applied. Use `getStatus()` to verify.
+
+#### Issue: PGLite not creating schemas
+
+**Solution**: PGLite may not support all PostgreSQL features. Use PostgreSQL for production.
+
+### Debug Mode
+
+Enable detailed logging for troubleshooting:
+
+```typescript
+// Enable verbose logging
+await migrationService.runAllPluginMigrations({
+  verbose: true,
+});
+
+// Check migration internals
+const migrator = migrationService.getMigrator();
+const status = await migrator.getStatus('@your-org/plugin');
+console.log('Migration details:', JSON.stringify(status, null, 2));
+```
+
+## Migration System Internals
+
+### Advisory Locks
+
+For PostgreSQL databases, the system uses advisory locks to prevent concurrent migrations:
+
+```sql
+-- Lock acquisition (automatic)
+SELECT pg_try_advisory_lock(hash('plugin-name'));
+
+-- Lock release (automatic)
+SELECT pg_advisory_unlock(hash('plugin-name'));
+```
+
+### Transaction Safety
+
+All migrations run in transactions:
+
+1. **BEGIN** - Start transaction
+2. **Execute SQL** - Apply schema changes
+3. **Record Migration** - Update tracking tables
+4. **COMMIT** or **ROLLBACK** - Based on success
+
+### Schema Transformation
+
+The system automatically handles schema namespacing:
+
+```typescript
+// Your code
+const users = schema.table('users', {...});
+
+// Transformed to
+CREATE TABLE "plugin_myplugin"."users" (...);
+```
+
+## Conclusion
+
+Dynamic migrations in ElizaOS provide a powerful, safe way to manage database schema evolution. By following the practices in this guide, you can:
+
+- Safely evolve your plugin's database schema
+- Maintain consistency across environments
+- Prevent accidental data loss
+- Keep a complete audit trail
+
+Remember: **Safety first in production, flexibility in development**.
+
+For more information on plugin development, see the [Plugin Development Guide](/plugins/development).
