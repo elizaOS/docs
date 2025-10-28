@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "ElizaOS Documentation", 
+  "name": "ElizaOS Documentation",
   "homepage": "index",
   "colors": {
     "primary": "#0B35F1",
@@ -31,12 +31,7 @@
         "groups": [
           {
             "group": "GETTING STARTED",
-            "pages": [
-              "index",
-              "installation",
-              "quickstart",
-              "what-you-can-build"
-            ]
+            "pages": ["index", "installation", "quickstart", "what-you-can-build"]
           },
           {
             "group": "GUIDES",
@@ -45,6 +40,7 @@
               "guides/add-multiple-agents",
               "guides/test-a-project",
               "guides/deploy-a-project",
+              "guides/x402-payment-integration",
               "guides/create-a-plugin",
               "guides/publish-a-plugin",
               "guides/contribute-to-core"
@@ -52,10 +48,7 @@
           },
           {
             "group": "PROJECTS",
-            "pages": [
-              "projects/overview",
-              "projects/environment-variables"
-            ]
+            "pages": ["projects/overview", "projects/environment-variables"]
           },
           {
             "group": "AGENTS",
@@ -421,12 +414,6 @@
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity"]
   }
 }
