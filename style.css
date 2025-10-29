@@ -243,3 +243,14 @@ a[href*="llms-full.txt"] svg[style*="robot.svg"] {
   pointer-events: none;
   z-index: 0;
 }
+
+/* Navbar "Join Community" button hover - match GitHub button blue text */
+a[href*="discord.gg"]:hover {
+  color: #0B35F1 !important;
+}
+
+/* Make Discord icon turn blue on hover (Mintlify uses mask-based icons) */
+a[href*="discord.gg"]:hover * {
+  color: #0B35F1 !important;
+  background-color: currentColor !important;
+}

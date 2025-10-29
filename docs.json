@@ -395,7 +395,14 @@
     "dark": "/logo/dark.png"
   },
   "navbar": {
-    "links": [],
+    "links": [
+      {
+        "label": "Join Community",
+        "href": "https://discord.gg/ai16z",
+        "icon": "discord",
+        "style": "primary"
+      }
+    ],
     "primary": {
       "type": "github",
       "href": "https://github.com/elizaos/eliza"
@@ -418,6 +425,11 @@
       "og:image": "/images/eliza-og.png",
       "twitter:card": "summary_large_image",
       "twitter:image": "/images/eliza-og.png"
+    }
+  },
+  "analytics": {
+    "posthog": {
+      "apiKey": "phc_YOUR_POSTHOG_API_KEY"
     }
   },
   "contextual": {
