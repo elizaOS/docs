@@ -91,6 +91,12 @@
               "runtime/messaging",
               "runtime/sessions-api"
             ]
+          },
+          {
+            "group": "TOKEN",
+            "pages": [
+              "tokenomics"
+            ]
           }
         ]
       },
