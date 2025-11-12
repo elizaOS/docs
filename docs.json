@@ -35,8 +35,7 @@
               "index",
               "installation",
               "quickstart",
-              "what-you-can-build",
-              "tokenomics"
+              "what-you-can-build"
             ]
           },
           {
@@ -91,6 +90,12 @@
               "runtime/services",
               "runtime/messaging",
               "runtime/sessions-api"
+            ]
+          },
+          {
+            "group": "TOKEN",
+            "pages": [
+              "tokenomics"
             ]
           }
         ]
