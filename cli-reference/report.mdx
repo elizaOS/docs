@@ -1,0 +1,94 @@
+---
+title: Report Command
+description: Generate and analyze reports from scenario matrix runs
+icon: chart-bar
+---
+
+## Usage
+
+```bash
+elizaos report <subcommand> [options]
+```
+
+The report command analyzes raw JSON outputs from scenario matrix runs and generates comprehensive performance reports with statistics, parameter comparisons, and trajectory analysis.
+
+## Subcommands
+
+| Subcommand | Description |
+| ---------- | ----------- |
+| `generate` | Generate a report from matrix run output |
+
+---
+
+## generate
+
+Generate a comprehensive report from scenario matrix execution data.
+
+### Usage
+
+```bash
+elizaos report generate <output-directory> [options]
+```
+
+### Arguments
+
+| Argument | Description |
+| -------- | ----------- |
+| `<output-directory>` | Path to the matrix run output directory |
+
+### Options
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `--output-path <path>` | Custom path for the generated report | Auto-generated |
+| `--format <format>` | Output format (json, html) | `json` |
+
+### Examples
+
+```bash
+# Generate report from matrix output
+elizaos report generate ./output/matrix-20231027-1000/
+
+# Generate report with custom output path
+elizaos report generate ./output/matrix-20231027-1000/ --output-path ./reports/latest.json
+
+# Generate HTML report
+elizaos report generate ./output/matrix-20231027-1000/ --format html
+```
+
+## Report Contents
+
+The generated report includes:
+
+### Performance Statistics
+- Execution time metrics (min, max, average)
+- Success/failure rates
+- LLM call counts and token usage
+
+### Parameter Analysis
+- Comparison across different parameter combinations
+- Performance impact of each parameter value
+- Optimal parameter identification
+
+### Trajectory Analysis
+- Agent decision paths
+- Action sequences
+- State transitions
+
+## Matrix Output Structure
+
+The report command expects matrix output in this structure:
+
+```
+output/matrix-YYYYMMDD-HHMM/
+├── run-001.json          # Individual run results
+├── run-002.json
+├── run-003.json
+├── ...
+└── summary.json          # Optional matrix summary
+```
+
+## Related Commands
+
+- [`scenario`](/cli-reference/scenario): Execute scenarios and generate output
+- [`test`](/cli-reference/test): Run tests for projects and plugins

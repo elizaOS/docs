@@ -1,0 +1,84 @@
+---
+title: "Create Job"
+api: "POST /api/messaging/jobs"
+---
+
+Create a one-off messaging job. Jobs are used for fire-and-forget message processing with optional callbacks.
+
+<Note>
+This endpoint requires API key authentication via the `X-API-Key` header.
+</Note>
+
+## Request Body
+
+<ParamField body="agentId" type="string" required>
+  The UUID of the agent to process the message
+</ParamField>
+
+<ParamField body="message" type="object" required>
+  The message to process
+  <Expandable title="Message object">
+    <ParamField body="entityId" type="string" required>
+      UUID of the entity sending the message
+    </ParamField>
+    <ParamField body="roomId" type="string" required>
+      UUID of the room
+    </ParamField>
+    <ParamField body="content" type="object" required>
+      Message content with `text` and `source` fields
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="callbackUrl" type="string">
+  URL to POST results when job completes
+</ParamField>
+
+<ParamField body="timeout" type="number" default="30000">
+  Job timeout in milliseconds
+</ParamField>
+
+## Response
+
+<ResponseField name="jobId" type="string">
+  Unique job identifier for tracking
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Initial job status: `queued`
+</ResponseField>
+
+<ResponseField name="createdAt" type="number">
+  Unix timestamp of job creation
+</ResponseField>
+
+<ResponseExample>
+```json
+{
+  "jobId": "job_550e8400-e29b-41d4-a716-446655440001",
+  "status": "queued",
+  "createdAt": 1703001234567
+}
+```
+</ResponseExample>
+
+## Example Request
+
+```bash
+curl -X POST https://api.example.com/api/messaging/jobs \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "agentId": "550e8400-e29b-41d4-a716-446655440000",
+    "message": {
+      "entityId": "user-123",
+      "roomId": "room-456",
+      "content": {
+        "text": "Process this asynchronously",
+        "source": "api"
+      }
+    },
+    "callbackUrl": "https://your-app.com/webhook",
+    "timeout": 60000
+  }'
+```

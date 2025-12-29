@@ -1,7 +1,19 @@
 ---
 title: "Components"
-description: "Actions, Providers, Evaluators, and Services - the building blocks of elizaOS plugins"
+description: "Give your agent superpowers with Actions, Providers, Evaluators, and Services"
 ---
+
+## The Problem
+
+Your agent can talk, but can it *do* things? Out of the box, an LLM can only generate text. To make it useful, you need:
+- **Actions** - Execute tasks (send emails, query APIs, generate images)
+- **Context** - Know what's happening (user preferences, conversation history, external data)
+- **Learning** - Extract and remember information from conversations
+- **Connections** - Maintain state with external services
+
+<Tip>
+**Each component type has one job.** Actions *do*, Providers *supply*, Evaluators *learn*, Services *connect*.
+</Tip>
 
 ## Overview
 
@@ -162,6 +174,59 @@ handler: async (runtime, message) => {
     limit: 5
   });
   return { success: true, data: { memories } };
+}
+```
+
+### HandlerOptions Interface
+
+The `options` parameter passed to action handlers provides context for multi-step action plans:
+
+```typescript
+interface HandlerOptions {
+  /** Context with previous action results and utilities */
+  actionContext?: ActionContext;
+
+  /** Multi-step action plan information */
+  actionPlan?: {
+    totalSteps: number;           // Total steps in plan
+    currentStep: number;          // Current step (1-based)
+    steps: Array<{
+      action: string;
+      status: 'pending' | 'completed' | 'failed';
+      result?: ActionResult;
+      error?: string;
+    }>;
+    thought: string;              // AI's reasoning for this plan
+  };
+
+  /** Allow plugin extensions */
+  [key: string]: unknown;
+}
+
+interface ActionContext {
+  previousResults: ActionResult[];
+  currentStep: number;
+  totalSteps: number;
+}
+```
+
+#### Using HandlerOptions
+
+```typescript
+handler: async (runtime, message, state, options, callback) => {
+  // Check if this is part of a multi-step plan
+  if (options?.actionPlan) {
+    const { currentStep, totalSteps, thought } = options.actionPlan;
+    console.log(`Step ${currentStep}/${totalSteps}: ${thought}`);
+  }
+
+  // Access previous action results
+  if (options?.actionContext?.previousResults) {
+    const lastResult = options.actionContext.previousResults.at(-1);
+    // Use data from previous step
+  }
+
+  return { success: true, text: "Done" };
 }
 ```
 
@@ -624,16 +689,32 @@ export const myPlugin: Plugin = {
   <Card title="Plugin Architecture" icon="sitemap" href="/plugins/architecture">
     Understand overall plugin system design
   </Card>
-  
+
   <Card title="Development Guide" icon="code" href="/plugins/development">
     Build your first plugin step by step
   </Card>
-  
+
   <Card title="Common Patterns" icon="lightbulb" href="/plugins/patterns">
     Learn proven plugin development patterns
   </Card>
-  
+
   <Card title="Plugin Reference" icon="book" href="/plugins/reference">
     Complete API reference for all interfaces
+  </Card>
+
+  <Card title="Action Planning" icon="list-check" href="/guides/action-planning">
+    Multi-step action workflows with HandlerOptions
+  </Card>
+
+  <Card title="Streaming Responses" icon="wave-pulse" href="/guides/streaming-responses">
+    Stream action outputs in real-time
+  </Card>
+
+  <Card title="Background Tasks" icon="clock" href="/guides/background-tasks">
+    Long-running operations with task workers
+  </Card>
+
+  <Card title="Core Runtime" icon="microchip" href="/runtime/core">
+    How components integrate with the runtime
   </Card>
 </CardGroup>

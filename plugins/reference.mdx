@@ -64,10 +64,10 @@ export type Handler = (
   runtime: IAgentRuntime,
   message: Memory,
   state?: State,
-  options?: { [key: string]: unknown },
+  options?: HandlerOptions,
   callback?: HandlerCallback,
   responses?: Memory[]
-) => Promise<ActionResult>;
+) => Promise<ActionResult | void | undefined>;
 
 // Validator type
 export type Validator = (
@@ -77,10 +77,7 @@ export type Validator = (
 ) => Promise<boolean>;
 
 // HandlerCallback type
-export type HandlerCallback = (
-  response: Content,
-  files?: any
-) => Promise<Memory[]>;
+export type HandlerCallback = (response: Content) => Promise<Memory[]>;
 
 // ActionResult interface
 export interface ActionResult {
@@ -144,7 +141,7 @@ export interface Evaluator {
 // EvaluationExample interface
 export interface EvaluationExample {
   prompt: string;                      // Evaluation prompt
-  messages: Memory[];                  // Messages to evaluate
+  messages: Array<ActionExample>;      // Example messages
   outcome: string;                     // Expected outcome
 }
 ```
@@ -178,16 +175,26 @@ export abstract class Service {
 
 ```typescript
 export interface Memory {
-  id: UUID;
-  entityId: UUID;
-  roomId: UUID;
-  content: Content;
-  createdAt?: number;
-  embedding?: number[];
-  userId?: UUID;
-  agentId?: UUID;
-  type?: string;
-  isUnique?: boolean;
+  id?: UUID;                          // Optional unique identifier
+  entityId: UUID;                     // Associated user/entity ID
+  agentId?: UUID;                     // Associated agent ID
+  createdAt?: number;                 // Creation timestamp (ms since epoch)
+  content: Content;                   // Memory content
+  embedding?: number[];               // Embedding vector for semantic search
+  roomId: UUID;                       // Associated room ID
+  worldId?: UUID;                     // Associated world ID
+  unique?: boolean;                   // Prevent duplicates
+  similarity?: number;                // Embedding similarity score (on search)
+  metadata?: MemoryMetadata;          // Memory metadata
+}
+
+// MemoryType enum
+export enum MemoryType {
+  DOCUMENT = 'document',
+  FRAGMENT = 'fragment',
+  MESSAGE = 'message',
+  DESCRIPTION = 'description',
+  CUSTOM = 'custom'
 }
 ```
 
@@ -244,12 +251,12 @@ export interface Character {
 
 ```typescript
 export type Route = {
-  type: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'STATIC';
+  type: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'STATIC';
   path: string;
   filePath?: string;                    // For static files
   public?: boolean;                     // Public access
   name?: string;                        // Route name
-  handler?: (req: any, res: any, runtime: IAgentRuntime) => Promise<void>;
+  handler?: (req: RouteRequest, res: RouteResponse, runtime: IAgentRuntime) => Promise<void>;
   isMultipart?: boolean;                // File uploads
 };
 ```

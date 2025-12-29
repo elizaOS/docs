@@ -1934,66 +1934,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /api/messaging/complete:
-    post:
-      tags:
-        - messaging
-      summary: Mark message processing as complete
-      description: |
-        Notify the system that an agent has finished processing a message. This is used
-        to signal completion of agent responses and update the message state.
-      operationId: completeMessage
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - agentId
-                - roomId
-                - userId
-                - prompt
-              properties:
-                agentId:
-                  type: string
-                  format: uuid
-                roomId:
-                  type: string
-                  format: uuid
-                userId:
-                  type: string
-                  format: uuid
-                prompt:
-                  type: string
-      responses:
-        "200":
-          description: Completion successful
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: object
-                    properties:
-                      response:
-                        type: string
-        "400":
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Error generating completion
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
   /api/messaging/ingest-external:
     post:
       tags:
@@ -2065,6 +2005,7 @@ paths:
         - messaging
       summary: Get central servers
       description: Get all servers from central database
+      deprecated: true
       operationId: getCentralServers
       responses:
         "200":
@@ -2087,7 +2028,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /api/messaging/servers:
+  /api/messaging/message-servers:
     post:
       tags:
         - messaging
@@ -2137,7 +2078,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /api/messaging/servers/{serverId}/agents:
+  /api/messaging/message-servers/{messageServerId}/agents:
     post:
       tags:
         - messaging
@@ -2145,7 +2086,7 @@ paths:
       description: Add an agent to a server
       operationId: addAgentToServer
       parameters:
-        - name: serverId
+        - name: messageServerId
           in: path
           required: true
           schema:
@@ -2198,7 +2139,7 @@ paths:
       description: Get all agents for a server
       operationId: getServerAgents
       parameters:
-        - name: serverId
+        - name: messageServerId
           in: path
           required: true
           schema:
@@ -2237,7 +2178,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /api/messaging/servers/{serverId}/agents/{agentId}:
+  /api/messaging/message-servers/{messageServerId}/agents/{agentId}:
     delete:
       tags:
         - messaging
@@ -2245,7 +2186,7 @@ paths:
       description: Remove an agent from a server
       operationId: removeAgentFromServer
       parameters:
-        - name: serverId
+        - name: messageServerId
           in: path
           required: true
           schema:
@@ -2286,7 +2227,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /api/messaging/servers/{serverId}/channels:
+  /api/messaging/message-servers/{messageServerId}/channels:
     get:
       tags:
         - messaging
@@ -2294,7 +2235,7 @@ paths:
       description: Get all channels for a server
       operationId: getServerChannels
       parameters:
-        - name: serverId
+        - name: messageServerId
           in: path
           required: true
           schema:
@@ -2377,6 +2318,537 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /api/messaging/channels/{channelId}:
+    patch:
+      tags:
+        - messaging
+      summary: Update channel
+      description: Update channel properties
+      operationId: updateChannel
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                metadata:
+                  type: object
+      responses:
+        "200":
+          description: Channel updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/Channel"
+        "400":
+          description: Invalid channelId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error updating channel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - messaging
+      summary: Delete channel
+      description: Delete a channel
+      operationId: deleteChannel
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Channel deleted successfully
+        "400":
+          description: Invalid channelId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error deleting channel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/channels/{channelId}/details:
+    get:
+      tags:
+        - messaging
+      summary: Get channel details
+      description: Get detailed information about a channel
+      operationId: getChannelDetails
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Channel details retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/Channel"
+        "400":
+          description: Invalid channelId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Channel not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error fetching channel details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/channels/{channelId}/participants:
+    get:
+      tags:
+        - messaging
+      summary: Get channel participants
+      description: Get list of participants in a channel
+      operationId: getChannelParticipants
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Participants retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+        "400":
+          description: Invalid channelId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error fetching participants
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/channels/{channelId}/messages:
+    get:
+      tags:
+        - messaging
+      summary: Get channel messages
+      description: Get messages for a channel with optional pagination
+      operationId: getChannelMessages
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: before
+          in: query
+          description: Timestamp in milliseconds to fetch messages before
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Messages retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      messages:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Message"
+        "400":
+          description: Invalid channelId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error fetching messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - messaging
+      summary: Send message to channel
+      description: Send a message to a channel. Supports sync, stream, and websocket response modes.
+      operationId: sendMessageToChannel
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - author_id
+                - content
+                - message_server_id
+              properties:
+                author_id:
+                  type: string
+                  format: uuid
+                content:
+                  type: string
+                message_server_id:
+                  type: string
+                  format: uuid
+                in_reply_to_message_id:
+                  type: string
+                  format: uuid
+                raw_message:
+                  type: object
+                metadata:
+                  type: object
+                source_type:
+                  type: string
+                  default: eliza_gui
+                mode:
+                  type: string
+                  enum: [sync, stream, websocket]
+                  default: websocket
+      responses:
+        "200":
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/Message"
+        "400":
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Server ID mismatch
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error processing message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - messaging
+      summary: Clear all channel messages
+      description: Delete all messages in a channel
+      operationId: clearChannelMessages
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Messages cleared successfully
+        "400":
+          description: Invalid channelId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error clearing messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/channels/{channelId}/messages/{messageId}:
+    delete:
+      tags:
+        - messaging
+      summary: Delete channel message
+      description: Delete a specific message from a channel
+      operationId: deleteChannelMessage
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Message deleted successfully
+        "400":
+          description: Invalid channelId or messageId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error deleting message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/channels/{channelId}/agents:
+    get:
+      tags:
+        - messaging
+      summary: Get channel agents
+      description: Get list of agents/participants in a channel
+      operationId: getChannelAgents
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Agents retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      channelId:
+                        type: string
+                        format: uuid
+                      participants:
+                        type: array
+                        items:
+                          type: string
+                          format: uuid
+        "400":
+          description: Invalid channelId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error fetching agents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - messaging
+      summary: Add agent to channel
+      description: Add an agent to a channel
+      operationId: addAgentToChannel
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - agentId
+              properties:
+                agentId:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: Agent added to channel
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      channelId:
+                        type: string
+                        format: uuid
+                      agentId:
+                        type: string
+                        format: uuid
+                      message:
+                        type: string
+        "400":
+          description: Invalid channelId or agentId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Channel not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error adding agent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/messaging/channels/{channelId}/agents/{agentId}:
+    delete:
+      tags:
+        - messaging
+      summary: Remove agent from channel
+      description: Remove an agent from a channel
+      operationId: removeAgentFromChannel
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: agentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Agent removed from channel
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      channelId:
+                        type: string
+                        format: uuid
+                      agentId:
+                        type: string
+                        format: uuid
+                      message:
+                        type: string
+        "400":
+          description: Invalid channelId or agentId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Channel or agent not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Error removing agent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /api/messaging/dm-channel:
     get:
       tags:
@@ -2431,6 +2903,7 @@ paths:
         - messaging
       summary: Create central channel
       description: Create a channel in the central database
+      deprecated: true
       operationId: createCentralChannel
       requestBody:
         required: true
@@ -2487,6 +2960,7 @@ paths:
       summary: Get central server channels
       description: Get all channels for a server from central database
       operationId: getCentralServerChannels
+      deprecated: true
       parameters:
         - name: serverId
           in: path
@@ -2519,9 +2993,10 @@ paths:
     get:
       tags:
         - messaging
-      summary: Get channel details
-      description: Get details for a specific channel
-      operationId: getChannelDetails
+      summary: Get channel details (deprecated)
+      description: Get details for a specific channel. Use GET /channels/{channelId}/details instead.
+      deprecated: true
+      operationId: getCentralChannelDetails
       parameters:
         - name: channelId
           in: path
@@ -2552,8 +3027,9 @@ paths:
     get:
       tags:
         - messaging
-      summary: Get channel info
-      description: Get basic information for a specific channel (alias for details)
+      summary: Get channel info (deprecated)
+      description: Get basic information for a specific channel. Use GET /channels/{channelId} instead.
+      deprecated: true
       operationId: getChannelInfo
       parameters:
         - name: channelId
@@ -2586,9 +3062,10 @@ paths:
     patch:
       tags:
         - messaging
-      summary: Update channel
-      description: Update channel details
-      operationId: updateChannel
+      summary: Update channel (deprecated)
+      description: Update channel details. Use PATCH /channels/{channelId} instead.
+      deprecated: true
+      operationId: updateCentralChannel
       parameters:
         - name: channelId
           in: path
@@ -2634,9 +3111,10 @@ paths:
     delete:
       tags:
         - messaging
-      summary: Delete channel
-      description: Delete a channel
-      operationId: deleteChannel
+      summary: Delete channel (deprecated)
+      description: Delete a channel. Use DELETE /channels/{channelId} instead.
+      deprecated: true
+      operationId: deleteCentralChannel
       parameters:
         - name: channelId
           in: path
@@ -2665,9 +3143,10 @@ paths:
     get:
       tags:
         - messaging
-      summary: Get channel participants
-      description: Get all participants in a channel
-      operationId: getChannelParticipants
+      summary: Get channel participants (deprecated)
+      description: Get all participants in a channel. Use GET /channels/{channelId}/participants instead.
+      deprecated: true
+      operationId: getCentralChannelParticipants
       parameters:
         - name: channelId
           in: path
@@ -2700,9 +3179,10 @@ paths:
     post:
       tags:
         - messaging
-      summary: Add agent to channel
-      description: Add an agent to a specific channel
-      operationId: addAgentToChannel
+      summary: Add agent to channel (deprecated)
+      description: Add an agent to a specific channel. Use POST /channels/{channelId}/agents instead.
+      deprecated: true
+      operationId: addAgentToCentralChannel
       parameters:
         - name: channelId
           in: path
@@ -2758,9 +3238,10 @@ paths:
     get:
       tags:
         - messaging
-      summary: Get channel messages
-      description: Get messages for a channel
-      operationId: getChannelMessages
+      summary: Get channel messages (deprecated)
+      description: Get messages for a channel. Use GET /channels/{channelId}/messages instead.
+      deprecated: true
+      operationId: getCentralChannelMessages
       parameters:
         - name: channelId
           in: path
@@ -2801,8 +3282,9 @@ paths:
     post:
       tags:
         - messaging
-      summary: Send message to channel
-      description: Send a message to a channel
+      summary: Send message to channel (deprecated)
+      description: Send a message to a channel. Use POST /channels/{channelId}/messages instead.
+      deprecated: true
       operationId: sendChannelMessage
       parameters:
         - name: channelId
@@ -2878,8 +3360,9 @@ paths:
     delete:
       tags:
         - messaging
-      summary: Delete all channel messages
-      description: Delete all messages in a channel
+      summary: Delete all channel messages (deprecated)
+      description: Delete all messages in a channel. Use DELETE /channels/{channelId}/messages instead.
+      deprecated: true
       operationId: deleteAllChannelMessages
       parameters:
         - name: channelId
@@ -2911,9 +3394,10 @@ paths:
     delete:
       tags:
         - messaging
-      summary: Delete channel message
-      description: Delete a specific message from a channel
-      operationId: deleteChannelMessage
+      summary: Delete channel message (deprecated)
+      description: Delete a specific message from a channel. Use DELETE /channels/{channelId}/messages/{messageId} instead.
+      deprecated: true
+      operationId: deleteCentralChannelMessage
       parameters:
         - name: channelId
           in: path
@@ -2948,8 +3432,9 @@ paths:
     delete:
       tags:
         - messaging
-      summary: Delete all channel messages by user
-      description: Delete all messages by a specific user in a channel
+      summary: Delete all channel messages by user (deprecated)
+      description: Delete all messages by a specific user in a channel. Use DELETE /channels/{channelId}/messages/all instead.
+      deprecated: true
       operationId: deleteAllUserChannelMessages
       parameters:
         - name: channelId
@@ -2984,128 +3469,6 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Channel not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /api/messaging/group-channels:
-    post:
-      tags:
-        - messaging
-      summary: Create group channel
-      description: Create a group channel with multiple participants
-      operationId: createGroupChannel
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - name
-                - participants
-              properties:
-                name:
-                  type: string
-                participants:
-                  type: array
-                  items:
-                    type: string
-                    format: uuid
-                  minItems: 2
-                description:
-                  type: string
-      responses:
-        "201":
-          description: Group channel created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: object
-                    properties:
-                      channel:
-                        $ref: "#/components/schemas/Channel"
-        "400":
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Error creating channel
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /api/messaging/external-messages:
-    post:
-      tags:
-        - messaging
-      summary: Process external message
-      description: Process a message from an external platform
-      operationId: processExternalMessage
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - platform
-                - messageId
-                - channelId
-                - userId
-                - content
-              properties:
-                platform:
-                  type: string
-                  enum: [discord, telegram, twitter]
-                messageId:
-                  type: string
-                channelId:
-                  type: string
-                userId:
-                  type: string
-                content:
-                  type: string
-                attachments:
-                  type: array
-                  items:
-                    type: object
-                metadata:
-                  type: object
-      responses:
-        "200":
-          description: Message processed successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: object
-                    properties:
-                      messageId:
-                        type: string
-                      response:
-                        type: string
-        "400":
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Error processing message
           content:
             application/json:
               schema:
@@ -3179,89 +3542,6 @@ paths:
                 $ref: "#/components/schemas/Error"
         "500":
           description: Error transcribing audio
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /api/audio/{agentId}/process-audio:
-    post:
-      tags:
-        - audio
-      summary: Process audio message
-      description: Process an audio message - transcribe and get agent response
-      operationId: processAudioMessage
-      parameters:
-        - name: agentId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ID of the agent
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: Audio file to process
-                userId:
-                  type: string
-                  format: uuid
-                  description: ID of the user
-                roomId:
-                  type: string
-                  format: uuid
-                  description: ID of the room
-      responses:
-        "200":
-          description: Audio processed successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    type: object
-                    properties:
-                      text:
-                        type: string
-                        description: Transcribed text
-                      response:
-                        type: string
-                        description: Agent's response
-                      audioResponse:
-                        type: string
-                        format: binary
-                        description: Agent's audio response (if speech enabled)
-        "400":
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          description: Agent not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "415":
-          description: Unsupported media type
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Error processing audio
           content:
             application/json:
               schema:

@@ -1,0 +1,121 @@
+---
+title: Login Command
+description: Authenticate with ElizaOS Cloud to get an API key
+icon: right-to-bracket
+---
+
+## Usage
+
+```bash
+elizaos login [options]
+```
+
+Authenticate with ElizaOS Cloud using browser-based OAuth flow. On successful authentication, your API key is stored locally for use with other commands.
+
+## Options
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `-u, --cloud-url <url>` | URL of ElizaOS Cloud | `https://www.elizacloud.ai` |
+| `--no-browser` | Do not automatically open browser | `false` |
+| `--timeout <seconds>` | Authentication timeout in seconds | `300` |
+
+## Examples
+
+### Basic Login
+
+```bash
+# Login with browser (default)
+elizaos login
+
+# The command will:
+# 1. Open your browser to the ElizaOS Cloud login page
+# 2. Wait for you to complete authentication
+# 3. Store the API key locally
+```
+
+### Without Browser
+
+```bash
+# Login without auto-opening browser
+elizaos login --no-browser
+
+# The command will display a URL to visit manually
+```
+
+### Custom Cloud Instance
+
+```bash
+# Login to a custom ElizaOS Cloud instance
+elizaos login --cloud-url https://custom.elizacloud.ai
+```
+
+### Extended Timeout
+
+```bash
+# Allow more time for authentication (10 minutes)
+elizaos login --timeout 600
+```
+
+## Authentication Flow
+
+1. **Start**: CLI initiates authentication request
+2. **Browser**: Opens login page (or displays URL if `--no-browser`)
+3. **Authenticate**: Complete login in browser (OAuth/credentials)
+4. **Callback**: Browser sends token back to CLI
+5. **Store**: API key is stored in `~/.elizaos/credentials`
+
+## Environment Variable
+
+Instead of logging in, you can set the API key directly:
+
+```bash
+export ELIZA_CLOUD_API_KEY=your-api-key
+```
+
+Or use the `ELIZA_CLOUD_URL` environment variable:
+
+```bash
+export ELIZA_CLOUD_URL=https://custom.elizacloud.ai
+elizaos login
+```
+
+## Credential Storage
+
+After successful login, credentials are stored at:
+
+- **Linux/macOS**: `~/.elizaos/credentials`
+- **Windows**: `%USERPROFILE%\.elizaos\credentials`
+
+## Troubleshooting
+
+### Browser Doesn't Open
+
+```bash
+# Use --no-browser and copy the URL manually
+elizaos login --no-browser
+```
+
+### Timeout Issues
+
+```bash
+# Increase timeout for slow connections
+elizaos login --timeout 600
+```
+
+### Network Issues
+
+If behind a proxy or firewall, ensure the cloud URL is accessible:
+
+```bash
+# Test connectivity
+curl https://www.elizacloud.ai/health
+
+# Then login
+elizaos login
+```
+
+## Related Commands
+
+- [`deploy`](/cli-reference/deploy): Deploy after authentication
+- [`containers`](/cli-reference/containers): Manage containers (requires auth)

@@ -1,3 +1,8 @@
 ---
+title: "Delete All Channel Messages by User"
 openapi: delete /api/messaging/central-channels/{channelId}/messages/all
 ---
+
+<Warning>
+**Deprecated:** This endpoint uses the legacy `/central-channels` path. Use `DELETE /api/messaging/channels/{channelId}/messages/all` instead.
+</Warning>

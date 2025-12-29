@@ -1,11 +1,30 @@
 ---
 title: "Patterns"
-description: "Action chaining, callbacks, composition, and advanced implementation patterns"
+description: "Battle-tested patterns for building robust plugins"
 ---
+
+## Real Patterns from Real Plugins
+
+These aren't theoretical - they're extracted from production plugins. Each pattern solves a specific problem you'll encounter when building agents that actually work.
+
+<CardGroup cols={2}>
+  <Card title="Action Chaining" icon="link">
+    Multi-step workflows where actions build on each other
+  </Card>
+  <Card title="Callbacks" icon="reply">
+    Send progress updates before actions complete
+  </Card>
+  <Card title="State Composition" icon="layer-group">
+    Combine multiple providers elegantly
+  </Card>
+  <Card title="Error Recovery" icon="rotate-right">
+    Graceful degradation and retry strategies
+  </Card>
+</CardGroup>
 
 ## Action Chaining and Callbacks
 
-Action chaining in elizaOS allows multiple actions to execute sequentially with each action having access to the results of previous actions. This enables complex workflows where actions can build upon each other's outputs.
+Action chaining allows multiple actions to execute sequentially, with each action accessing previous results. This enables complex workflows where actions build upon each other's outputs.
 
 ### The ActionResult Interface
 

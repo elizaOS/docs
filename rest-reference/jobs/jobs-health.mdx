@@ -1,0 +1,40 @@
+---
+title: "Jobs Health Check"
+api: "GET /api/messaging/jobs/health"
+---
+
+Check the health of the jobs processing system.
+
+## Response
+
+<ResponseField name="status" type="string">
+  Health status: `healthy`, `degraded`, `unhealthy`
+</ResponseField>
+
+<ResponseField name="queueSize" type="number">
+  Number of jobs currently in queue
+</ResponseField>
+
+<ResponseField name="processing" type="number">
+  Number of jobs currently being processed
+</ResponseField>
+
+<ResponseField name="avgProcessingTime" type="number">
+  Average processing time in milliseconds (last 100 jobs)
+</ResponseField>
+
+<ResponseField name="failureRate" type="number">
+  Failure rate as percentage (0-100)
+</ResponseField>
+
+<ResponseExample>
+```json
+{
+  "status": "healthy",
+  "queueSize": 5,
+  "processing": 2,
+  "avgProcessingTime": 1250,
+  "failureRate": 0.5
+}
+```
+</ResponseExample>

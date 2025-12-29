@@ -302,12 +302,12 @@ The system includes predefined service types:
 From the Plugin interface:
 ```typescript
 export type Route = {
-  type: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'STATIC';
+  type: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'STATIC';
   path: string;
   filePath?: string;                    // For static files
   public?: boolean;                     // Public access
   name?: string;                        // Route name
-  handler?: (req: any, res: any, runtime: IAgentRuntime) => Promise<void>;
+  handler?: (req: RouteRequest, res: RouteResponse, runtime: IAgentRuntime) => Promise<void>;
   isMultipart?: boolean;                // File uploads
 };
 ```

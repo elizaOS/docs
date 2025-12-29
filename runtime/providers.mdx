@@ -1,11 +1,25 @@
 ---
 title: "Providers"
-description: "Provider system for context aggregation and state composition"
+description: "Real data, real-time - give your agent situational awareness"
 ---
+
+## Why Providers?
+
+Your agent needs to understand the world around it. Without context, it's flying blind:
+
+- Who is the user? What's their history?
+- What actions are available right now?
+- What does the agent know about this topic?
+
+Providers are the **senses** of your agent. They gather data from memory, services, and external sources, then feed it into the LLM prompt.
+
+<Tip>
+**Think of providers as context injectors.** Each provider contributes a piece of the puzzle - conversation history, user facts, available actions - assembled into the prompt at runtime.
+</Tip>
 
 ## Provider Interface
 
-Providers supply contextual information that forms the agent's understanding of the current situation. They are the "senses" of the agent, gathering data from various sources to build comprehensive state.
+Providers supply contextual information that forms the agent's understanding of the current situation. They gather data from various sources to build comprehensive state.
 
 ### Core Interface
 

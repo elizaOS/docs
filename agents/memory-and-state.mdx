@@ -55,12 +55,15 @@ Every piece of information an agent processes becomes a Memory:
 interface Memory {
   id?: UUID;                    // Unique identifier
   entityId: UUID;               // Who created this memory (user/agent)
+  agentId?: UUID;               // Associated agent ID
   roomId: UUID;                 // Conversation context
   worldId?: UUID;               // Broader context (e.g., server)
   content: Content;             // The actual content
   embedding?: number[];         // Vector representation
-  createdAt?: number;          // Timestamp
-  metadata?: MemoryMetadata;   // Additional data
+  createdAt?: number;           // Timestamp (ms since epoch)
+  unique?: boolean;             // Prevent duplicates
+  similarity?: number;          // Similarity score (set on search)
+  metadata?: MemoryMetadata;    // Additional data
 }
 
 interface Content {
@@ -78,11 +81,11 @@ interface Content {
 ```typescript
 // Creating a memory through the runtime
 async function createMemory(runtime: IAgentRuntime, message: string) {
-  const memory: CreateMemory = {
+  const memory: Memory = {
     agentId: runtime.agentId,
     entityId: userId,
     roomId: currentRoom,
-    content: { 
+    content: {
       text: message,
       metadata: {
         source: 'chat',
@@ -90,9 +93,10 @@ async function createMemory(runtime: IAgentRuntime, message: string) {
       }
     }
   };
-  
-  // Runtime automatically generates embeddings if not provided
-  const memoryId = await runtime.createMemory(memory);
+
+  // Runtime creates memory with table name and optional unique flag
+  // Signature: createMemory(memory: Memory, tableName: string, unique?: boolean)
+  const memoryId = await runtime.createMemory(memory, 'messages', true);
   return memoryId;
 }
 ```
@@ -146,7 +150,8 @@ export class AgentRuntime {
   readonly #conversationLength = 32; // Default messages to consider
   
   // Dynamically adjust based on token limits
-  async buildContext(roomId: UUID): Promise<State> {
+  // Actual signature: composeState(message: Memory, includeList?: string[], onlyInclude?: boolean, skipCache?: boolean)
+  async composeState(message: Memory): Promise<State> {
     const memories = await this.getMemories({
       roomId,
       count: this.#conversationLength
@@ -235,10 +240,22 @@ State composition brings together memories and provider data:
 ```typescript
 // The runtime's state composition pipeline
 interface State {
-  messages: Memory[];           // Conversation history
-  facts: string[];              // Known facts
-  providers: ProviderData[];    // Provider contributions
-  context: string;              // Formatted context
+  [key: string]: unknown;       // Dynamic properties
+  values: {                     // Key-value store for state variables
+    [key: string]: unknown;
+  };
+  data: StateData;              // Structured data cache (room, world, entity, providers)
+  text: string;                 // String representation of context
+}
+
+interface StateData {
+  room?: Room;                  // Cached room data
+  world?: World;                // Cached world data
+  entity?: Entity;              // Cached entity data
+  providers?: Record<string, Record<string, unknown>>; // Provider results
+  actionPlan?: ActionPlan;      // Current action plan
+  actionResults?: ActionResult[]; // Previous action results
+  [key: string]: unknown;       // Allow dynamic properties
 }
 
 // Provider contribution to state
@@ -443,12 +460,13 @@ async function semanticSearch(
   options: SearchOptions = {}
 ): Promise<Memory[]> {
   const embedding = await runtime.embed(query);
-  
-  return await runtime.searchMemoriesByEmbedding(embedding, {
+
+  // Signature: searchMemories(params: { embedding, query?, match_threshold?, count?, roomId? })
+  return await runtime.searchMemories({
+    embedding,
     match_threshold: options.threshold || 0.75,
     count: options.limit || 10,
-    roomId: options.roomId,
-    filter: options.filter
+    roomId: options.roomId
   });
 }
 
@@ -567,33 +585,27 @@ class VectorIndex {
 The complete state object:
 
 ```typescript
+// State is defined in packages/core/src/types/state.ts
 interface State {
-  // Core conversation context
-  messages: Memory[];
-  recentMessages: string;
-  
-  // Agent knowledge
-  facts: string[];
-  knowledge: string;
-  
-  // Provider contributions
-  providers: {
-    [key: string]: {
-      text: string;
-      data: any;
-    };
+  [key: string]: unknown;       // Dynamic properties allowed
+
+  values: {                     // Key-value store populated by providers
+    [key: string]: unknown;
   };
-  
-  // Composed context
-  context: string;
-  
-  // Metadata
-  metadata: {
-    roomId: UUID;
-    entityId: UUID;
-    timestamp: number;
-    tokenCount: number;
-  };
+
+  data: StateData;              // Structured data cache
+
+  text: string;                 // Formatted text representation
+}
+
+interface StateData {
+  room?: Room;                  // Cached room data
+  world?: World;                // Cached world data
+  entity?: Entity;              // Cached entity data
+  providers?: Record<string, Record<string, unknown>>; // Provider results cache
+  actionPlan?: ActionPlan;      // Current multi-step action plan
+  actionResults?: ActionResult[]; // Previous action results
+  [key: string]: unknown;       // Dynamic properties
 }
 ```
 
@@ -939,7 +951,8 @@ async function debugSearch(runtime: IAgentRuntime, query: string) {
   // Test with different thresholds
   const thresholds = [0.9, 0.8, 0.7, 0.6, 0.5];
   for (const threshold of thresholds) {
-    const results = await runtime.searchMemoriesByEmbedding(embedding, {
+    const results = await runtime.searchMemories({
+      embedding,
       match_threshold: threshold,
       count: 5
     });

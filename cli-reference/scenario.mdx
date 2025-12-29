@@ -1,0 +1,240 @@
+---
+title: Scenario Command
+description: Manage and execute ElizaOS scenarios for testing and evaluation
+icon: flask-vial
+---
+
+## Usage
+
+```bash
+elizaos scenario <subcommand> [options]
+```
+
+The scenario command provides a comprehensive framework for defining, executing, and evaluating agent behavior through structured test scenarios.
+
+## Subcommands
+
+| Subcommand | Description |
+| ---------- | ----------- |
+| `run` | Execute a single scenario from a YAML file |
+| `matrix` | Execute a scenario matrix for parameter exploration |
+
+---
+
+## run
+
+Execute a scenario defined in a YAML file.
+
+### Usage
+
+```bash
+elizaos scenario run <filePath> [options]
+```
+
+### Arguments
+
+| Argument | Description |
+| -------- | ----------- |
+| `<filePath>` | Path to the `.scenario.yaml` file |
+
+### Options
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `-l, --live` | Run in live mode, ignoring mocks | `false` |
+
+### Examples
+
+```bash
+# Run a scenario
+elizaos scenario run ./tests/greeting.scenario.yaml
+
+# Run in live mode (no mocking)
+elizaos scenario run ./tests/api-test.scenario.yaml --live
+```
+
+---
+
+## matrix
+
+Execute a scenario matrix for exploring parameter combinations.
+
+### Usage
+
+```bash
+elizaos scenario matrix <configPath> [options]
+```
+
+### Arguments
+
+| Argument | Description |
+| -------- | ----------- |
+| `<configPath>` | Path to the matrix configuration YAML file |
+
+### Options
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `--dry-run` | Show matrix analysis without executing | `false` |
+| `--parallel <number>` | Maximum parallel test runs | `1` |
+| `--filter <pattern>` | Filter parameter combinations by pattern | - |
+| `--verbose` | Show detailed progress information | `false` |
+
+### Examples
+
+```bash
+# Analyze matrix without executing
+elizaos scenario matrix ./matrix-config.yaml --dry-run
+
+# Execute matrix with parallel runs
+elizaos scenario matrix ./matrix-config.yaml --parallel 4
+
+# Filter specific combinations
+elizaos scenario matrix ./matrix-config.yaml --filter "model=gpt-4"
+
+# Verbose execution
+elizaos scenario matrix ./matrix-config.yaml --verbose
+```
+
+---
+
+## Scenario YAML Format
+
+### Basic Structure
+
+```yaml
+name: greeting-test
+description: Test agent greeting behavior
+
+setup:
+  mocks:
+    - type: llm
+      response: "Hello! How can I help you today?"
+
+run:
+  - action: send_message
+    content: "Hello"
+    evaluations:
+      - type: string_contains
+        value: "Hello"
+
+judgment:
+  strategy: all_pass
+```
+
+### Scenario Fields
+
+| Field | Description | Required |
+| ----- | ----------- | -------- |
+| `name` | Scenario name | Yes |
+| `description` | Scenario description | No |
+| `plugins` | List of plugins to load | No |
+| `setup` | Setup configuration (mocks, files) | No |
+| `run` | List of execution steps | Yes |
+| `judgment` | How to determine pass/fail | No |
+
+### Evaluation Types
+
+| Type | Description |
+| ---- | ----------- |
+| `string_contains` | Check if output contains a string |
+| `regex_match` | Match output against regex pattern |
+| `llm_evaluation` | Use LLM to evaluate response quality |
+
+### Judgment Strategies
+
+| Strategy | Description |
+| -------- | ----------- |
+| `all_pass` | All evaluations must pass |
+| `any_pass` | At least one evaluation must pass |
+
+---
+
+## Matrix Configuration
+
+### Basic Structure
+
+```yaml
+name: model-comparison
+description: Compare agent behavior across models
+
+base_scenario: ./base.scenario.yaml
+runs_per_combination: 3
+
+matrix:
+  - parameter: setup.mocks[0].model
+    values:
+      - gpt-4
+      - gpt-3.5-turbo
+      - claude-3-opus
+
+  - parameter: run[0].content
+    values:
+      - "Hello"
+      - "Hi there"
+      - "Good morning"
+```
+
+### Matrix Fields
+
+| Field | Description | Required |
+| ----- | ----------- | -------- |
+| `name` | Matrix name | Yes |
+| `description` | Matrix description | No |
+| `base_scenario` | Path to base scenario file | Yes |
+| `runs_per_combination` | Runs per parameter combination | Yes |
+| `matrix` | List of parameter axes | Yes |
+
+---
+
+## Output Structure
+
+Scenario runs generate output in the `_logs_` directory:
+
+```
+_logs_/
+├── run-001-execution-0.json    # Execution result step 0
+├── run-001-evaluation-0.json   # Evaluation result step 0
+├── run-001.json                # Centralized run result
+└── matrix-YYYYMMDD-HHMM/       # Matrix run output
+    ├── run-001.json
+    ├── run-002.json
+    └── ...
+```
+
+## Mocking
+
+Scenarios support mocking for deterministic testing:
+
+```yaml
+setup:
+  mocks:
+    - type: llm
+      model: gpt-4
+      response: "Mocked response"
+
+    - type: action
+      name: SEND_MESSAGE
+      result:
+        success: true
+        message: "Mocked action result"
+```
+
+## Plugins
+
+Specify plugins to load for the scenario:
+
+```yaml
+plugins:
+  - @elizaos/plugin-bootstrap
+  - @elizaos/plugin-sql
+  - name: @elizaos/plugin-discord
+    enabled: false  # Disable specific plugin
+```
+
+Default plugins (`plugin-sql`, `plugin-bootstrap`, `plugin-openai`) are always loaded.
+
+## Related Commands
+
+- [`report`](/cli-reference/report): Generate reports from scenario output
+- [`test`](/cli-reference/test): Run project tests

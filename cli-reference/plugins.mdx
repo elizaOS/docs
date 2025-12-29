@@ -20,8 +20,6 @@ icon: plug
     | `add` | `install` | Add a plugin to the project | `<plugin>` (plugin name e.g., "abc", "plugin-abc", "elizaos/plugin-abc") | `-s, --skip-env-prompt`, `--skip-verification`, `-b, --branch`, `-T, --tag` |
     | `installed-plugins` | | List plugins found in the project dependencies | | |
     | `remove` | `delete`, `del`, `rm` | Remove a plugin from the project | `<plugin>` (plugin name e.g., "abc", "plugin-abc", "elizaos/plugin-abc") | |
-    | `upgrade` | | Upgrade a plugin from version 0.x to 1.x using AI-powered migration | `<path>` (GitHub repository URL or local folder path) | `--api-key`, `--skip-tests`, `--skip-validation`, `--quiet`, `--verbose`, `--debug`, `--skip-confirmation` |
-    | `generate` | | Generate a new plugin using AI-powered code generation | | `--api-key`, `--skip-tests`, `--skip-validation`, `--skip-prompts`, `--spec-file` |
   </Tab>
 
   <Tab title="Examples">
@@ -145,59 +143,6 @@ icon: plug
     elizaos plugins del twitter
     elizaos plugins rm discord
     ```
-
-    ### Upgrading Plugins (AI-Powered)
-
-    ```bash
-    # Upgrade a plugin from v0.x to v1.x using AI migration
-    elizaos plugins upgrade https://github.com/user/plugin-v0
-
-    # Upgrade from local folder
-    elizaos plugins upgrade ./path/to/old-plugin
-
-    # Provide API key directly
-    elizaos plugins upgrade ./my-plugin --api-key your-api-key
-
-    # Skip test validation
-    elizaos plugins upgrade ./my-plugin --skip-tests
-
-    # Skip production readiness validation
-    elizaos plugins upgrade ./my-plugin --skip-validation
-
-    # Run upgrade with all skips (faster but less safe)
-    elizaos plugins upgrade ./my-plugin --skip-tests --skip-validation
-    
-    # Run upgrade in quiet mode (minimal output)
-    elizaos plugins upgrade ./my-plugin --quiet
-    
-    # Run upgrade with verbose output for debugging
-    elizaos plugins upgrade ./my-plugin --verbose
-    
-    # Run upgrade with debug information
-    elizaos plugins upgrade ./my-plugin --debug
-    
-    # Skip confirmation prompts (useful for automation)
-    elizaos plugins upgrade ./my-plugin --skip-confirmation
-    ```
-
-    ### Generating New Plugins (AI-Powered)
-
-    ```bash
-    # Generate a new plugin interactively
-    elizaos plugins generate
-
-    # Generate with API key directly
-    elizaos plugins generate --api-key your-api-key
-
-    # Generate from specification file (non-interactive)
-    elizaos plugins generate --spec-file ./plugin-spec.json --skip-prompts
-
-    # Skip test validation during generation
-    elizaos plugins generate --skip-tests
-
-    # Skip production readiness validation
-    elizaos plugins generate --skip-validation
-    ```
   </Tab>
 
   <Tab title="Features">
@@ -282,32 +227,6 @@ icon: plug
     elizaos publish
     ```
 
-    ## AI-Powered Plugin Development
-
-    elizaOS includes AI-powered features to help with plugin development:
-
-    ### Plugin Generation
-
-    The `generate` command uses AI to create a new plugin based on your specifications:
-
-    1. **Interactive Mode**: Guides you through plugin requirements
-    2. **Code Generation**: Creates complete plugin structure with actions, providers, and tests
-    3. **Validation**: Ensures generated code follows elizaOS best practices
-
-    ### Plugin Migration
-
-    The `upgrade` command helps migrate v0.x plugins to v1.x format:
-
-    1. **Automated Analysis**: Analyzes existing plugin structure
-    2. **Code Transformation**: Updates APIs, imports, and patterns
-    3. **Test Migration**: Converts tests to new format
-    4. **Validation**: Ensures migrated plugin works correctly
-
-    ### Requirements
-
-    Both AI features require an Anthropic API key:
-    - Set via environment: `export ANTHROPIC_API_KEY=your-api-key`
-    - Or pass directly: `--api-key your-api-key`
   </Tab>
 
   <Tab title="Troubleshooting">
@@ -404,28 +323,6 @@ icon: plug
     # Use correct branch/tag name
     elizaos plugins add plugin-name --branch main
     elizaos plugins add plugin-name --tag v1.0.0
-    ```
-
-    ### AI Feature Issues
-
-    ```bash
-    # Missing API key error
-    export ANTHROPIC_API_KEY=your-anthropic-key-here
-
-    # Or pass directly to command
-    elizaos plugins generate --api-key your-anthropic-key-here
-
-    # Invalid specification file
-    # Ensure spec file is valid JSON
-    cat plugin-spec.json | jq .
-
-    # Generation/Upgrade timeout
-    # Skip validation for faster iteration
-    elizaos plugins generate --skip-tests --skip-validation
-
-    # Out of memory during AI operations
-    # Increase Node.js memory limit
-    NODE_OPTIONS="--max-old-space-size=8192" elizaos plugins upgrade ./my-plugin
     ```
 
     ## Related Commands

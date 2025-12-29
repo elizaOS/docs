@@ -1,0 +1,81 @@
+---
+title: "List Agent Runs"
+api: "GET /api/agents/{agentId}/runs"
+---
+
+List all execution runs for a specific agent. Runs track the lifecycle of message processing including actions executed, evaluators run, and timing data.
+
+## Path Parameters
+
+<ParamField path="agentId" type="string" required>
+  The UUID of the agent
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="status" type="string">
+  Filter by run status: `completed`, `failed`, `timeout`, `cancelled`
+</ParamField>
+
+<ParamField query="roomId" type="string">
+  Filter runs by room ID
+</ParamField>
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of runs to return (max: 250)
+</ParamField>
+
+<ParamField query="before" type="string">
+  Cursor for pagination - return runs before this ID
+</ParamField>
+
+## Response
+
+<ResponseField name="runs" type="array">
+  Array of run summaries
+  <Expandable title="Run object">
+    <ResponseField name="runId" type="string">
+      Unique run identifier
+    </ResponseField>
+    <ResponseField name="agentId" type="string">
+      Agent that executed this run
+    </ResponseField>
+    <ResponseField name="roomId" type="string">
+      Room where the run occurred
+    </ResponseField>
+    <ResponseField name="startTime" type="number">
+      Unix timestamp when run started
+    </ResponseField>
+    <ResponseField name="endTime" type="number">
+      Unix timestamp when run ended
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Run status: `completed`, `failed`, `timeout`, `cancelled`
+    </ResponseField>
+    <ResponseField name="actionsExecuted" type="number">
+      Number of actions executed
+    </ResponseField>
+    <ResponseField name="messagesProcessed" type="number">
+      Number of messages processed
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+```json
+{
+  "runs": [
+    {
+      "runId": "550e8400-e29b-41d4-a716-446655440001",
+      "agentId": "550e8400-e29b-41d4-a716-446655440000",
+      "roomId": "660e8400-e29b-41d4-a716-446655440002",
+      "startTime": 1703001234567,
+      "endTime": 1703001235890,
+      "status": "completed",
+      "actionsExecuted": 2,
+      "messagesProcessed": 1
+    }
+  ]
+}
+```
+</ResponseExample>

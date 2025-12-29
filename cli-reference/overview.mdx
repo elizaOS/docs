@@ -31,6 +31,11 @@ bun install -g @elizaos/cli
 | [`env`](/cli-reference/env) | Manage environment variables and secrets |
 | [`dev`](/cli-reference/dev) | Start the project or plugin in development mode with auto-rebuild, detailed logging, and file change detection |
 | [`publish`](/cli-reference/publish) | Publish a plugin to the registry |
+| [`deploy`](/cli-reference/deploy) | Deploy ElizaOS project to AWS ECS |
+| [`login`](/cli-reference/login) | Authenticate with ElizaOS Cloud |
+| [`containers`](/cli-reference/containers) | Manage ElizaOS Cloud container deployments |
+| [`scenario`](/cli-reference/scenario) | Execute and manage test scenarios |
+| [`report`](/cli-reference/report) | Generate reports from scenario matrix runs |
 
 ## Global Options
 
@@ -40,8 +45,36 @@ These options apply to all commands:
 | ------ | ----------- |
 | `--help`, `-h` | Display help information |
 | `--version`, `-v` | Display version information |
-| `--no-emoji` | Disables emoji characters in the output |
-| `--no-auto-install` | Disables the automatic prompt to install Bun if it is not detected |
+| `--no-emoji` | Disable emoji characters in the output |
+| `--no-auto-install` | Disable the automatic prompt to install Bun if not detected |
+| `-d`, `--debug` | Enable debug logs (`LOG_LEVEL=debug`) |
+| `--verbose` | Enable verbose/trace logs (`LOG_LEVEL=trace`) |
+| `-q`, `--quiet` | Only show errors (`LOG_LEVEL=error`) |
+| `--log-json` | Output logs in JSON format (useful for log aggregation) |
+
+### Logging Levels
+
+Control verbosity with these flags (from most to least verbose):
+
+```bash
+# Maximum verbosity - trace every operation
+elizaos start --verbose
+
+# Debug mode - detailed debugging info
+elizaos start --debug
+
+# Normal mode (default) - standard output
+elizaos start
+
+# Quiet mode - errors only
+elizaos start --quiet
+```
+
+For JSON logging in production environments:
+
+```bash
+elizaos start --log-json | jq '.'
+```
 
 ## Examples
 

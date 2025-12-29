@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "ElizaOS Documentation", 
+  "name": "ElizaOS Documentation",
   "homepage": "index",
   "colors": {
     "primary": "#0B35F1",
@@ -41,21 +41,38 @@
           {
             "group": "GUIDES",
             "pages": [
-              "guides/customize-an-agent",
-              "guides/add-multiple-agents",
-              "guides/test-a-project",
-              "guides/deploy-a-project",
-              "guides/create-a-plugin",
-              "guides/publish-a-plugin",
-              "guides/contribute-to-core"
+              {
+                "group": "Agent Configuration",
+                "pages": [
+                  "guides/customize-an-agent",
+                  "guides/add-multiple-agents",
+                  "guides/streaming-responses"
+                ]
+              },
+              {
+                "group": "Development",
+                "pages": [
+                  "guides/action-planning",
+                  "guides/background-tasks",
+                  "guides/test-a-project",
+                  "guides/create-a-plugin",
+                  "guides/publish-a-plugin"
+                ]
+              },
+              {
+                "group": "Deployment",
+                "pages": [
+                  "guides/deploy-a-project",
+                  "guides/deploy-to-cloud",
+                  "guides/tee-integration",
+                  "guides/contribute-to-core"
+                ]
+              }
             ]
           },
           {
             "group": "PROJECTS",
-            "pages": [
-              "projects/overview",
-              "projects/environment-variables"
-            ]
+            "pages": ["projects/overview", "projects/environment-variables"]
           },
           {
             "group": "AGENTS",
@@ -82,21 +99,30 @@
           {
             "group": "RUNTIME",
             "pages": [
-              "runtime/core",
-              "runtime/memory",
-              "runtime/events",
-              "runtime/providers",
-              "runtime/models",
-              "runtime/services",
-              "runtime/messaging",
-              "runtime/sessions-api"
+              {
+                "group": "Core Concepts",
+                "pages": [
+                  "runtime/core",
+                  "runtime/memory",
+                  "runtime/events",
+                  "runtime/providers"
+                ]
+              },
+              {
+                "group": "Communication",
+                "pages": [
+                  "runtime/models",
+                  "runtime/services",
+                  "runtime/messaging",
+                  "runtime/sessions-api"
+                ]
+              },
+              "runtime/types-reference"
             ]
           },
           {
             "group": "TOKEN",
-            "pages": [
-              "tokenomics"
-            ]
+            "pages": ["tokenomics"]
           }
         ]
       },
@@ -135,8 +161,6 @@
             "pages": [
               "rest-reference/messaging/create-server",
               "rest-reference/messaging/create-channel",
-              "rest-reference/messaging/create-central-channel",
-              "rest-reference/messaging/create-group-channel",
               "rest-reference/messaging/get-or-create-dm-channel",
               "rest-reference/messaging/send-message-to-channel",
               "rest-reference/messaging/get-channel-messages",
@@ -153,12 +177,17 @@
               "rest-reference/messaging/remove-agent-from-server",
               "rest-reference/messaging/get-server-agents",
               "rest-reference/messaging/get-server-channels",
-              "rest-reference/messaging/get-central-servers",
-              "rest-reference/messaging/get-central-server-channels",
               "rest-reference/messaging/process-external-message",
               "rest-reference/messaging/ingest-messages-from-external-platforms",
-              "rest-reference/messaging/submit-a-message-to-the-central-messaging-system",
-              "rest-reference/messaging/mark-message-processing-as-complete"
+              "rest-reference/messaging/submit-a-message-to-the-central-messaging-system"
+            ]
+          },
+          {
+            "group": "MESSAGING (Deprecated)",
+            "pages": [
+              "rest-reference/messaging/get-central-servers",
+              "rest-reference/messaging/get-central-server-channels",
+              "rest-reference/messaging/create-central-channel"
             ]
           },
           {
@@ -221,11 +250,28 @@
               "rest-reference/system/health-check-endpoint",
               "rest-reference/system/ping-health-check",
               "rest-reference/system/get-system-status",
+              "rest-reference/system/get-system-config",
+              "rest-reference/system/get-version",
               "rest-reference/system/get-server-debug-info",
               "rest-reference/system/get-server-debug-info-1",
               "rest-reference/system/get-local-environment-variables",
               "rest-reference/system/update-local-environment-variables",
               "rest-reference/system/stop-the-server"
+            ]
+          },
+          {
+            "group": "JOBS",
+            "pages": [
+              "rest-reference/jobs/create-job",
+              "rest-reference/jobs/get-job",
+              "rest-reference/jobs/jobs-health"
+            ]
+          },
+          {
+            "group": "RUNS",
+            "pages": [
+              "rest-reference/runs/list-agent-runs",
+              "rest-reference/runs/get-agent-run"
             ]
           },
           {
@@ -254,7 +300,12 @@
               "cli-reference/update",
               "cli-reference/publish",
               "cli-reference/monorepo",
-              "cli-reference/tee"
+              "cli-reference/tee",
+              "cli-reference/deploy",
+              "cli-reference/login",
+              "cli-reference/containers",
+              "cli-reference/scenario",
+              "cli-reference/report"
             ]
           }
         ]
@@ -439,12 +490,6 @@
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity"]
   }
 }

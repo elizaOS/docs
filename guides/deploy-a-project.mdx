@@ -1,22 +1,47 @@
 ---
 title: 'Deploy a Project'
-description: 'Deploy your elizaOS project to production with managed or self-hosted options'
+description: 'From localhost to production in 5 minutes'
 ---
+
+**Your agent works locally. Now what?** Getting it live shouldn't require a DevOps degree.
 
 <Tip>
   **Video Tutorial**: [**Deploying Your Agent to a TEE**](https://www.youtube.com/watch?v=paoryBje404&list=PLrjBjP4nU8ehOgKAa0-XddHzE0KK0nNvS&index=7)
 </Tip>
 
-## Deployment Options
+## Eliza Cloud
 
-Below we'll cover the two of the most popular approaches to deploying your elizaOS project:
+**Two commands. That's it.**
 
-### Quick Comparison
+```bash
+elizaos login
+elizaos deploy --project-name my-agent
+```
 
-| Complexity | Method | How it Works | Platforms | Cost |
-|---|--------|-------------|-----------|-----:|
-|⭐ | **Managed Cloud** | Push to GitHub → Auto deploy | [Railway](https://railway.app), [Render](https://render.com) | ~$20/mo |
-|⭐⭐ | **Self-Hosted** | Docker → Your VPS | [Phala](https://phala.network), [Hetzner](https://www.hetzner.com/cloud), [Coolify](https://coolify.io), [DO](https://www.digitalocean.com) | ~$10/mo |
+No Dockerfile to write. No cloud console. No load balancer config. No CI/CD pipeline.
+
+You get a production URL in ~5 minutes, with automatic HTTPS, health monitoring, and zero-downtime updates built in.
+
+Beyond deployment: on-chain agent discovery (ERC-8004), crypto payments (X402), and a marketplace to publish and monetize your agents.
+
+<Card title="Get Started with Eliza Cloud" icon="rocket" href="/guides/deploy-to-cloud">
+  Full guide: auth, custom resources, logs, troubleshooting
+</Card>
+
+---
+
+## Other Options
+
+Need more control? Here's how Eliza Cloud compares:
+
+| | Eliza Cloud | Railway/Render | Self-Hosted |
+|---|:---:|:---:|:---:|
+| **Setup time** | 5 min | 15-30 min | 1-2 hours |
+| **Commands to deploy** | 2 | 10+ steps | 20+ steps |
+| **Docker knowledge** | Not needed | Basic | Required |
+| **Server management** | None | None | All on you |
+| **Scaling** | Automatic | Automatic | Manual |
+| **elizaOS optimized** | ✅ | ❌ | ❌ |
 
 <Note>
 **For Advanced Users:** If you're experienced with server administration and networking, you can deploy elizaOS like any Node.js application using your preferred infrastructure setup. The sections below are for developers looking for guided deployment paths.

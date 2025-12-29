@@ -1,0 +1,116 @@
+---
+title: "Get Agent Run"
+api: "GET /api/agents/{agentId}/runs/{runId}"
+---
+
+Get detailed information about a specific agent run, including the full event history.
+
+## Path Parameters
+
+<ParamField path="agentId" type="string" required>
+  The UUID of the agent
+</ParamField>
+
+<ParamField path="runId" type="string" required>
+  The UUID of the run
+</ParamField>
+
+## Response
+
+<ResponseField name="runId" type="string">
+  Unique run identifier
+</ResponseField>
+
+<ResponseField name="agentId" type="string">
+  Agent that executed this run
+</ResponseField>
+
+<ResponseField name="roomId" type="string">
+  Room where the run occurred
+</ResponseField>
+
+<ResponseField name="startTime" type="number">
+  Unix timestamp when run started
+</ResponseField>
+
+<ResponseField name="endTime" type="number">
+  Unix timestamp when run ended
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Run status: `completed`, `failed`, `timeout`, `cancelled`
+</ResponseField>
+
+<ResponseField name="events" type="array">
+  Full event history for this run
+  <Expandable title="Event object">
+    <ResponseField name="type" type="string">
+      Event type (e.g., `action:started`, `model:used`)
+    </ResponseField>
+    <ResponseField name="timestamp" type="number">
+      Unix timestamp of the event
+    </ResponseField>
+    <ResponseField name="data" type="object">
+      Event-specific payload data
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="tokensUsed" type="object">
+  Token usage summary
+  <Expandable title="Token usage">
+    <ResponseField name="promptTokens" type="number">
+      Tokens in prompts
+    </ResponseField>
+    <ResponseField name="completionTokens" type="number">
+      Tokens in completions
+    </ResponseField>
+    <ResponseField name="totalTokens" type="number">
+      Total tokens used
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="errors" type="array">
+  Array of error messages if any occurred
+</ResponseField>
+
+<ResponseExample>
+```json
+{
+  "runId": "550e8400-e29b-41d4-a716-446655440001",
+  "agentId": "550e8400-e29b-41d4-a716-446655440000",
+  "roomId": "660e8400-e29b-41d4-a716-446655440002",
+  "startTime": 1703001234567,
+  "endTime": 1703001235890,
+  "status": "completed",
+  "events": [
+    {
+      "type": "action:started",
+      "timestamp": 1703001234600,
+      "data": { "action": "REPLY" }
+    },
+    {
+      "type": "model:used",
+      "timestamp": 1703001234800,
+      "data": {
+        "modelType": "text:large",
+        "provider": "openai",
+        "tokens": { "prompt": 150, "completion": 50 }
+      }
+    },
+    {
+      "type": "action:completed",
+      "timestamp": 1703001235800,
+      "data": { "action": "REPLY", "success": true }
+    }
+  ],
+  "tokensUsed": {
+    "promptTokens": 150,
+    "completionTokens": 50,
+    "totalTokens": 200
+  },
+  "errors": []
+}
+```
+</ResponseExample>

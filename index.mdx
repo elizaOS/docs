@@ -9,22 +9,22 @@ description: 'Build autonomous AI agents with the most popular agentic framework
   href="/tokenomics"
   color="#0B35F1"
 >
-  Learn about $elizaOS tokenomics, contract addresses, vesting schedules, and token release details
+  Tokenomics, contract addresses, vesting schedules, and token release details
 </Card>
 
-## What is elizaOS?
+## Build AI Agents That Actually Work
 
-elizaOS is a TypeScript framework for building AI agents that can think, learn, and act autonomously. Create agents with unique, persistent personalities, equip them with plugins to interact with the world, and let them work toward their goals independently.
+Three commands. That's all it takes.
 
-Get started with one of the quick links below, or read on to learn more about elizaOS.
+```bash
+bun i -g elizaos          # Install the CLI
+elizaos create            # Create your project
+elizaos start             # Your agent is live
+```
+
+elizaOS is the TypeScript framework for building AI agents that think, learn, and act autonomously. Define a personality, add plugins, deploy anywhere.
 
 <CardGroup cols={2}>
-  <Card
-    title="Installation"
-    icon="download"
-    href="/installation"
-    horizontal
-  />
   <Card
     title="Quickstart"
     icon="rocket"
@@ -38,9 +38,52 @@ Get started with one of the quick links below, or read on to learn more about el
     horizontal
   />
   <Card
-    title="Deploy a Project"
+    title="Deploy to Eliza Cloud"
     icon="cloud"
-    href="/guides/deploy-a-project"
+    href="/guides/deploy-to-cloud"
+    horizontal
+  />
+  <Card
+    title="Plugin Registry"
+    icon="puzzle-piece"
+    href="/plugin-registry/overview"
+    horizontal
+  />
+</CardGroup>
+
+---
+
+## Why elizaOS?
+
+<CardGroup cols={3}>
+  <Card title="90+ Plugins" icon="puzzle-piece">
+    Discord, Twitter, Telegram, Ethereum, Solana, OpenAI, and more
+  </Card>
+  <Card title="Persistent Memory" icon="brain">
+    Agents remember and learn from every interaction
+  </Card>
+  <Card title="Deploy Anywhere" icon="server">
+    Local, Docker, Eliza Cloud, or your own infrastructure
+  </Card>
+</CardGroup>
+
+Your agents can trade onchain, manage social media, create content, analyze data, or interact with any API, blockchain, or repository.
+
+---
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card
+    title="Installation"
+    icon="download"
+    href="/installation"
+    horizontal
+  />
+  <Card
+    title="Create a Plugin"
+    icon="wrench"
+    href="/guides/create-a-plugin"
     horizontal
   />
   <Card
@@ -55,52 +98,22 @@ Get started with one of the quick links below, or read on to learn more about el
     href="/cli-reference/overview"
     horizontal
   />
-  <Card
-    title="Plugin Registry"
-    icon="puzzle-piece"
-    href="/plugin-registry/overview"
-    horizontal
-  />
-  <Card
-    title="Contribute to Core"
-    icon="code-branch"
-    href="/guides/contribute-to-core"
-    horizontal
-  />
 </CardGroup>
 
-## Key Capabilities
-
-With elizaOS, your agents can:
-
-- **Develop unique personalities and goals** defined through character files
-- **Take actions in the real world** using any combination of 90+ plugins
-- **Execute complex action chains** triggered by natural language
-- **Remember and learn** from every interaction with persistent memory
-- **Deploy anywhere** from local development to cloud production
-
-## Plugin Ecosystem
-
-The framework ships with 90+ official plugins spanning:
-
-- **Social platforms** - Discord, Twitter, Telegram, and more
-- **Blockchain networks** - Ethereum, Solana, Base, and other chains
-- **AI providers** - OpenAI, Anthropic, OpenRouter, and local models
-- **DeFi protocols** - Trading, lending, yield farming
-- **Content creation** - Image generation, video, music
-- **Data analysis** - Web scraping, API integrations, databases
-
-The plugin architecture lets you mix and match capabilities without modifying core code. Your agents can trade onchain, manage social media accounts, create content, analyze data, or interact with any API, blockchain, website or repository.
+---
 
 ## Design Philosophy
 
-elizaOS is for builders who want to ship fast, experiment freely, and define tomorrow:
+**Ship Fast** — Three commands to a live agent. No boilerplate, no config hell.
 
-**1. Three Minutes to First Agent**  
-Install, create, run. Three commands to a live agent.
+**Scale Freely** — Start with a character file. Scale to millions of interactions.
 
-**2. Built for Everyone**  
-Start with a single character file. Scale to production systems handling millions of interactions. The framework grows with your ambitions.
+**Truly Open** — Every line is open source. Extend through plugins, contribute to core, build the future together.
 
-**3. Truly Open Source**  
-We build Eliza together. Every line is open source. Extend through plugins, contribute to core, share with the community. Your code becomes part of the story.
+<Card
+  title="Contribute to Core"
+  icon="code-branch"
+  href="/guides/contribute-to-core"
+>
+  Join the community building the most popular agentic framework
+</Card>
