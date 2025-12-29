@@ -180,8 +180,8 @@ interface ActionPlan {
 
 interface ActionPlanStep {
   action: string;
-  description: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  status: 'pending' | 'completed' | 'failed';
+  error?: string;
   result?: ActionResult;
 }
 ```
@@ -208,9 +208,13 @@ Backend-to-frontend control messages:
 
 ```typescript
 interface ControlMessage {
-  action: 'disable_input' | 'enable_input';
-  reason?: string;
-  metadata?: Record<string, unknown>;
+  type: 'control';
+  payload: {
+    action: 'disable_input' | 'enable_input';
+    target?: string;
+    [key: string]: unknown;
+  };
+  roomId: UUID;
 }
 ```
 
@@ -219,15 +223,22 @@ interface ControlMessage {
 ```typescript
 // Emit control message to disable input
 await runtime.emit(EventType.CONTROL_MESSAGE, {
-  action: 'disable_input',
-  reason: 'Processing your request...'
+  type: 'control',
+  payload: {
+    action: 'disable_input',
+  },
+  roomId: currentRoomId
 });
 
 // ... do work ...
 
 // Re-enable input
 await runtime.emit(EventType.CONTROL_MESSAGE, {
-  action: 'enable_input'
+  type: 'control',
+  payload: {
+    action: 'enable_input'
+  },
+  roomId: currentRoomId
 });
 ```
 
@@ -239,9 +250,9 @@ Streaming response chunk data:
 interface MessageStreamChunkPayload {
   messageId: UUID;
   chunk: string;
-  isFirst?: boolean;
-  isLast?: boolean;
-  metadata?: Record<string, unknown>;
+  index: number;
+  channelId: string;
+  agentId: UUID;
 }
 ```
 
@@ -266,14 +277,12 @@ WebSocket message type enum:
 
 ```typescript
 enum SOCKET_MESSAGE_TYPE {
-  ROOM_JOINING = 'room:joining',
-  ROOM_JOINED = 'room:joined',
-  ROOM_LEFT = 'room:left',
-  SEND_MESSAGE = 'message:send',
-  MESSAGE_RECEIVED = 'message:received',
-  MESSAGE_STREAM = 'message:stream',
-  CONTROL = 'control',
-  ERROR = 'error',
+  ROOM_JOINING = 1,
+  SEND_MESSAGE = 2,
+  MESSAGE = 3,
+  ACK = 4,
+  THINKING = 5,
+  CONTROL = 6,
 }
 ```
 
@@ -462,10 +471,10 @@ Trusted Execution Environment modes:
 
 ```typescript
 enum TEEMode {
-  OFF = 'off',           // No TEE
-  LOCAL = 'local',       // Local simulation
-  DOCKER = 'docker',     // Docker-based TEE
-  PRODUCTION = 'production', // Real hardware TEE
+  OFF = 'OFF',               // No TEE
+  LOCAL = 'LOCAL',           // Local simulation
+  DOCKER = 'DOCKER',         // Docker-based TEE
+  PRODUCTION = 'PRODUCTION', // Real hardware TEE
 }
 ```
 
@@ -475,12 +484,12 @@ TEE agent registration:
 
 ```typescript
 interface TeeAgent {
-  id: UUID;
-  agentId: UUID;
+  id: string;
+  agentId: string;
   agentName: string;
   createdAt: number;
   publicKey: string;
-  attestation: RemoteAttestationQuote;
+  attestation: string;  // Attestation document as string
 }
 ```
 

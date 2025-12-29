@@ -14,19 +14,29 @@ List all execution runs for a specific agent. Runs track the lifecycle of messag
 ## Query Parameters
 
 <ParamField query="status" type="string">
-  Filter by run status: `completed`, `failed`, `timeout`, `cancelled`
+  Filter by run status: `started`, `completed`, `timeout`, `error`, or `all`
 </ParamField>
 
 <ParamField query="roomId" type="string">
   Filter runs by room ID
 </ParamField>
 
-<ParamField query="limit" type="number" default="50">
-  Maximum number of runs to return (max: 250)
+<ParamField query="limit" type="number" default="20">
+  Maximum number of runs to return (max: 100)
 </ParamField>
 
-<ParamField query="before" type="string">
-  Cursor for pagination - return runs before this ID
+<ParamField query="from" type="number">
+  Return only runs started after this Unix timestamp
+</ParamField>
+
+<ParamField query="to" type="number">
+  Return only runs started before this Unix timestamp
+</ParamField>
+
+## Headers
+
+<ParamField header="X-Entity-Id" type="string">
+  Optional entity ID for Row-Level Security (RLS) filtering
 </ParamField>
 
 ## Response
@@ -37,28 +47,53 @@ List all execution runs for a specific agent. Runs track the lifecycle of messag
     <ResponseField name="runId" type="string">
       Unique run identifier
     </ResponseField>
-    <ResponseField name="agentId" type="string">
-      Agent that executed this run
+    <ResponseField name="status" type="string">
+      Run status: `started`, `completed`, `timeout`, `error`
+    </ResponseField>
+    <ResponseField name="startedAt" type="number">
+      Unix timestamp when run started
+    </ResponseField>
+    <ResponseField name="endedAt" type="number">
+      Unix timestamp when run ended (null if still running)
+    </ResponseField>
+    <ResponseField name="durationMs" type="number">
+      Duration in milliseconds (null if still running)
+    </ResponseField>
+    <ResponseField name="messageId" type="string">
+      ID of the message that triggered this run
     </ResponseField>
     <ResponseField name="roomId" type="string">
       Room where the run occurred
     </ResponseField>
-    <ResponseField name="startTime" type="number">
-      Unix timestamp when run started
+    <ResponseField name="entityId" type="string">
+      Entity that triggered the run
     </ResponseField>
-    <ResponseField name="endTime" type="number">
-      Unix timestamp when run ended
-    </ResponseField>
-    <ResponseField name="status" type="string">
-      Run status: `completed`, `failed`, `timeout`, `cancelled`
-    </ResponseField>
-    <ResponseField name="actionsExecuted" type="number">
-      Number of actions executed
-    </ResponseField>
-    <ResponseField name="messagesProcessed" type="number">
-      Number of messages processed
+    <ResponseField name="counts" type="object">
+      Aggregated counts for the run
+      <Expandable title="Counts object">
+        <ResponseField name="actions" type="number">
+          Number of actions executed
+        </ResponseField>
+        <ResponseField name="modelCalls" type="number">
+          Number of model API calls made
+        </ResponseField>
+        <ResponseField name="errors" type="number">
+          Number of errors encountered
+        </ResponseField>
+        <ResponseField name="evaluators" type="number">
+          Number of evaluators run
+        </ResponseField>
+      </Expandable>
     </ResponseField>
   </Expandable>
+</ResponseField>
+
+<ResponseField name="total" type="number">
+  Total number of runs matching the filter
+</ResponseField>
+
+<ResponseField name="hasMore" type="boolean">
+  Whether there are more runs available
 </ResponseField>
 
 <ResponseExample>
@@ -67,15 +102,23 @@ List all execution runs for a specific agent. Runs track the lifecycle of messag
   "runs": [
     {
       "runId": "550e8400-e29b-41d4-a716-446655440001",
-      "agentId": "550e8400-e29b-41d4-a716-446655440000",
-      "roomId": "660e8400-e29b-41d4-a716-446655440002",
-      "startTime": 1703001234567,
-      "endTime": 1703001235890,
       "status": "completed",
-      "actionsExecuted": 2,
-      "messagesProcessed": 1
+      "startedAt": 1703001234567,
+      "endedAt": 1703001235890,
+      "durationMs": 1323,
+      "messageId": "770e8400-e29b-41d4-a716-446655440003",
+      "roomId": "660e8400-e29b-41d4-a716-446655440002",
+      "entityId": "880e8400-e29b-41d4-a716-446655440004",
+      "counts": {
+        "actions": 2,
+        "modelCalls": 3,
+        "errors": 0,
+        "evaluators": 1
+      }
     }
-  ]
+  ],
+  "total": 42,
+  "hasMore": true
 }
 ```
 </ResponseExample>

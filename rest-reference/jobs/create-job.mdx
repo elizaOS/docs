@@ -3,7 +3,7 @@ title: "Create Job"
 api: "POST /api/messaging/jobs"
 ---
 
-Create a one-off messaging job. Jobs are used for fire-and-forget message processing with optional callbacks.
+Create a one-off messaging job. Jobs are used for fire-and-forget message processing where the agent processes a prompt and returns a response.
 
 <Note>
 This endpoint requires API key authentication via the `X-API-Key` header.
@@ -11,31 +11,24 @@ This endpoint requires API key authentication via the `X-API-Key` header.
 
 ## Request Body
 
-<ParamField body="agentId" type="string" required>
-  The UUID of the agent to process the message
+<ParamField body="userId" type="string" required>
+  UUID of the user sending the message
 </ParamField>
 
-<ParamField body="message" type="object" required>
-  The message to process
-  <Expandable title="Message object">
-    <ParamField body="entityId" type="string" required>
-      UUID of the entity sending the message
-    </ParamField>
-    <ParamField body="roomId" type="string" required>
-      UUID of the room
-    </ParamField>
-    <ParamField body="content" type="object" required>
-      Message content with `text` and `source` fields
-    </ParamField>
-  </Expandable>
+<ParamField body="content" type="string" required>
+  The message content/prompt to process (max 50KB)
 </ParamField>
 
-<ParamField body="callbackUrl" type="string">
-  URL to POST results when job completes
+<ParamField body="agentId" type="string">
+  UUID of the agent to process the message. If not provided, uses the first available agent.
 </ParamField>
 
-<ParamField body="timeout" type="number" default="30000">
-  Job timeout in milliseconds
+<ParamField body="timeoutMs" type="number" default="120000">
+  Job timeout in milliseconds (min: 1000, max: 300000)
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata to attach to the job (max 10KB)
 </ParamField>
 
 ## Response
@@ -45,19 +38,24 @@ This endpoint requires API key authentication via the `X-API-Key` header.
 </ResponseField>
 
 <ResponseField name="status" type="string">
-  Initial job status: `queued`
+  Initial job status: `pending` or `processing`
 </ResponseField>
 
 <ResponseField name="createdAt" type="number">
   Unix timestamp of job creation
 </ResponseField>
 
+<ResponseField name="expiresAt" type="number">
+  Unix timestamp when the job will timeout
+</ResponseField>
+
 <ResponseExample>
 ```json
 {
-  "jobId": "job_550e8400-e29b-41d4-a716-446655440001",
-  "status": "queued",
-  "createdAt": 1703001234567
+  "jobId": "550e8400-e29b-41d4-a716-446655440001",
+  "status": "processing",
+  "createdAt": 1703001234567,
+  "expiresAt": 1703001354567
 }
 ```
 </ResponseExample>
@@ -69,16 +67,23 @@ curl -X POST https://api.example.com/api/messaging/jobs \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your-api-key" \
   -d '{
-    "agentId": "550e8400-e29b-41d4-a716-446655440000",
-    "message": {
-      "entityId": "user-123",
-      "roomId": "room-456",
-      "content": {
-        "text": "Process this asynchronously",
-        "source": "api"
-      }
-    },
-    "callbackUrl": "https://your-app.com/webhook",
-    "timeout": 60000
+    "userId": "550e8400-e29b-41d4-a716-446655440000",
+    "content": "Process this asynchronously",
+    "agentId": "660e8400-e29b-41d4-a716-446655440001",
+    "timeoutMs": 60000,
+    "metadata": {
+      "source": "api",
+      "priority": "high"
+    }
   }'
 ```
+
+## Job Status Values
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Job created, waiting for processing |
+| `processing` | Agent is processing the message |
+| `completed` | Job finished successfully |
+| `failed` | Job failed with an error |
+| `timeout` | Job timed out waiting for response |
