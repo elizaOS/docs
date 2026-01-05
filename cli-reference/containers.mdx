@@ -1,0 +1,165 @@
+---
+title: Containers Command
+description: Manage ElizaOS Cloud container deployments
+icon: container-storage
+---
+
+## Usage
+
+```bash
+elizaos containers <subcommand> [options]
+```
+
+## Subcommands
+
+| Subcommand | Alias | Description |
+| ---------- | ----- | ----------- |
+| `list` | `ls` | List all container deployments |
+| `delete` | `rm` | Delete a container deployment |
+| `logs` | - | Get logs from a container deployment |
+
+---
+
+## list
+
+List all container deployments in your ElizaOS Cloud account.
+
+### Usage
+
+```bash
+elizaos containers list [options]
+elizaos containers ls [options]
+```
+
+### Options
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `-u, --api-url <url>` | ElizaOS Cloud API URL | `https://www.elizacloud.ai` |
+| `-k, --api-key <key>` | ElizaOS Cloud API key | - |
+| `--json` | Output as JSON | `false` |
+
+### Examples
+
+```bash
+# List all containers
+elizaos containers list
+
+# List with JSON output for scripting
+elizaos containers list --json
+
+# Use custom API URL
+elizaos containers list --api-url https://custom.elizacloud.ai
+```
+
+---
+
+## delete
+
+Delete a container deployment. Can auto-detect the container from your project or specify it explicitly.
+
+### Usage
+
+```bash
+elizaos containers delete [container-id] [options]
+elizaos containers rm [container-id] [options]
+```
+
+### Arguments
+
+| Argument | Description |
+| -------- | ----------- |
+| `[container-id]` | Container ID to delete (auto-detects from project if omitted) |
+
+### Options
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `-u, --api-url <url>` | ElizaOS Cloud API URL | `https://www.elizacloud.ai` |
+| `-k, --api-key <key>` | ElizaOS Cloud API key | - |
+| `-p, --project-name <name>` | Project name to find container (overrides auto-detection) | - |
+| `--force` | Skip confirmation prompt | `false` |
+
+### Examples
+
+```bash
+# Delete container by ID
+elizaos containers delete abc123
+
+# Delete container from current project (auto-detect)
+elizaos containers delete
+
+# Delete with force (skip confirmation)
+elizaos containers delete abc123 --force
+
+# Delete by project name
+elizaos containers delete --project-name my-agent
+```
+
+---
+
+## logs
+
+Get logs from a container deployment. Supports streaming and tail options.
+
+### Usage
+
+```bash
+elizaos containers logs [container-id] [options]
+```
+
+### Arguments
+
+| Argument | Description |
+| -------- | ----------- |
+| `[container-id]` | Container ID (auto-detects from project if omitted) |
+
+### Options
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `-u, --api-url <url>` | ElizaOS Cloud API URL | `https://www.elizacloud.ai` |
+| `-k, --api-key <key>` | ElizaOS Cloud API key | - |
+| `-p, --project-name <name>` | Project name to find container | - |
+| `--follow` | Follow log output (streaming) | `false` |
+| `--tail <lines>` | Number of lines to show from end | `100` |
+
+### Examples
+
+```bash
+# Get recent logs from container
+elizaos containers logs abc123
+
+# Stream logs in real-time
+elizaos containers logs abc123 --follow
+
+# Get last 500 lines
+elizaos containers logs abc123 --tail 500
+
+# Get logs from current project's container
+elizaos containers logs --follow
+```
+
+---
+
+## Authentication
+
+All container commands require authentication with ElizaOS Cloud. You can provide credentials in two ways:
+
+1. **API Key option**: Use `-k, --api-key` option
+2. **Environment variable**: Set `ELIZA_CLOUD_API_KEY`
+3. **Login command**: Run `elizaos login` to authenticate
+
+```bash
+# Using API key option
+elizaos containers list -k your-api-key
+
+# Using environment variable
+export ELIZA_CLOUD_API_KEY=your-api-key
+elizaos containers list
+```
+
+## Related Commands
+
+- [`deploy`](/cli-reference/deploy): Deploy your project to ElizaOS Cloud
+- [`login`](/cli-reference/login): Authenticate with ElizaOS Cloud

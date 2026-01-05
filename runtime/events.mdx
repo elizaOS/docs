@@ -1,7 +1,20 @@
 ---
 title: "Events"
-description: "Event system, event types, and event handling patterns"
+description: "React to everything your agent does - messages, actions, model calls, and more"
 ---
+
+## Why Events?
+
+Your agent does a lot behind the scenes. Events let you **hook into every step**:
+
+- Log every model call for debugging
+- Track action success/failure for analytics
+- Trigger workflows when messages arrive
+- Monitor agent health in real-time
+
+<Tip>
+**Events are fire-and-forget.** Handlers run asynchronously and don't block the main flow.
+</Tip>
 
 ## Event System
 

@@ -1,6 +1,26 @@
 ---
 title: 'Character Interface'
-description: 'Complete guide to the Character configuration structure in elizaOS'
+description: 'Define your agent personality, knowledge, and behavior in one file'
+---
+
+## Your First Character (2 minutes)
+
+A character file is all you need to create a unique agent. Here's the minimum:
+
+```typescript
+export const character: Character = {
+  name: "Chef Mario",
+  bio: "A passionate Italian chef who loves sharing recipes and cooking tips.",
+  plugins: ["@elizaos/plugin-openai"],
+};
+```
+
+That's it. Your agent now has a name, personality, and can chat. Everything else is optional.
+
+<Tip>
+**Start minimal, add complexity later.** Most fields have sensible defaults. Only add what you need.
+</Tip>
+
 ---
 
 ## Overview
@@ -511,16 +531,24 @@ export const character: Character = {
   <Card title="Personality & Behavior" icon="user" href="/agents/personality-and-behavior">
     Learn to craft unique agent personalities
   </Card>
-  
+
   <Card title="Memory & State" icon="brain" href="/agents/memory-and-state">
     Understand how agents remember and learn
   </Card>
-  
+
   <Card title="Runtime & Lifecycle" icon="play" href="/agents/runtime-and-lifecycle">
     See how characters become live agents
   </Card>
-  
+
   <Card title="Plugin Development" icon="puzzle" href="/plugins/development">
     Extend your agent with custom plugins
+  </Card>
+
+  <Card title="Core Runtime" icon="microchip" href="/runtime/core">
+    How the runtime orchestrates your agent
+  </Card>
+
+  <Card title="Deploy to Cloud" icon="cloud" href="/guides/deploy-to-cloud">
+    Ship your agent to production in minutes
   </Card>
 </CardGroup>

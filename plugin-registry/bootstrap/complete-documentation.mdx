@@ -174,12 +174,12 @@ Actions define what an agent can do in response to messages:
    - Sends messages to specific rooms
    - Can target different channels
 
-9. **UPDATE_ENTITY** (`updateEntity.ts`)
+9. **UPDATE_CONTACT** (`updateEntity.ts`)
 
-   - Updates entity information in the database
+   - Updates contact/entity information in the database
    - Modifies user profiles, metadata
 
-10. **CHOICE** (`choice.ts`)
+10. **CHOOSE_OPTION** (`choice.ts`)
 
     - Presents multiple choice options
     - Used for interactive decision making
@@ -263,10 +263,53 @@ Providers supply contextual information to the agent during response generation:
    - Service capabilities
    - Feature flags
 
-10. **FACTS** (`facts.ts`)
-    - Stored knowledge
-    - Learned information
-    - Contextual facts
+10. **ACTIONS** (`actions.ts`)
+
+    - Available action definitions
+    - Action metadata
+    - Action examples
+
+11. **PROVIDERS** (`providers.ts`)
+
+    - List of available providers
+    - Provider metadata
+    - Provider ordering
+
+12. **EVALUATORS** (`evaluators.ts`)
+
+    - Available evaluator definitions
+    - Evaluator metadata
+    - Evaluation examples
+
+13. **SETTINGS** (`settings.ts`)
+
+    - Agent configuration
+    - Runtime settings
+    - Plugin settings
+
+14. **ROLES** (`roles.ts`)
+
+    - User role information
+    - Permission levels
+    - Role assignments
+
+15. **CHOICE** (`choice.ts`)
+
+    - Pending choice options
+    - User selection context
+    - Choice metadata
+
+16. **ACTION_STATE** (`actionState.ts`)
+
+    - Current action execution state
+    - Previous action results
+    - Action chain context
+
+17. **FACTS** (`facts.ts`)
+
+    - Stored knowledge and learned facts
+    - Contextual information
+    - Agent memory facts
 
 ### Evaluators
 

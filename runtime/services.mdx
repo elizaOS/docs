@@ -1,6 +1,36 @@
 ---
 title: "Services"
-description: "Background services, integrations, and long-running processes"
+description: "Long-running connections, integrations, and background processes for your agent"
+---
+
+## Why Services?
+
+Actions handle one-off tasks. But what about:
+- **Persistent connections** to Discord, Telegram, databases?
+- **Background jobs** like monitoring, cleanup, scheduling?
+- **Shared resources** like connection pools, caches?
+
+Services fill this gap. They start with your agent and run continuously.
+
+<Tip>
+**One instance per type.** Services are singletons - `getService('discord')` always returns the same instance.
+</Tip>
+
+## Available Service Types
+
+| Service Type | Purpose | Plugin |
+|--------------|---------|--------|
+| `TRANSCRIPTION` | Audio → Text | `@elizaos/plugin-openai` |
+| `VIDEO` | Video processing | `@elizaos/plugin-video` |
+| `BROWSER` | Web automation | `@elizaos/plugin-browser` |
+| `PDF` | PDF processing | `@elizaos/plugin-pdf` |
+| `REMOTE_FILES` | AWS S3, cloud storage | `@elizaos/plugin-s3` |
+| `WEB_SEARCH` | Search queries | `@elizaos/plugin-web-search` |
+| `EMAIL` | Email sending | `@elizaos/plugin-email` |
+| `TASK` | Background tasks | `@elizaos/core` |
+| `WALLET` | Crypto wallets | `@elizaos/plugin-evm` |
+| `MESSAGE_SERVICE` | Real-time messaging | `@elizaos/core` |
+
 ---
 
 ## Service System
@@ -812,21 +842,177 @@ it('should notify through multiple channels', async () => {
 });
 ```
 
+## Task Worker System
+
+Task workers enable background task execution with scheduling, validation, and lifecycle management. Tasks are persisted in the database while workers are registered in-memory.
+
+### Task Interface
+
+```typescript
+interface Task {
+  id?: UUID;
+  name: string;                    // Must match a registered TaskWorker.name
+  description: string;
+  roomId?: UUID;
+  worldId?: UUID;
+  entityId?: UUID;
+  tags: string[];                  // Control tags: 'queue', 'repeat', etc.
+  metadata?: TaskMetadata;
+  updatedAt?: number;
+}
+
+interface TaskMetadata {
+  updateInterval?: number;         // For recurring tasks (milliseconds)
+  options?: { name: string; description: string }[];
+  [key: string]: unknown;
+}
+```
+
+### TaskWorker Interface
+
+```typescript
+interface TaskWorker {
+  name: string;                    // Unique identifier
+
+  execute: (
+    runtime: IAgentRuntime,
+    options: { [key: string]: unknown },
+    task: Task
+  ) => Promise<void>;
+
+  validate?: (
+    runtime: IAgentRuntime,
+    message: Memory,
+    state: State
+  ) => Promise<boolean>;
+}
+```
+
+### Registering Task Workers
+
+```typescript
+// In your plugin or service initialization
+runtime.registerTaskWorker({
+  name: 'SEND_DAILY_REPORT',
+
+  validate: async (runtime, message, state) => {
+    // Optional: Check if task should run
+    return true;
+  },
+
+  execute: async (runtime, options, task) => {
+    runtime.logger.info('Executing daily report task');
+
+    // Do the work
+    const report = await generateReport(runtime);
+    await sendReport(report, options.recipientId);
+
+    runtime.logger.info('Daily report sent');
+  }
+});
+```
+
+### Creating Tasks
+
+```typescript
+// One-time task (deleted after execution)
+await runtime.createTask({
+  name: 'SEND_DAILY_REPORT',
+  description: 'Send daily analytics report',
+  tags: ['queue'],                 // 'queue' = scheduled for execution
+  metadata: {
+    recipientId: 'user-123'
+  }
+});
+
+// Recurring task (keeps running)
+await runtime.createTask({
+  name: 'SYNC_EXTERNAL_DATA',
+  description: 'Sync data from external API every hour',
+  tags: ['queue', 'repeat'],       // 'repeat' = don't delete after execution
+  metadata: {
+    updateInterval: 1000 * 60 * 60  // 1 hour
+  }
+});
+```
+
+### Task Execution Flow
+
+```mermaid
+flowchart TD
+    A[Task Created] --> B{queue tag?}
+    B -->|No| C[Ignored]
+    B -->|Yes| D[TaskService polls]
+    D --> E{Worker exists?}
+    E -->|No| F[Skip]
+    E -->|Yes| G[Execute]
+    G --> H{repeat tag?}
+    H -->|No| I[Delete task]
+    H -->|Yes| J[Update timestamp]
+    J --> D
+```
+
+### Task Tags
+
+| Tag | Behavior |
+|-----|----------|
+| `queue` | Task is eligible for execution |
+| `repeat` | Task persists after execution (recurring) |
+| `immediate` | Execute as soon as possible |
+| Custom tags | For filtering and organization |
+
+### Runtime Task Methods
+
+```typescript
+// Create a task
+const taskId = await runtime.createTask(task);
+
+// Get tasks by criteria
+const tasks = await runtime.getTasks({
+  roomId: '...',
+  tags: ['queue'],
+  entityId: '...'
+});
+
+// Get specific task
+const task = await runtime.getTask(taskId);
+
+// Update task
+await runtime.updateTask(taskId, {
+  metadata: { ...task.metadata, lastResult: 'success' }
+});
+
+// Delete task
+await runtime.deleteTask(taskId);
+
+// Get/register workers
+runtime.registerTaskWorker(worker);
+const worker = runtime.getTaskWorker('TASK_NAME');
+```
+
+### Best Practices
+
+- **Idempotent execution**: Tasks may run multiple times on failures
+- **Error handling**: Catch errors in `execute()` to prevent task service crashes
+- **Reasonable intervals**: Don't set `updateInterval` too low (< 1000ms)
+- **Clean up**: Delete completed one-time tasks to avoid database bloat
+- **Validation**: Use `validate()` to check preconditions before execution
+
 ## See Also
 
 <CardGroup cols={2}>
   <Card title="Messaging" icon="message" href="/runtime/messaging">
     Build real-time messaging services
   </Card>
-  
+
   <Card title="Sessions API" icon="comments" href="/runtime/sessions-api">
     Manage stateful conversations
   </Card>
-  
+
   <Card title="Events" icon="bolt" href="/runtime/events">
     Handle service lifecycle events
   </Card>
-  
+
   <Card title="Models" icon="robot" href="/runtime/models">
     Build model provider services
   </Card>

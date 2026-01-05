@@ -31,11 +31,11 @@ Not all LLM plugins support all model types. Here's what each can do:
 | Anthropic | ✅ | ❌ | ✅ | ❌ |
 | Google GenAI | ✅ | ✅ | ✅ | ❌ |
 | Ollama | ✅ | ✅ | ✅ | ✅ |
-| OpenRouter | ✅ | ❌ | ✅ | ❌ |
+| OpenRouter | ✅ | ✅ | ✅ | ❌ |
 
 **Key Points:**
-- 🌟 **OpenAI & Google GenAI** = Do everything (jack of all trades)
-- 💬 **Anthropic & OpenRouter** = Amazing at chat, need help with embeddings
+- 🌟 **OpenAI, Google GenAI & OpenRouter** = Do everything (jack of all trades)
+- 💬 **Anthropic** = Amazing at chat, needs a fallback for embeddings
 - 🏠 **Ollama** = Your local hero - does almost everything, no internet needed!
 
 ## Plugin Loading Order
@@ -49,9 +49,9 @@ plugins: [
 
   // Text-only plugins (no embedding support)
   ...(process.env.ANTHROPIC_API_KEY?.trim() ? ['@elizaos/plugin-anthropic'] : []),
-  ...(process.env.OPENROUTER_API_KEY?.trim() ? ['@elizaos/plugin-openrouter'] : []),
 
-  // Embedding-capable plugins (optional, based on available credentials)
+  // Embedding-capable plugins
+  ...(process.env.OPENROUTER_API_KEY?.trim() ? ['@elizaos/plugin-openrouter'] : []),
   ...(process.env.OPENAI_API_KEY?.trim() ? ['@elizaos/plugin-openai'] : []),
   ...(process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim() ? ['@elizaos/plugin-google-genai'] : []),
 
@@ -64,9 +64,9 @@ plugins: [
 
 Think of it like choosing team players - you pick specialists first, then all-rounders:
 
-1. **Anthropic & OpenRouter go first** - They're specialists! They're great at text generation but can't do embeddings. By loading them first, they get priority for text tasks.
+1. **Anthropic goes first** - It's a specialist! Great at text generation but can't do embeddings. By loading it first, it gets priority for text tasks.
 
-2. **OpenAI & Google GenAI come next** - These are the all-rounders! They can do everything: text generation, embeddings, and structured output. They act as fallbacks for what the specialists can't do.
+2. **OpenRouter, OpenAI & Google GenAI come next** - These are the all-rounders! They can do everything: text generation, embeddings, and structured output. They act as fallbacks for what Anthropic can't do (embeddings).
 
 3. **Ollama comes last** - This is your local backup player! It supports almost everything (text, embeddings, objects) and runs on your computer. Perfect when cloud services aren't available.
 
@@ -165,12 +165,21 @@ elizaOS automatically finds another plugin that CAN do embeddings!
 }
 ```
 
-#### OpenRouter + Local Embeddings
+#### OpenRouter Standalone
 ```json
 {
   "plugins": [
-    "@elizaos/plugin-openrouter",  // Cloud text generation
-    "@elizaos/plugin-ollama"        // Local embeddings
+    "@elizaos/plugin-openrouter"  // Handles text and embeddings
+  ]
+}
+```
+
+#### OpenRouter + Local Fallback
+```json
+{
+  "plugins": [
+    "@elizaos/plugin-openrouter",  // Cloud text & embeddings
+    "@elizaos/plugin-ollama"        // Offline fallback
   ]
 }
 ```
@@ -232,14 +241,14 @@ You can also configure API keys per character:
 
 ### Cloud Providers
 
-- [OpenAI Plugin](./openai.mdx) - Full-featured with all model types
-- [Anthropic Plugin](./anthropic.mdx) - Claude models for text generation
-- [Google GenAI Plugin](./google-genai.mdx) - Gemini models
-- [OpenRouter Plugin](./openrouter.mdx) - Access to multiple providers
+- [OpenAI Plugin](/plugin-registry/llm/openai) - Full-featured with all model types
+- [Anthropic Plugin](/plugin-registry/llm/anthropic) - Claude models for text generation
+- [Google GenAI Plugin](/plugin-registry/llm/google-genai) - Gemini models
+- [OpenRouter Plugin](/plugin-registry/llm/openrouter) - Access to multiple providers
 
 ### Local/Self-Hosted
 
-- [Ollama Plugin](./ollama.mdx) - Run models locally with Ollama
+- [Ollama Plugin](/plugin-registry/llm/ollama) - Run models locally with Ollama
 
 ## Best Practices
 

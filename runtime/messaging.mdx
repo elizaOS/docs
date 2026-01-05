@@ -556,21 +556,156 @@ class SocketIOService extends Service {
   A complete working example demonstrating Socket.IO integration with Eliza, including real-time messaging, agent participation management, and comprehensive error handling.
 </Card>
 
+## REST API Response Modes
+
+When sending messages via REST endpoints (e.g., `POST /api/messaging/channels/{channelId}/messages`), you can control how responses are delivered using the `mode` parameter.
+
+### Available Modes
+
+| Mode | Behavior | Use Case |
+|------|----------|----------|
+| `websocket` | Returns immediately, response via WebSocket | Real-time chat UIs (default) |
+| `stream` | Server-Sent Events with progressive chunks | Typing effect, progress feedback |
+| `sync` | Waits for complete response | Scripts, testing, simple integrations |
+
+### WebSocket Mode (Default)
+
+Returns immediately after message is queued. Agent response is delivered via WebSocket connection.
+
+```bash
+curl -X POST /api/messaging/channels/{channelId}/messages \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello", "entityId": "...", "mode": "websocket"}'
+```
+
+Response:
+```json
+{
+  "success": true,
+  "userMessage": { "id": "...", "text": "Hello" }
+}
+```
+
+Agent response arrives via the `messageBroadcast` WebSocket event (see above).
+
+### Stream Mode (SSE)
+
+Uses Server-Sent Events to stream response chunks progressively.
+
+```bash
+curl -X POST /api/messaging/channels/{channelId}/messages \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream" \
+  -d '{"text": "Hello", "entityId": "...", "mode": "stream"}'
+```
+
+SSE Events:
+```
+event: user_message
+data: {"id": "...", "text": "Hello"}
+
+event: chunk
+data: {"messageId": "...", "chunk": "Hi", "index": 0}
+
+event: chunk
+data: {"messageId": "...", "chunk": " there!", "index": 1}
+
+event: done
+data: {"text": "Hi there!", "actions": []}
+```
+
+JavaScript client:
+```javascript
+const response = await fetch('/api/messaging/channels/{channelId}/messages', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ text: 'Hello', entityId: '...', mode: 'stream' })
+});
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  const chunk = decoder.decode(value);
+  // Parse SSE format: "event: xxx\ndata: {...}\n\n"
+  const lines = chunk.split('\n');
+  for (const line of lines) {
+    if (line.startsWith('data: ')) {
+      const data = JSON.parse(line.slice(6));
+      console.log('Chunk:', data);
+    }
+  }
+}
+```
+
+### Sync Mode
+
+Waits for complete agent response before returning. Useful for scripts and testing.
+
+```bash
+curl -X POST /api/messaging/channels/{channelId}/messages \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello", "entityId": "...", "mode": "sync"}'
+```
+
+Response:
+```json
+{
+  "success": true,
+  "userMessage": { "id": "...", "text": "Hello" },
+  "agentResponse": {
+    "text": "Hi there! How can I help you today?",
+    "actions": []
+  }
+}
+```
+
+### Stream Extractors (Advanced)
+
+For plugin developers, ElizaOS provides stream extractors to control what content is streamed from LLM responses.
+
+```typescript
+import { IStreamExtractor } from '@elizaos/core';
+
+interface IStreamExtractor {
+  /** Whether extraction is complete */
+  readonly done: boolean;
+
+  /**
+   * Process a chunk from the LLM stream
+   * @returns Text to stream to client (empty = nothing yet)
+   */
+  push(chunk: string): string;
+}
+```
+
+Available extractors:
+
+| Extractor | Purpose |
+|-----------|---------|
+| `PassthroughExtractor` | Streams all content as-is |
+| `XmlTagExtractor` | Extracts content from specific XML tags |
+| `ResponseStreamExtractor` | Default - action-aware XML extraction |
+| `ActionStreamFilter` | Auto-detects content type (JSON/XML/text) |
+
 ## See Also
 
 <CardGroup cols={2}>
   <Card title="Sessions API" icon="comments" href="/runtime/sessions-api">
     Build persistent conversations on messaging
   </Card>
-  
+
   <Card title="Services" icon="server" href="/runtime/services">
     Create messaging service integrations
   </Card>
-  
+
   <Card title="Events" icon="bolt" href="/runtime/events">
     Handle real-time messaging events
   </Card>
-  
+
   <Card title="Providers" icon="database" href="/runtime/providers">
     Supply message context to providers
   </Card>

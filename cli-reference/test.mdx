@@ -308,11 +308,8 @@ icon: flask
     ### Verbose Output
 
     ```bash
-    # Run with detailed logging
+    # Run with detailed logging via environment variable
     LOG_LEVEL=debug elizaos test
-
-    # Show test execution details
-    elizaos test --verbose
     ```
 
     ### Running Specific Tests
@@ -354,9 +351,6 @@ icon: flask
     # Check for TypeScript errors first
     bun run build
 
-    # Run tests with more verbose output
-    elizaos test --verbose
-
     # Skip type checking if types are causing issues
     elizaos test --skip-type-check
     ```
@@ -383,31 +377,6 @@ icon: flask
 
     # Or skip build if testing source files
     elizaos test --skip-build
-    ```
-
-    ### Watch Mode Issues
-
-    ```bash
-    # If watch mode isn't detecting changes
-    # Check that you're modifying files in watched directories
-    # Restart watch mode
-    elizaos test --watch
-
-    # Or use Vitest directly for component tests
-    bunx vitest --watch
-    ```
-
-    ### Coverage Issues
-
-    ```bash
-    # If coverage seems incorrect
-    # Clear coverage data
-    rm -rf coverage
-
-    # Regenerate coverage
-    elizaos test --coverage
-
-    # Check coverage config in vitest.config.ts
     ```
 
     ### Environment Issues

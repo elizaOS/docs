@@ -59,8 +59,9 @@ describe('multi-agent configuration', () => {
   });
 
   it('each agent has unique ElevenLabs voice ID', () => {
-    expect(shakespeare.settings?.secrets?.ELEVENLABS_VOICE_ID).toBe('pqHfZKP75CvOlQylNhV4');
-    expect(hemingway.settings?.secrets?.ELEVENLABS_VOICE_ID).toBe('Xb7hH8MSUJpSbSDYk0k2');
+    // Valid ElevenLabs voice IDs from packages/client/src/config/voice-models.ts
+    expect(shakespeare.settings?.secrets?.ELEVENLABS_VOICE_ID).toBe('21m00Tcm4TlvDq8ikWAM'); // Adam
+    expect(hemingway.settings?.secrets?.ELEVENLABS_VOICE_ID).toBe('TxGEqnHWrfWFTfGW9XjX'); // Josh
   });
 });
 ```

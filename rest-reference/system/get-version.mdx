@@ -1,0 +1,30 @@
+---
+title: "Get Version"
+api: "GET /api/system/version"
+---
+
+Get the ElizaOS version information.
+
+## Response
+
+<ResponseField name="version" type="string">
+  Semantic version string (e.g., "1.0.0")
+</ResponseField>
+
+<ResponseField name="commit" type="string">
+  Git commit hash
+</ResponseField>
+
+<ResponseField name="buildTime" type="string">
+  ISO 8601 build timestamp
+</ResponseField>
+
+<ResponseExample>
+```json
+{
+  "version": "1.0.0",
+  "commit": "abc123def456",
+  "buildTime": "2024-12-28T10:00:00Z"
+}
+```
+</ResponseExample>

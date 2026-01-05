@@ -1,9 +1,19 @@
 ---
 title: "Development"
-description: "Creating, building, and testing elizaOS plugins"
+description: "From zero to published plugin in 30 minutes"
 ---
 
-This guide covers all aspects of plugin development in the elizaOS system, from scaffolding to testing.
+## Your Plugin in 3 Steps
+
+1. **Scaffold** - `elizaos create my-plugin --type plugin`
+2. **Build** - Add actions, providers, or services
+3. **Test** - Run locally, then publish
+
+That's it. No complex setup, no boilerplate to maintain.
+
+<Tip>
+**30 minutes to your first plugin.** The CLI generates everything - TypeScript config, build setup, even a README. Focus on your logic, not infrastructure.
+</Tip>
 
 <Note>
 This guide uses `bun` as the package manager, which is the preferred tool for elizaOS development. Bun provides faster installation times and built-in TypeScript support.
@@ -809,16 +819,24 @@ Create `.vscode/launch.json`:
   <Card title="Plugin Components" icon="cube" href="/plugins/components">
     Deep dive into Actions, Providers, Evaluators, and Services
   </Card>
-  
+
   <Card title="Common Patterns" icon="lightbulb" href="/plugins/patterns">
     Learn proven plugin development patterns
   </Card>
-  
+
   <Card title="Plugin Schemas" icon="list" href="/plugins/schemas">
     Understand plugin configuration and validation
   </Card>
-  
+
   <Card title="Plugin Reference" icon="book" href="/plugins/reference">
     Complete API reference for all interfaces
+  </Card>
+
+  <Card title="Publish a Plugin" icon="upload" href="/guides/publish-a-plugin">
+    Share your plugin with the community
+  </Card>
+
+  <Card title="Deploy to Cloud" icon="cloud" href="/guides/deploy-to-cloud">
+    Ship your agent with plugins to production
   </Card>
 </CardGroup>

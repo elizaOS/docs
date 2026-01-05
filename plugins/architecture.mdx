@@ -1,11 +1,29 @@
 ---
 title: "Architecture"
-description: "Core plugin system architecture and lifecycle in elizaOS"
+description: "How plugins extend agents - the mental model"
 ---
+
+## How Plugins Work
+
+A plugin is a bundle of capabilities you drop into an agent. No inheritance, no complex wiring - just a manifest that says "here are my actions, providers, and services."
+
+```typescript
+// That's the entire contract
+const myPlugin: Plugin = {
+  name: 'my-plugin',
+  actions: [...],     // What the agent can DO
+  providers: [...],   // What the agent can SEE
+  services: [...],    // What the agent can CONNECT to
+};
+```
+
+<Tip>
+**One plugin, one concern.** Twitter integration? Plugin. Blockchain actions? Plugin. Custom memory? Plugin. Keep them focused and composable.
+</Tip>
 
 ## Overview
 
-The elizaOS plugin system is a comprehensive extension mechanism that allows developers to add functionality to agents through a well-defined interface. Plugins are modular extensions that enhance AI agents with new capabilities, integrations, and behaviors.
+The elizaOS plugin system is a modular extension mechanism that allows developers to add functionality to agents through a well-defined interface. Plugins enhance AI agents with new capabilities, integrations, and behaviors.
 
 ### What Can Plugins Do?
 
@@ -118,12 +136,12 @@ Plugins can expose HTTP endpoints through the route system:
 
 ```typescript
 export type Route = {
-  type: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'STATIC';
+  type: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'STATIC';
   path: string;
   filePath?: string;                    // For static files
   public?: boolean;                     // Public access
   name?: string;                        // Route name
-  handler?: (req: any, res: any, runtime: IAgentRuntime) => Promise<void>;
+  handler?: (req: RouteRequest, res: RouteResponse, runtime: IAgentRuntime) => Promise<void>;
   isMultipart?: boolean;                // File uploads
 };
 ```

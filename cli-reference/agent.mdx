@@ -16,13 +16,13 @@ icon: robot
 
     | Subcommand | Aliases | Description | Required Options | Additional Options |
     | ---------- | ------- | ----------- | ---------------- | ------------------ |
-    | `list` | `ls` | List available agents | | `-j, --json`, `-r, --remote-url <url>`, `-p, --port <port>` |
-    | `get` | `g` | Get agent details | `-n, --name <name>` | `-j, --json`, `-o, --output [file]`, `-r, --remote-url`, `-p, --port` |
-    | `start` | `s` | Start an agent with a character profile | One of: `-n, --name`, `--path`, `--remote-character` | `-r, --remote-url <url>`, `-p, --port <port>` |
-    | `stop` | `st` | Stop an agent | `-n, --name <name>` | `-r, --remote-url <url>`, `-p, --port <port>` |
-    | `remove` | `rm` | Remove an agent | `-n, --name <name>` | `-r, --remote-url <url>`, `-p, --port <port>` |
-    | `set` | | Update agent configuration | `-n, --name <name>` AND one of: `-c, --config` OR `-f, --file` | `-r, --remote-url <url>`, `-p, --port <port>` |
-    | `clear-memories` | `clear` | Clear all memories for an agent | `-n, --name <name>` | `-r, --remote-url <url>`, `-p, --port <port>` |
+    | `list` | `ls` | List available agents | | `-j, --json`, `-r, --remote-url <url>`, `-p, --port <port>`, `--auth-token` |
+    | `get` | `g` | Get agent details | `-n, --name <name>` | `-j, --json`, `-o, --output [file]`, `-r, --remote-url`, `-p, --port`, `--auth-token` |
+    | `start` | `s` | Start an agent with a character profile | One of: `-n, --name`, `--path`, `--remote-character` | `-r, --remote-url <url>`, `-p, --port <port>`, `--auth-token` |
+    | `stop` | `st` | Stop an agent | `-n, --name` or `--all` | `-r, --remote-url <url>`, `-p, --port <port>`, `--auth-token` |
+    | `remove` | `rm` | Remove an agent | `-n, --name <name>` | `-r, --remote-url <url>`, `-p, --port <port>`, `--auth-token` |
+    | `set` | | Update agent configuration | `-n, --name <name>` AND one of: `-c, --config` OR `-f, --file` | `-r, --remote-url <url>`, `-p, --port <port>`, `--auth-token` |
+    | `clear-memories` | `clear` | Clear all memories for an agent | `-n, --name <name>` | `-r, --remote-url <url>`, `-p, --port <port>`, `--auth-token` |
 
     ## Options Reference
 
@@ -30,6 +30,7 @@ icon: robot
 
     - `-r, --remote-url <url>`: URL of the remote agent runtime
     - `-p, --port <port>`: Port to listen on
+    - `--auth-token <token>`: API authentication token for secured runtimes
 
     ### Output Options (for `list` and `get`)
 
@@ -46,7 +47,12 @@ icon: robot
     - `--path <path>`: Path to local character JSON file
     - `--remote-character <url>`: URL to remote character JSON file
 
-    ### Stop/Remove Specific Options
+    ### Stop Specific Options
+
+    - `-n, --name <name>`: Agent id, name, or index number from list
+    - `--all`: Stop all running agents
+
+    ### Remove Specific Options
 
     - `-n, --name <name>`: Agent id, name, or index number from list (required)
 
@@ -149,6 +155,9 @@ icon: robot
 
     # Stop agent on remote runtime
     elizaos agent stop --name eliza --remote-url http://server:3000
+
+    # Stop all running agents
+    elizaos agent stop --all
     ```
 
     ### Removing Agents

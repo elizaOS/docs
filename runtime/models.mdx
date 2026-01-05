@@ -1,7 +1,28 @@
 ---
 title: "Model Management"
-description: "AI model selection, registration, and type-safe usage"
+description: "One API for any AI model - OpenAI, Anthropic, Ollama, and more"
 ---
+
+## Why a Model Layer?
+
+Switching between OpenAI, Anthropic, or local models shouldn't require rewriting your agent. The model layer gives you:
+
+- **One API** for all providers
+- **Automatic fallback** when a provider fails
+- **Streaming** with consistent callbacks
+- **Type-safe** parameters per model type
+
+```typescript
+// Same code works with any provider
+const response = await runtime.useModel(ModelType.TEXT_LARGE, {
+  prompt: "Explain quantum computing",
+  temperature: 0.7
+});
+```
+
+<Tip>
+**Provider is configured, not coded.** Set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` - your code doesn't change.
+</Tip>
 
 ## Model System
 

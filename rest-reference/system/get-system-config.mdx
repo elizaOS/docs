@@ -1,0 +1,54 @@
+---
+title: "Get System Configuration"
+api: "GET /api/system/config"
+---
+
+Get the public system configuration. This endpoint returns non-sensitive configuration values that may be useful for clients.
+
+## Response
+
+<ResponseField name="version" type="string">
+  ElizaOS version
+</ResponseField>
+
+<ResponseField name="environment" type="string">
+  Current environment: `development`, `production`
+</ResponseField>
+
+<ResponseField name="features" type="object">
+  Enabled feature flags
+</ResponseField>
+
+<ResponseField name="limits" type="object">
+  System limits and quotas
+  <Expandable title="Limits">
+    <ResponseField name="maxMessageLength" type="number">
+      Maximum message length in characters
+    </ResponseField>
+    <ResponseField name="maxAgentsPerUser" type="number">
+      Maximum agents per user
+    </ResponseField>
+    <ResponseField name="rateLimitPerMinute" type="number">
+      API rate limit per minute
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+```json
+{
+  "version": "1.0.0",
+  "environment": "production",
+  "features": {
+    "streaming": true,
+    "multiAgent": true,
+    "tee": false
+  },
+  "limits": {
+    "maxMessageLength": 10000,
+    "maxAgentsPerUser": 10,
+    "rateLimitPerMinute": 60
+  }
+}
+```
+</ResponseExample>

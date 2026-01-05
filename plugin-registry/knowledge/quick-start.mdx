@@ -166,7 +166,6 @@ export const character = {
   name: 'MyAgent',
   plugins: [
     '@elizaos/plugin-openrouter',
-    '@elizaos/plugin-openai', // ← Make sure you have this as openrouter doesn't support embeddings
     '@elizaos/plugin-knowledge', // ← Add this line
     // ... your other plugins
   ],
@@ -176,11 +175,11 @@ export const character = {
 
 ```env title=".env"
 OPENROUTER_API_KEY=your-openrouter-api-key
-OPENAI_API_KEY=your-openai-api-key
+OPENROUTER_EMBEDDING_MODEL=openai/text-embedding-3-large  # Optional: specify embedding model
 ```
 
 <Note>
-The plugin automatically uses OpenAI embeddings even when using OpenRouter for text generation.
+OpenRouter now supports embeddings natively with multiple models: `text-embedding-3-large`, `qwen3-embedding`, `gemini-embedding`, `mistral-embed`.
 </Note>
 
 ## <Icon icon="question" /> FAQ
@@ -233,10 +232,10 @@ Now that you have the basics working:
 - Explore the web interface features
 
 <CardGroup cols={2}>
-  <Card title="Examples" icon="code" href="/plugins/knowledge/examples">
+  <Card title="Examples" icon="code" href="/plugin-registry/knowledge/examples">
     See the plugin in action
   </Card>
-  <Card title="Advanced Guide" icon="rocket" href="/plugins/knowledge/complete-documentation">
+  <Card title="Advanced Guide" icon="rocket" href="/plugin-registry/knowledge/complete-documentation">
     Advanced configuration options
   </Card>
 </CardGroup>

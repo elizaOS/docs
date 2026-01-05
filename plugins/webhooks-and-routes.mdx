@@ -15,9 +15,9 @@ Routes are defined in your plugin's main export using the `routes` property. Eac
 
 ```typescript
 type Route = {
-  type: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'STATIC';
+  type: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'STATIC';
   path: string;
-  handler?: (req: any, res: any, runtime: IAgentRuntime) => Promise<void>;
+  handler?: (req: RouteRequest, res: RouteResponse, runtime: IAgentRuntime) => Promise<void>;
   filePath?: string;      // For static file serving
   public?: boolean;       // Whether route is publicly accessible
   name?: string;          // Optional route name

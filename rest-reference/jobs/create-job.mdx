@@ -1,0 +1,89 @@
+---
+title: "Create Job"
+api: "POST /api/messaging/jobs"
+---
+
+Create a one-off messaging job. Jobs are used for fire-and-forget message processing where the agent processes a prompt and returns a response.
+
+<Note>
+This endpoint requires API key authentication via the `X-API-Key` header.
+</Note>
+
+## Request Body
+
+<ParamField body="userId" type="string" required>
+  UUID of the user sending the message
+</ParamField>
+
+<ParamField body="content" type="string" required>
+  The message content/prompt to process (max 50KB)
+</ParamField>
+
+<ParamField body="agentId" type="string">
+  UUID of the agent to process the message. If not provided, uses the first available agent.
+</ParamField>
+
+<ParamField body="timeoutMs" type="number" default="120000">
+  Job timeout in milliseconds (min: 1000, max: 300000)
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata to attach to the job (max 10KB)
+</ParamField>
+
+## Response
+
+<ResponseField name="jobId" type="string">
+  Unique job identifier for tracking
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Initial job status: `pending` or `processing`
+</ResponseField>
+
+<ResponseField name="createdAt" type="number">
+  Unix timestamp of job creation
+</ResponseField>
+
+<ResponseField name="expiresAt" type="number">
+  Unix timestamp when the job will timeout
+</ResponseField>
+
+<ResponseExample>
+```json
+{
+  "jobId": "550e8400-e29b-41d4-a716-446655440001",
+  "status": "processing",
+  "createdAt": 1703001234567,
+  "expiresAt": 1703001354567
+}
+```
+</ResponseExample>
+
+## Example Request
+
+```bash
+curl -X POST https://api.example.com/api/messaging/jobs \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "userId": "550e8400-e29b-41d4-a716-446655440000",
+    "content": "Process this asynchronously",
+    "agentId": "660e8400-e29b-41d4-a716-446655440001",
+    "timeoutMs": 60000,
+    "metadata": {
+      "source": "api",
+      "priority": "high"
+    }
+  }'
+```
+
+## Job Status Values
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Job created, waiting for processing |
+| `processing` | Agent is processing the message |
+| `completed` | Job finished successfully |
+| `failed` | Job failed with an error |
+| `timeout` | Job timed out waiting for response |
