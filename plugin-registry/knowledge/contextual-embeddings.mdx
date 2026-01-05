@@ -77,18 +77,17 @@ GOOGLE_API_KEY=your-key      # If using Google
 **Important**: Embeddings always use the model configured in `useModel(TEXT_EMBEDDING)` from your agent setup. Do NOT try to mix different embedding models - all your documents must use the same embedding model for consistency.
 </Warning>
 
-### Recommended Setup: OpenRouter with Separate Embedding Provider
+### OpenRouter Standalone Setup
 
-Since OpenRouter doesn't support embeddings, you need a separate embedding provider:
+OpenRouter now supports embeddings natively with multiple models (`text-embedding-3-large`, `qwen3-embedding`, `gemini-embedding`, `mistral-embed`):
 
 <Tabs>
-  <Tab title="OpenRouter + OpenAI">
+  <Tab title="OpenRouter Only">
     ```typescript title="character.ts"
     export const character = {
       name: 'MyAgent',
       plugins: [
-        '@elizaos/plugin-openrouter',  // For text generation
-        '@elizaos/plugin-openai',       // For embeddings
+        '@elizaos/plugin-openrouter',   // Handles both text and embeddings
         '@elizaos/plugin-knowledge',    // Knowledge plugin
       ],
     };
@@ -98,22 +97,18 @@ Since OpenRouter doesn't support embeddings, you need a separate embedding provi
     # Enable contextual embeddings
     CTX_KNOWLEDGE_ENABLED=true
 
-    # Text generation (for context enrichment)
-    TEXT_PROVIDER=openrouter
-    TEXT_MODEL=anthropic/claude-3-haiku
+    # OpenRouter handles both text generation and embeddings
     OPENROUTER_API_KEY=your-openrouter-key
-
-    # Embeddings (automatically used)
-    OPENAI_API_KEY=your-openai-key
+    OPENROUTER_EMBEDDING_MODEL=openai/text-embedding-3-large  # Optional
     ```
   </Tab>
-  <Tab title="OpenRouter + Google">
+  <Tab title="OpenRouter + Local Fallback">
     ```typescript title="character.ts"
     export const character = {
       name: 'MyAgent',
       plugins: [
-        '@elizaos/plugin-openrouter',  // For text generation
-        '@elizaos/plugin-google',       // For embeddings
+        '@elizaos/plugin-openrouter',  // Cloud text & embeddings
+        '@elizaos/plugin-ollama',       // Offline fallback
         '@elizaos/plugin-knowledge',    // Knowledge plugin
       ],
     };
@@ -123,13 +118,11 @@ Since OpenRouter doesn't support embeddings, you need a separate embedding provi
     # Enable contextual embeddings
     CTX_KNOWLEDGE_ENABLED=true
 
-    # Text generation (for context enrichment)
-    TEXT_PROVIDER=openrouter
-    TEXT_MODEL=anthropic/claude-3-haiku
+    # OpenRouter for cloud
     OPENROUTER_API_KEY=your-openrouter-key
 
-    # Embeddings (Google will be used automatically)
-    GOOGLE_API_KEY=your-google-key
+    # Ollama as fallback for offline use
+    OLLAMA_API_ENDPOINT=http://localhost:11434/api
     ```
   </Tab>
 </Tabs>

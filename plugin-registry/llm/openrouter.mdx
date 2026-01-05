@@ -43,8 +43,7 @@ OPENROUTER_IMAGE_MODEL=anthropic/claude-3-5-sonnet           # For vision tasks
 {
   "name": "MyAgent",
   "plugins": [
-    "@elizaos/plugin-openrouter",
-    "@elizaos/plugin-ollama"  // For embeddings
+    "@elizaos/plugin-openrouter"
   ]
 }
 ```
@@ -54,20 +53,22 @@ OPENROUTER_IMAGE_MODEL=anthropic/claude-3-5-sonnet           # For vision tasks
 | Operation | Support | Notes |
 |-----------|---------|-------|
 | TEXT_GENERATION | ✅ | All available models |
-| EMBEDDING | ❌ | Use fallback plugin |
+| EMBEDDING | ✅ | Multiple embedding models available |
 | OBJECT_GENERATION | ✅ | Model dependent |
 
-## Important: Embedding Fallback
+## Embedding Models
 
-OpenRouter doesn't provide embedding endpoints, so include a fallback:
+OpenRouter now provides embedding endpoints with multiple models:
 
-```json
-{
-  "plugins": [
-    "@elizaos/plugin-openrouter",  // Text generation
-    "@elizaos/plugin-openai"        // Embeddings
-  ]
-}
+- `text-embedding-3-large` (OpenAI via OpenRouter)
+- `qwen3-embedding` (Qwen)
+- `gemini-embedding` (Google)
+- `mistral-embed` (Mistral)
+
+Configure embedding model:
+
+```bash
+OPENROUTER_EMBEDDING_MODEL=openai/text-embedding-3-large
 ```
 
 ## Model Configuration
