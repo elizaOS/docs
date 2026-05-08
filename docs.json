@@ -552,6 +552,12 @@
                   "plugin-registry/defi/solana/examples",
                   "plugin-registry/defi/solana/testing-guide"
                 ]
+              },
+              {
+                "group": "Safety (SafeAgent)",
+                "pages": [
+                  "plugin-registry/defi/safeagent"
+                ]
               }
             ]
           }

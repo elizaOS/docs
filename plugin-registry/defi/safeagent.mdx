@@ -1,0 +1,118 @@
+---
+title: "SafeAgent (Token Safety)"
+description: "Pre-trade token safety oracle, push-based wallet alerts, and on-chain SafeRouter for ElizaOS agents trading crypto"
+---
+
+The SafeAgent plugin gives ElizaOS agents a complete safety stack for trading crypto: pre-trade scoring, continuous wallet monitoring with HMAC-signed webhook alerts, and on-chain `SafeRouter` contracts (Base + Optimism) that revert unsafe swaps atomically with a structured custom error.
+
+## Features
+
+- **27 scam pattern detection** across 6 EVM chains (Base, Ethereum, Arbitrum, Optimism, Polygon, BSC)
+- **Real DEX swap simulation** for honeypot detection — not just static code analysis
+- **Push-based safety alerts** with HMAC-SHA256 signed webhooks (verifiable cryptographic proof for the agent's principal)
+- **On-chain SafeRouter** wraps Aerodrome (Base) and Velodrome (Optimism); atomic revert with `TokenUnsafe(token, score, flags, minRequired)` custom error if oracle says no
+- **Custody-safe**: the plugin returns swap calldata only — your agent retains its private key
+
+## Installation
+
+```bash
+npm install safeagent-elizaos-plugin
+```
+
+## Usage
+
+```typescript
+import safeAgentPlugin from "safeagent-elizaos-plugin";
+import { AgentRuntime } from "@elizaos/core";
+
+const agent = new AgentRuntime({
+  plugins: [safeAgentPlugin],
+  // ...rest of your runtime config
+});
+```
+
+## Actions
+
+### `SHIELD` — pre-trade safety check
+
+HTTP-based safety query. Returns `GO`/`CAUTION`/`BLOCKED` with safety score (0-100), honeypot test result, and scam-pattern flags.
+
+Example prompts:
+- "Buy 0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed on base"
+- "Is 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 safe on base?"
+- "Check this token for honeypots: 0x..."
+
+### `WATCH_WALLET` — push-based alerts
+
+Register a wallet for continuous monitoring. SafeAgent polls the wallet's holdings every 60min (free tier) or 10min (premium), scores each token, and POSTs a signed HMAC-SHA256 webhook to the agent's callback URL when:
+- A held token's safety score drops 20+ points, OR
+- A new risky holding (score < 50) is detected
+
+Each alert includes a `signature` field — the agent forwards it to its principal as cryptographic proof.
+
+Example prompts:
+- "Watch my wallet 0x... on base, callback https://my-agent.com/alerts"
+
+Public key fingerprint to pin in your verifier:
+```bash
+GET https://cryptogenesis.duckdns.org/watch/public-key
+```
+
+### `SAFE_CHECK` — on-chain verdict (view-only, no gas)
+
+Reads SafeRouter's `checkBeforeBuy` view function. Returns `SAFE`/`MODERATE`/`CAUTION`/`RISKY`/`DANGEROUS`. Use BEFORE building a swap to avoid wasting gas on a guaranteed revert.
+
+Example prompts:
+- "Check on-chain if 0x... is safe to swap on base"
+
+### `SAFE_SWAP_CALLDATA` — atomic-protected swap calldata
+
+Builds calldata for `SafeRouter.safeSwap`. Returns `{ to, data, gas_estimate }`. The agent signs and broadcasts itself.
+
+If the destination token's score is below 40 on the oracle, the contract reverts with `TokenUnsafe(token, score, flags, minRequired)` — a structured custom error decodable without string parsing.
+
+Example prompts:
+- "Prepare a safe swap of 1000000 from 0x833589fCD6... to 0x4ed4E862... on base"
+
+## On-chain contracts
+
+| Component | Base | Optimism |
+|---|---|---|
+| SafeRouter V2 | `0xF6EFc5D5902d1a0ce58D9ab1715Cf30f077D8f6e` | `0x38be6AA1044e866FcDFE34d4B4273F703668B80E` |
+| Safety oracle (ERC-draft) | `0x37b9e9B8789181f1AaaD1cD51A5f00A887fa9b8e` | `0x3B8A6D696f2104A9aC617bB91e6811f489498047` |
+| DEX wrapped | Aerodrome `0xcf77a3ba9a5ca399b7c97c74d54e5b1beb874e43` | Velodrome `0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858` |
+
+ERC standardization in flight: [ethereum/ERCs#1729](https://github.com/ethereum/ERCs/pull/1729) (Token Safety Score).
+
+## Verifying webhook signatures
+
+```typescript
+import crypto from "node:crypto";
+
+function verify(payload: any, secret: Buffer): boolean {
+  const { signature, ...rest } = payload;
+  const canonical = JSON.stringify(rest, Object.keys(rest).sort());
+  const expected = crypto.createHmac("sha256", secret).update(canonical).digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(signature, "hex"), Buffer.from(expected, "hex"));
+}
+```
+
+## Live proof transactions
+
+- First on-chain swap through SafeRouter: [basescan.org/tx/0x83a0384a…](https://basescan.org/tx/0x83a0384af90362b4ac7aaccc46436646c42832833d6be59d5c39c852d8c09cab)
+- Block-path proof (revert with `TokenUnsafe` custom error): [basescan.org/tx/0xc68b1ef6…](https://basescan.org/tx/0xc68b1ef67c45f0164683b336cf2b593c1f0ae05f02cc3336f9cddc6f5f2bc8f8)
+
+## Cost
+
+Free during beta. No auth required. Live stats: https://cryptogenesis.duckdns.org/stats
+
+## Source
+
+- npm: https://www.npmjs.com/package/safeagent-elizaos-plugin
+- Plugin source: https://github.com/Aigen-Protocol/plugin-safeagent
+- AIGEN Protocol: https://github.com/Aigen-Protocol/aigen-protocol
+- Solidity SafeGuard library: https://github.com/Aigen-Protocol/safeguard
+
+## License
+
+MIT
